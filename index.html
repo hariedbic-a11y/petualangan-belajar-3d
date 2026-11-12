@@ -1558,7 +1558,8 @@ CREATE POLICY "Izinkan update soal kelas" ON bank_soal_3d FOR UPDATE USING (true
     }
 
     async function syncQuestionsToCloud() {
-      if (!isAppOnline() || !STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return;
+      if (!isAppOnline() || !STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return false;
+      const badge = document.getElementById('teacherCloudBadge');
       try {
         const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
         const cleanCode = String(STATE.classCode || 'JUARA2026').trim().toUpperCase();
@@ -1576,26 +1577,97 @@ CREATE POLICY "Izinkan update soal kelas" ON bank_soal_3d FOR UPDATE USING (true
           syncStatus: 'synced'
         }));
 
-        await fetch(`${cleanBaseUrl}/rest/v1/bank_soal_3d?on_conflict=kode_kelas`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': STATE.supabaseConfig.key,
-            'Authorization': `Bearer ${STATE.supabaseConfig.key}`,
-            'Prefer': 'resolution=merge-duplicates'
+        const payloadBody = {
+          kode_kelas: cleanCode,
+          daftar_soal: {
+            questions: STATE.questions,
+            roster: rosterSnapshot,
+            deletedKeys: STATE.deletedStudentKeys
           },
-          body: JSON.stringify({
-            kode_kelas: cleanCode,
-            daftar_soal: {
-              questions: STATE.questions,
-              roster: rosterSnapshot,
-              deletedKeys: STATE.deletedStudentKeys
-            },
-            updated_at: new Date().toISOString()
-          })
+          updated_at: new Date().toISOString()
+        };
+
+        const headers = {
+          'Content-Type': 'application/json',
+          'apikey': STATE.supabaseConfig.key,
+          'Authorization': `Bearer ${STATE.supabaseConfig.key}`,
+          'Prefer': 'return=representation'
+        };
+
+        // 1. Check if class code row already exists in Supabase
+        const checkRes = await fetch(`${cleanBaseUrl}/rest/v1/bank_soal_3d?kode_kelas=eq.${encodeURIComponent(cleanCode)}&select=kode_kelas`, {
+          headers: {
+            'apikey': STATE.supabaseConfig.key,
+            'Authorization': `Bearer ${STATE.supabaseConfig.key}`
+          }
         });
+
+        let writeRes;
+        if (checkRes.ok) {
+          const existing = await checkRes.json();
+          if (Array.isArray(existing) && existing.length > 0) {
+            // Update existing class row via PATCH
+            writeRes = await fetch(`${cleanBaseUrl}/rest/v1/bank_soal_3d?kode_kelas=eq.${encodeURIComponent(cleanCode)}`, {
+              method: 'PATCH',
+              headers,
+              body: JSON.stringify({
+                daftar_soal: payloadBody.daftar_soal,
+                updated_at: payloadBody.updated_at
+              })
+            });
+          } else {
+            // Insert new class row via POST
+            writeRes = await fetch(`${cleanBaseUrl}/rest/v1/bank_soal_3d`, {
+              method: 'POST',
+              headers,
+              body: JSON.stringify(payloadBody)
+            });
+          }
+        } else {
+          writeRes = checkRes;
+        }
+
+        if (!writeRes || !writeRes.ok) {
+          // Fallback otomatis ke tabel hasil_belajar_3d jika tabel bank_soal_3d belum dibuat di Supabase
+          const fallbackPayload = {
+            kode_kelas: cleanCode,
+            nama_siswa: JSON.stringify(payloadBody.daftar_soal),
+            no_absen: '__PKG_CLASS__',
+            skor: STATE.questions.length,
+            akurasi: `${rosterSnapshot.length}_SISWA`
+          };
+          const fbRes = await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': STATE.supabaseConfig.key,
+              'Authorization': `Bearer ${STATE.supabaseConfig.key}`,
+              'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(fallbackPayload)
+          });
+
+          if (!fbRes || !fbRes.ok) {
+            if (badge) {
+              badge.className = 'px-2.5 py-0.5 rounded-lg text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40';
+              badge.innerText = '⚠ Gagal Sync Cloud (Cek Tab Database)';
+            }
+            return false;
+          }
+        }
+
+        if (badge) {
+          badge.className = 'px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+          badge.innerText = `✓ Tersinkron ke HP (${STATE.questions.length} Soal • ${rosterSnapshot.length} Siswa)`;
+        }
+        return true;
       } catch (err) {
         console.warn('Gagal sinkronisasi paket kelas ke Supabase:', err);
+        if (badge) {
+          badge.className = 'px-2.5 py-0.5 rounded-lg text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40';
+          badge.innerText = '⚠ Offline / Gagal Cloud';
+        }
+        return false;
       }
     }
 
@@ -1604,7 +1676,72 @@ CREATE POLICY "Izinkan update soal kelas" ON bank_soal_3d FOR UPDATE USING (true
       try {
         const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
         const cleanCode = String(code || STATE.classCode || '').trim().toUpperCase();
+        let payload = null;
+        let resolvedCode = cleanCode;
+
+        // 1. Cek dari tabel utama bank_soal_3d
         const res = await fetch(`${cleanBaseUrl}/rest/v1/bank_soal_3d?kode_kelas=ilike.${encodeURIComponent(cleanCode)}&select=kode_kelas,daftar_soal`, {
+          headers: {
+            'apikey': STATE.supabaseConfig.key,
+            'Authorization': `Bearer ${STATE.supabaseConfig.key}`,
+            'Cache-Control': 'no-cache'
+          }
+        });
+        if (res.ok) {
+          const rows = await res.json();
+          if (Array.isArray(rows) && rows.length > 0 && rows[0].daftar_soal) {
+            payload = rows[0].daftar_soal;
+            resolvedCode = rows[0].kode_kelas || cleanCode;
+          }
+        }
+
+        // 2. Fallback baca paket kelas terbaru dari tabel hasil_belajar_3d (__PKG_CLASS__)
+        if (!payload) {
+          const fbRes = await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${encodeURIComponent(cleanCode)}&no_absen=eq.__PKG_CLASS__&order=waktu_selesai.desc&limit=1`, {
+            headers: {
+              'apikey': STATE.supabaseConfig.key,
+              'Authorization': `Bearer ${STATE.supabaseConfig.key}`,
+              'Cache-Control': 'no-cache'
+            }
+          });
+          if (fbRes.ok) {
+            const fbRows = await fbRes.json();
+            if (Array.isArray(fbRows) && fbRows.length > 0 && fbRows[0].nama_siswa) {
+              try {
+                payload = JSON.parse(fbRows[0].nama_siswa);
+                resolvedCode = fbRows[0].kode_kelas || cleanCode;
+              } catch (_) {}
+            }
+          }
+        }
+
+        if (payload) {
+          const cloudQuestions = Array.isArray(payload) ? payload : (Array.isArray(payload.questions) ? payload.questions : []);
+          const cloudRoster = (!Array.isArray(payload) && Array.isArray(payload.roster)) ? payload.roster : null;
+          const cloudDeleted = (!Array.isArray(payload) && Array.isArray(payload.deletedKeys)) ? payload.deletedKeys : [];
+
+          STATE.classCode = resolvedCode;
+          if (cloudQuestions.length > 0) {
+            STATE.questions = cloudQuestions;
+          }
+          if (cloudDeleted.length > 0) {
+            STATE.deletedStudentKeys = Array.from(new Set([...STATE.deletedStudentKeys, ...cloudDeleted]));
+          }
+          if (cloudRoster) {
+            STATE.gradebook = deduplicateGradebook(cloudRoster);
+          }
+          persistStateToLocal();
+          return true;
+        }
+      } catch (_) {}
+      return false;
+    }
+
+    async function fetchGradesFromCloud() {
+      if (!isAppOnline() || !STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return;
+      try {
+        const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+        const res = await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${encodeURIComponent(STATE.classCode)}&no_absen=neq.__PKG_CLASS__&order=waktu_selesai.desc`, {
           headers: {
             'apikey': STATE.supabaseConfig.key,
             'Authorization': `Bearer ${STATE.supabaseConfig.key}`,
@@ -1619,17 +1756,18 @@ CREATE POLICY "Izinkan update soal kelas" ON bank_soal_3d FOR UPDATE USING (true
           const cloudRoster = (!Array.isArray(payload) && Array.isArray(payload.roster)) ? payload.roster : null;
           const cloudDeleted = (!Array.isArray(payload) && Array.isArray(payload.deletedKeys)) ? payload.deletedKeys : [];
 
+          STATE.classCode = rows[0].kode_kelas || cleanCode;
           if (cloudQuestions.length > 0) {
             STATE.questions = cloudQuestions;
           }
           if (cloudDeleted.length > 0) {
             STATE.deletedStudentKeys = Array.from(new Set([...STATE.deletedStudentKeys, ...cloudDeleted]));
           }
-          if (cloudRoster && cloudRoster.length > 0) {
+          if (cloudRoster) {
             STATE.gradebook = deduplicateGradebook(cloudRoster);
           }
           persistStateToLocal();
-          return cloudQuestions.length > 0 || (cloudRoster && cloudRoster.length > 0);
+          return true;
         }
       } catch (_) {}
       return false;
@@ -1723,15 +1861,15 @@ CREATE POLICY "Izinkan update soal kelas" ON bank_soal_3d FOR UPDATE USING (true
         }
 
         STATE.pendingSyncQueue = remaining;
-        STATE.gradebook = deduplicateGradebook(STATE.gradebook);
         persistStateToLocal();
-        await syncQuestionsToCloud();
         updateNetworkStatusUI();
-        if (STATE.view === 'teacher') renderTeacherDashboard();
+
         if (showFeedback && remaining.length === 0) {
-          showToast('Sinkronisasi Selesai', 'Seluruh nilai murid berhasil terkirim ke Dashboard Guru.');
+          showToast('Sinkronisasi Selesai', 'Semua nilai murid telah masuk ke database.');
         }
       }
+
+      await fetchGradesFromCloud();
     }
 
     function recordStudentSessionScore(isCompletedFull = false) {
@@ -4193,8 +4331,9 @@ CREATE POLICY "Izinkan update soal kelas" ON bank_soal_3d FOR UPDATE USING (true
     }
 
     function shareClassToWhatsApp() {
-      const url = window.location.href;
-      const msg = encodeURIComponent(`Halo anak-anak! Yuk masuk ke Game Petualangan Belajar 3D:\n🔗 Link: ${url}\n🔑 Kode Kelas: ${STATE.classCode}\nMasukkan Nama & Nomor Absen kalian ya!`);
+      const baseUrl = window.location.href.split('?')[0];
+      const shareUrl = `${baseUrl}?kelas=${encodeURIComponent(STATE.classCode)}`;
+      const msg = encodeURIComponent(`Halo anak-anak! Yuk masuk ke Game Petualangan Belajar 3D:\n🔗 Link: ${shareUrl}\n🔑 Kode Kelas: ${STATE.classCode}\nMasukkan Nama & Nomor Absen kalian ya!`);
       window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
 
@@ -4326,6 +4465,11 @@ CREATE POLICY "Izinkan update soal kelas" ON bank_soal_3d FOR UPDATE USING (true
        ==================================================================== */
     window.onload = async function () {
       loadPersistedState();
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramKelas = urlParams.get('kelas');
+      if (paramKelas) {
+        STATE.classCode = paramKelas.trim().toUpperCase();
+      }
       document.getElementById('inputClassCode').value = STATE.classCode;
       lucide.createIcons();
       initThreeEngine();

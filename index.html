@@ -1409,7 +1409,8 @@ CREATE TABLE IF NOT EXISTS hasil_belajar_3d (
       // If Supabase configured, push via REST API
       if (STATE.supabaseConfig.url && STATE.supabaseConfig.key) {
         try {
-          const endpoint = `${STATE.supabaseConfig.url.replace(/\/$/, '')}/rest/v1/hasil_belajar_3d`;
+          const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+          const endpoint = `${cleanBaseUrl}/rest/v1/hasil_belajar_3d`;
           const payload = batch.map(item => ({
             kode_kelas: item.classCode || STATE.classCode,
             nama_siswa: item.name,
@@ -3604,8 +3605,10 @@ CREATE TABLE IF NOT EXISTS hasil_belajar_3d (
        15. SUPABASE CLOUD CONFIGURATION HANDLERS
        ==================================================================== */
     function saveSupabaseConfig() {
-      const url = document.getElementById('inputSupabaseUrl').value.trim();
+      const rawUrl = document.getElementById('inputSupabaseUrl').value.trim();
+      const url = rawUrl.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
       const key = document.getElementById('inputSupabaseKey').value.trim();
+      document.getElementById('inputSupabaseUrl').value = url;
       STATE.supabaseConfig = { url, key };
       localStorage.setItem(STORAGE_KEYS.SUPABASE, JSON.stringify(STATE.supabaseConfig));
       const badge = document.getElementById('supabaseConnBadge');

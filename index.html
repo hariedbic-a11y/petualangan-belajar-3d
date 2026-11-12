@@ -262,27 +262,69 @@
 
           <!-- Pilihan Dunia Belajar -->
           <div>
-            <label class="block text-xs font-bold text-slate-200 mb-1">PILIH ALAM PETUALANGAN 3D</label>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-              <button type="button" onclick="selectWorld('kota')" id="worldOpt-kota" class="world-choice-btn p-2 rounded-xl bg-game-blue/20 border-2 border-game-blue text-left transition hover:bg-game-blue/30">
-                <div class="text-xl">🏙️</div>
-                <div class="font-cartoon text-xs font-bold text-white">Kota Ilmu</div>
-                <div class="text-[9px] text-slate-300">Futuristik</div>
+            <label class="block text-xs font-bold text-slate-200 mb-1.5">PILIH ALAM PETUALANGAN 3D</label>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+              <button type="button" onclick="selectWorld('kota')" id="worldOpt-kota" class="world-choice-btn p-2.5 rounded-2xl bg-gradient-to-b from-sky-900/70 to-slate-900/90 border-2 border-game-blue text-left transition hover:scale-[1.02] shadow">
+                <div class="w-full h-11 rounded-xl bg-gradient-to-tr from-blue-950 to-sky-700/60 mb-1.5 flex items-center justify-center overflow-hidden border border-white/10">
+                  <svg viewBox="0 0 80 36" class="w-full h-full">
+                    <rect x="6" y="10" width="12" height="22" rx="1.5" fill="#38bdf8"/>
+                    <polygon points="24,18 33,10 42,18" fill="#f97316"/>
+                    <rect x="26" y="18" width="14" height="14" fill="#fef3c7"/>
+                    <circle cx="52" cy="18" r="5" fill="#22c55e"/>
+                    <rect x="51" y="22" width="2" height="10" fill="#78350f"/>
+                    <rect x="58" y="24" width="16" height="6" rx="2" fill="#ef4444"/>
+                    <circle cx="62" cy="31" r="2.2" fill="#0f172a"/>
+                    <circle cx="70" cy="31" r="2.2" fill="#0f172a"/>
+                  </svg>
+                </div>
+                <div class="font-cartoon text-xs font-bold text-white">🏙️ Kota Ilmu</div>
+                <div class="text-[9px] text-cyan-200">Rumah, Mobil & Tangga</div>
               </button>
-              <button type="button" onclick="selectWorld('nusantara')" id="worldOpt-nusantara" class="world-choice-btn p-2 rounded-xl bg-black/40 border-2 border-white/10 text-left transition hover:bg-white/10">
-                <div class="text-xl">🏝️</div>
-                <div class="font-cartoon text-xs font-bold text-white">Nusantara</div>
-                <div class="text-[9px] text-slate-300">Candi & Tropis</div>
+
+              <button type="button" onclick="selectWorld('nusantara')" id="worldOpt-nusantara" class="world-choice-btn p-2.5 rounded-2xl bg-gradient-to-b from-emerald-950/70 to-slate-900/90 border-2 border-white/10 text-left transition hover:scale-[1.02] shadow">
+                <div class="w-full h-11 rounded-xl bg-gradient-to-tr from-emerald-900 to-sky-600/50 mb-1.5 flex items-center justify-center overflow-hidden border border-white/10">
+                  <svg viewBox="0 0 80 36" class="w-full h-full">
+                    <path d="M12,9 Q16,5 20,9 Q24,5 28,9" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+                    <polygon points="30,28 40,12 50,28" fill="#78716c"/>
+                    <rect x="34" y="21" width="12" height="7" fill="#57534e"/>
+                    <ellipse cx="16" cy="29" rx="7" ry="4" fill="#94a3b8"/>
+                    <circle cx="63" cy="17" r="6" fill="#16a34a"/>
+                    <rect x="62" y="22" width="2.5" height="10" fill="#713f12"/>
+                  </svg>
+                </div>
+                <div class="font-cartoon text-xs font-bold text-white">🏝️ Nusantara</div>
+                <div class="text-[9px] text-emerald-200">Candi, Batu & Burung</div>
               </button>
-              <button type="button" onclick="selectWorld('laut')" id="worldOpt-laut" class="world-choice-btn p-2 rounded-xl bg-black/40 border-2 border-white/10 text-left transition hover:bg-white/10">
-                <div class="text-xl">🪸</div>
-                <div class="font-cartoon text-xs font-bold text-white">Bawah Laut</div>
-                <div class="text-[9px] text-slate-300">Terumbu Karang</div>
+
+              <button type="button" onclick="selectWorld('laut')" id="worldOpt-laut" class="world-choice-btn p-2.5 rounded-2xl bg-gradient-to-b from-cyan-950/70 to-slate-900/90 border-2 border-white/10 text-left transition hover:scale-[1.02] shadow">
+                <div class="w-full h-11 rounded-xl bg-gradient-to-tr from-blue-950 to-teal-700/60 mb-1.5 flex items-center justify-center overflow-hidden border border-white/10">
+                  <svg viewBox="0 0 80 36" class="w-full h-full">
+                    <ellipse cx="26" cy="14" rx="7" ry="4" fill="#fbbf24"/>
+                    <polygon points="18,14 13,10 13,18" fill="#f59e0b"/>
+                    <circle cx="56" cy="10" r="2" fill="#bae6fd" opacity="0.7"/>
+                    <circle cx="62" cy="16" r="1.5" fill="#bae6fd" opacity="0.7"/>
+                    <path d="M14,32 Q12,24 16,20 Q20,24 18,32" fill="#f43f5e"/>
+                    <ellipse cx="44" cy="30" rx="10" ry="4.5" fill="#64748b"/>
+                    <path d="M64,32 Q62,22 66,18" fill="none" stroke="#10b981" stroke-width="2.5"/>
+                  </svg>
+                </div>
+                <div class="font-cartoon text-xs font-bold text-white">🪸 Bawah Laut</div>
+                <div class="text-[9px] text-teal-200">Karang, Ikan & Batu</div>
               </button>
-              <button type="button" onclick="selectWorld('angkasa')" id="worldOpt-angkasa" class="world-choice-btn p-2 rounded-xl bg-black/40 border-2 border-white/10 text-left transition hover:bg-white/10">
-                <div class="text-xl">🚀</div>
-                <div class="font-cartoon text-xs font-bold text-white">Antariksa</div>
-                <div class="text-[9px] text-slate-300">Galaksi & Planet</div>
+
+              <button type="button" onclick="selectWorld('angkasa')" id="worldOpt-angkasa" class="world-choice-btn p-2.5 rounded-2xl bg-gradient-to-b from-indigo-950/70 to-slate-950/90 border-2 border-white/10 text-left transition hover:scale-[1.02] shadow">
+                <div class="w-full h-11 rounded-xl bg-gradient-to-tr from-slate-950 to-purple-900/60 mb-1.5 flex items-center justify-center overflow-hidden border border-white/10">
+                  <svg viewBox="0 0 80 36" class="w-full h-full">
+                    <circle cx="14" cy="9" r="1" fill="#fff"/>
+                    <circle cx="66" cy="8" r="1.2" fill="#fde047"/>
+                    <circle cx="26" cy="18" r="7" fill="#a855f7"/>
+                    <ellipse cx="26" cy="18" rx="12" ry="2.5" fill="none" stroke="#e9d5ff" stroke-width="1.3"/>
+                    <polygon points="56,26 62,15 68,26" fill="#94a3b8"/>
+                    <circle cx="44" cy="27" r="4" fill="#64748b"/>
+                  </svg>
+                </div>
+                <div class="font-cartoon text-xs font-bold text-white">🚀 Antariksa</div>
+                <div class="text-[9px] text-purple-200">Planet, Meteor & Roket</div>
               </button>
             </div>
           </div>
@@ -1345,6 +1387,41 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
     </div>
   </div>
 
+  <!-- Modal: Edit Anggota Siswa & Nilai (Mode Guru) -->
+  <div id="editStudentModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="relative w-full max-w-md glass-panel rounded-3xl p-6 border-2 border-game-blue shadow-2xl">
+      <div class="flex justify-between items-center pb-3 border-b border-white/10">
+        <h3 class="font-cartoon text-lg font-bold text-white flex items-center gap-2">
+          <i data-lucide="user-check" class="w-5 h-5 text-game-blue"></i> Edit Data Siswa-Siswi
+        </h3>
+        <button onclick="closeEditStudentModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-300">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <form onsubmit="saveEditedStudent(event)" class="mt-4 space-y-3 text-xs">
+        <input type="hidden" id="editStudentId">
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">NO. ABSEN</label>
+            <input id="editStudentAbsen" type="number" min="1" max="99" required class="w-full bg-black/50 border border-white/20 focus:border-game-yellow rounded-xl px-3 py-2 text-game-yellow font-cartoon font-bold outline-none">
+          </div>
+          <div class="col-span-2">
+            <label class="block font-bold text-slate-300 mb-1">NAMA SISWA / SISWI</label>
+            <input id="editStudentName" type="text" maxlength="40" required class="w-full bg-black/50 border border-white/20 focus:border-game-yellow rounded-xl px-3 py-2 text-white outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">SKOR / NILAI SAAT INI</label>
+          <input id="editStudentScore" type="number" min="0" max="1000" required class="w-full bg-black/50 border border-white/20 focus:border-game-yellow rounded-xl px-3 py-2 text-game-green font-cartoon font-bold outline-none">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeEditStudentModal()" class="px-4 py-2 rounded-xl bg-white/10 text-slate-300 font-cartoon font-bold">Batal</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-game-blue hover:bg-sky-500 text-white font-cartoon font-bold shadow-game-btn">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
   <!-- ################################################################ -->
   <!-- #################### JAVASCRIPT APPLICATION CODE ############### -->
@@ -1392,6 +1469,8 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       teacherPin: '1234',
       teacherUnlocked: false,
       solidColliders: [],
+      climbablePlatforms: [],
+      dynamicActors: [],
       // 5 Default initial questions across the 5 mandatory types
       questions: [
         {
@@ -1961,6 +2040,8 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       crystalObjects.forEach(c => scene.remove(c.mesh));
       crystalObjects = [];
       STATE.solidColliders = [];
+      STATE.climbablePlatforms = [];
+      STATE.dynamicActors = [];
     }
 
     function registerBoxCollider(x, z, halfW, halfD) {
@@ -1969,6 +2050,142 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
 
     function registerCircleCollider(x, z, radius) {
       STATE.solidColliders.push({ type: 'circle', x, z, radius });
+    }
+
+    function registerClimbableBox(x, z, halfW, halfD, topY) {
+      STATE.climbablePlatforms.push({ x, z, halfW, halfD, topY });
+    }
+
+    function getGroundSupportHeight(x, z, currentY) {
+      let maxFloor = 0;
+      for (let i = 0; i < STATE.climbablePlatforms.length; i++) {
+        const p = STATE.climbablePlatforms[i];
+        if (Math.abs(x - p.x) <= (p.halfW + 0.35) && Math.abs(z - p.z) <= (p.halfD + 0.35)) {
+          // Allow stepping onto stairs up to +0.85 height automatically or landing from above
+          if (currentY + 0.85 >= p.topY && p.topY > maxFloor) {
+            maxFloor = p.topY;
+          }
+        }
+      }
+      return maxFloor;
+    }
+
+    function buildClimbableStaircase(startX, startZ, dirX, dirZ, stepCount, stepWidth, stepDepth, stepHeight, colorHex) {
+      const mat = new THREE.MeshLambertMaterial({ color: colorHex });
+      for (let i = 0; i < stepCount; i++) {
+        const h = (i + 1) * stepHeight;
+        const sx = startX + dirX * (i * stepDepth);
+        const sz = startZ + dirZ * (i * stepDepth);
+        const geo = new THREE.BoxGeometry(
+          dirX !== 0 ? stepDepth : stepWidth,
+          h,
+          dirZ !== 0 ? stepDepth : stepWidth
+        );
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(sx, h / 2, sz);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        scene.add(mesh);
+        worldMeshes.push(mesh);
+        registerClimbableBox(
+          sx,
+          sz,
+          (dirX !== 0 ? stepDepth : stepWidth) / 2,
+          (dirZ !== 0 ? stepDepth : stepWidth) / 2,
+          h
+        );
+      }
+    }
+
+    function buildCartoonHouse(x, z, wallColor, roofColor) {
+      const group = new THREE.Group();
+      const body = new THREE.Mesh(
+        new THREE.BoxGeometry(5.5, 4.2, 5.0),
+        new THREE.MeshLambertMaterial({ color: wallColor })
+      );
+      body.position.y = 2.1;
+      body.castShadow = true;
+      body.receiveShadow = true;
+      group.add(body);
+
+      const roof = new THREE.Mesh(
+        new THREE.ConeGeometry(4.4, 2.6, 4),
+        new THREE.MeshLambertMaterial({ color: roofColor })
+      );
+      roof.position.y = 5.4;
+      roof.rotation.y = Math.PI / 4;
+      roof.castShadow = true;
+      group.add(roof);
+
+      const door = new THREE.Mesh(
+        new THREE.BoxGeometry(1.1, 2.0, 0.15),
+        new THREE.MeshLambertMaterial({ color: 0x451a03 })
+      );
+      door.position.set(0, 1.0, 2.52);
+      group.add(door);
+
+      const winMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
+      const winL = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.15), winMat);
+      winL.position.set(-1.6, 2.4, 2.52);
+      const winR = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.15), winMat);
+      winR.position.set(1.6, 2.4, 2.52);
+      group.add(winL, winR);
+
+      group.position.set(x, 0, z);
+      scene.add(group);
+      worldMeshes.push(group);
+      registerBoxCollider(x, z, 2.75, 2.5);
+    }
+
+    function buildCartoonCar(orbitRadius, speed, angleOffset, bodyColor) {
+      const car = new THREE.Group();
+      const chassis = new THREE.Mesh(
+        new THREE.BoxGeometry(2.2, 0.8, 3.8),
+        new THREE.MeshLambertMaterial({ color: bodyColor })
+      );
+      chassis.position.y = 0.7;
+      chassis.castShadow = true;
+      car.add(chassis);
+
+      const cabin = new THREE.Mesh(
+        new THREE.BoxGeometry(1.8, 0.75, 2.0),
+        new THREE.MeshLambertMaterial({ color: 0xe2e8f0 })
+      );
+      cabin.position.set(0, 1.45, -0.2);
+      car.add(cabin);
+
+      const wheelGeo = new THREE.CylinderGeometry(0.42, 0.42, 0.35, 12);
+      const wheelMat = new THREE.MeshLambertMaterial({ color: 0x0f172a });
+      [[-1.1, 1.2], [1.1, 1.2], [-1.1, -1.2], [1.1, -1.2]].forEach(([wx, wz]) => {
+        const w = new THREE.Mesh(wheelGeo, wheelMat);
+        w.rotation.z = Math.PI / 2;
+        w.position.set(wx, 0.42, wz);
+        car.add(w);
+      });
+
+      scene.add(car);
+      worldMeshes.push(car);
+      STATE.dynamicActors.push({ type: 'car', mesh: car, radius: orbitRadius, speed, offset: angleOffset });
+    }
+
+    function buildFlyingBirdOrFish(orbitRadius, heightY, speed, offset, colorHex, isFish = false) {
+      const actor = new THREE.Group();
+      const body = new THREE.Mesh(
+        new THREE.ConeGeometry(isFish ? 0.45 : 0.32, isFish ? 1.4 : 1.1, 6),
+        new THREE.MeshLambertMaterial({ color: colorHex })
+      );
+      body.rotation.x = Math.PI / 2;
+      actor.add(body);
+
+      const wing = new THREE.Mesh(
+        new THREE.BoxGeometry(isFish ? 0.2 : 1.6, isFish ? 0.7 : 0.1, 0.45),
+        new THREE.MeshLambertMaterial({ color: 0xffffff })
+      );
+      actor.add(wing);
+
+      scene.add(actor);
+      worldMeshes.push(actor);
+      STATE.dynamicActors.push({ type: isFish ? 'fish' : 'bird', mesh: actor, wing, radius: orbitRadius, y: heightY, speed, offset });
     }
 
     function checkCollisionAt(nextX, nextZ) {
@@ -1991,99 +2208,147 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       STATE.currentWorld = worldType;
 
       if (worldType === 'kota') {
-        // Modern Futuristic Cyber / Educational City
+        // Modern Futuristic Cyber / Educational City with Houses, Trees, Cars & Climbable Stairs
         scene.background = new THREE.Color(0x0f1e36);
         scene.fog.color.set(0x0f1e36);
 
-        // Ground Plane (Paved Plaza)
-        const groundGeo = new THREE.PlaneGeometry(160, 160);
-        const groundMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
-        const ground = new THREE.Mesh(groundGeo, groundMat);
+        const ground = new THREE.Mesh(
+          new THREE.PlaneGeometry(160, 160),
+          new THREE.MeshLambertMaterial({ color: 0x1e293b })
+        );
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
         scene.add(ground);
         worldMeshes.push(ground);
 
-        // Grid lines aesthetic
         const gridHelper = new THREE.GridHelper(160, 32, 0x00A3FF, 0x334155);
         gridHelper.position.y = 0.02;
         scene.add(gridHelper);
         worldMeshes.push(gridHelper);
 
-        // Procedural City Buildings with Solid Colliders
-        const buildingColors = [0x0284c7, 0x38bdf8, 0x6366f1, 0x475569];
-        for (let i = 0; i < 28; i++) {
-          const w = 4 + Math.random() * 5;
-          const h = 8 + Math.random() * 22;
-          const d = 4 + Math.random() * 5;
-          const bGeo = new THREE.BoxGeometry(w, h, d);
-          const bMat = new THREE.MeshLambertMaterial({
-            color: buildingColors[Math.floor(Math.random() * buildingColors.length)]
-          });
-          const bMesh = new THREE.Mesh(bGeo, bMat);
-          const angle = Math.random() * Math.PI * 2;
-          const dist = 24 + Math.random() * 44;
-          const bx = Math.cos(angle) * dist;
-          const bz = Math.sin(angle) * dist;
-          bMesh.position.set(bx, h / 2, bz);
-          bMesh.castShadow = true;
-          bMesh.receiveShadow = true;
-          scene.add(bMesh);
-          worldMeshes.push(bMesh);
-          registerBoxCollider(bx, bz, w / 2, d / 2);
+        // Circular Road Ring
+        const road = new THREE.Mesh(
+          new THREE.RingGeometry(21, 26, 48),
+          new THREE.MeshLambertMaterial({ color: 0x0f172a, side: THREE.DoubleSide })
+        );
+        road.rotation.x = -Math.PI / 2;
+        road.position.y = 0.03;
+        scene.add(road);
+        worldMeshes.push(road);
+
+        // Houses around the neighborhood
+        const houseCoords = [
+          [-32, -16, 0xfef3c7, 0xea580c],
+          [32, -16, 0xe0f2fe, 0x0284c7],
+          [-32, 18, 0xfce7f3, 0xdb2777],
+          [32, 18, 0xdcfce7, 0x16a34a],
+          [0, -34, 0xfef9c3, 0xd97706]
+        ];
+        houseCoords.forEach(([hx, hz, wc, rc]) => buildCartoonHouse(hx, hz, wc, rc));
+
+        // Trees along avenues
+        for (let i = 0; i < 18; i++) {
+          const ang = (i / 18) * Math.PI * 2 + 0.15;
+          const dist = 28.5;
+          const tx = Math.cos(ang) * dist;
+          const tz = Math.sin(ang) * dist;
+          const tree = new THREE.Group();
+          const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.4, 2.6, 6), new THREE.MeshLambertMaterial({ color: 0x78350f }));
+          trunk.position.y = 1.3;
+          const crown = new THREE.Mesh(new THREE.DodecahedronGeometry(1.5), new THREE.MeshLambertMaterial({ color: 0x22c55e }));
+          crown.position.y = 3.2;
+          tree.add(trunk, crown);
+          tree.position.set(tx, 0, tz);
+          scene.add(tree);
+          worldMeshes.push(tree);
+          registerCircleCollider(tx, tz, 0.5);
         }
 
+        // Animated Cars driving around the ring road
+        buildCartoonCar(23.5, 0.45, 0, 0xef4444);
+        buildCartoonCar(23.5, 0.45, 2.1, 0x38bdf8);
+        buildCartoonCar(23.5, 0.45, 4.2, 0xfacc15);
+
+        // Climbable Staircase to Sky Observation Deck
+        buildClimbableStaircase(5, -6, 0, -1, 7, 3.2, 1.3, 0.55, 0x00A3FF);
+        const deck = new THREE.Mesh(new THREE.BoxGeometry(5, 3.85, 5), new THREE.MeshLambertMaterial({ color: 0x1d4ed8 }));
+        deck.position.set(5, 1.925, -16.5);
+        scene.add(deck);
+        worldMeshes.push(deck);
+        registerClimbableBox(5, -16.5, 2.5, 2.5, 3.85);
+
         // Central Monument with Solid Collider
-        const monumentGeo = new THREE.CylinderGeometry(2, 3, 14, 8);
-        const monumentMat = new THREE.MeshLambertMaterial({ color: 0xffd027 });
-        const monument = new THREE.Mesh(monumentGeo, monumentMat);
+        const monument = new THREE.Mesh(
+          new THREE.CylinderGeometry(2, 3, 14, 8),
+          new THREE.MeshLambertMaterial({ color: 0xffd027 })
+        );
         monument.position.set(0, 7, 0);
         scene.add(monument);
         worldMeshes.push(monument);
         registerCircleCollider(0, 0, 2.8);
 
       } else if (worldType === 'nusantara') {
-        // Candi & Tropical Island Nusantara
+        // Candi, Rocks, Birds, Houses & Climbable Temple Stairs
         scene.background = new THREE.Color(0x38bdf8);
         scene.fog.color.set(0x7dd3fc);
 
-        const groundGeo = new THREE.PlaneGeometry(160, 160);
-        const groundMat = new THREE.MeshLambertMaterial({ color: 0x15803d }); // Green grass
-        const ground = new THREE.Mesh(groundGeo, groundMat);
+        const ground = new THREE.Mesh(
+          new THREE.PlaneGeometry(160, 160),
+          new THREE.MeshLambertMaterial({ color: 0x15803d })
+        );
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
         scene.add(ground);
         worldMeshes.push(ground);
 
-        // Ancient Temple Stupa / Pagoda central with Collider
+        // Climbable Stepped Candi Temple Pyramid (Players can climb all the way to the top!)
         for (let lvl = 0; lvl < 5; lvl++) {
-          const w = 18 - lvl * 3.2;
-          const tierGeo = new THREE.BoxGeometry(w, 1.2, w);
-          const tierMat = new THREE.MeshLambertMaterial({ color: 0x57534e });
-          const tier = new THREE.Mesh(tierGeo, tierMat);
-          tier.position.set(0, 0.6 + lvl * 1.2, 0);
+          const w = 16 - lvl * 2.6;
+          const topH = (lvl + 1) * 0.7;
+          const tier = new THREE.Mesh(
+            new THREE.BoxGeometry(w, 0.7, w),
+            new THREE.MeshLambertMaterial({ color: lvl % 2 === 0 ? 0x57534e : 0x78716c })
+          );
+          tier.position.set(0, topH - 0.35, 0);
           tier.castShadow = true;
           tier.receiveShadow = true;
           scene.add(tier);
           worldMeshes.push(tier);
+          registerClimbableBox(0, 0, w / 2, w / 2, topH);
         }
-        registerBoxCollider(0, 0, 8.8, 8.8);
+
+        // Traditional Nusantara Houses
+        buildCartoonHouse(-26, -18, 0x92400e, 0x451a03);
+        buildCartoonHouse(26, -18, 0xb45309, 0x78350f);
+
+        // River Rocks & Boulders
+        for (let i = 0; i < 16; i++) {
+          const r = 0.9 + Math.random() * 1.1;
+          const rock = new THREE.Mesh(
+            new THREE.DodecahedronGeometry(r, 0),
+            new THREE.MeshLambertMaterial({ color: 0x94a3b8 })
+          );
+          const ang = Math.random() * Math.PI * 2;
+          const dist = 21 + Math.random() * 35;
+          const rx = Math.cos(ang) * dist;
+          const rz = Math.sin(ang) * dist;
+          rock.position.set(rx, r * 0.5, rz);
+          rock.scale.set(1.2, 0.7, 1);
+          scene.add(rock);
+          worldMeshes.push(rock);
+          registerCircleCollider(rx, rz, r * 0.9);
+        }
 
         // Coconut / Palm Trees with Collider
-        for (let i = 0; i < 24; i++) {
-          const trunkGeo = new THREE.CylinderGeometry(0.3, 0.5, 6, 6);
-          const trunkMat = new THREE.MeshLambertMaterial({ color: 0x78350f });
-          const trunk = new THREE.Mesh(trunkGeo, trunkMat);
-          const leavesGeo = new THREE.ConeGeometry(2.5, 3, 6);
-          const leavesMat = new THREE.MeshLambertMaterial({ color: 0x22c55e });
-          const leaves = new THREE.Mesh(leavesGeo, leavesMat);
+        for (let i = 0; i < 22; i++) {
+          const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 6, 6), new THREE.MeshLambertMaterial({ color: 0x78350f }));
+          const leaves = new THREE.Mesh(new THREE.ConeGeometry(2.5, 3, 6), new THREE.MeshLambertMaterial({ color: 0x22c55e }));
           leaves.position.y = 3.5;
 
           const treeGroup = new THREE.Group();
-          treeGroup.add(trunk);
-          treeGroup.add(leaves);
+          treeGroup.add(trunk, leaves);
           const angle = Math.random() * Math.PI * 2;
-          const dist = 22 + Math.random() * 46;
+          const dist = 22 + Math.random() * 44;
           const tx = Math.cos(angle) * dist;
           const tz = Math.sin(angle) * dist;
           treeGroup.position.set(tx, 3, tz);
@@ -2092,78 +2357,110 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
           registerCircleCollider(tx, tz, 0.65);
         }
 
+        // Flying Birds circling in the sky
+        for (let b = 0; b < 6; b++) {
+          buildFlyingBirdOrFish(14 + b * 3, 10 + (b % 3) * 2.5, 0.6 + b * 0.08, b * 1.1, 0xfef08a, false);
+        }
+
       } else if (worldType === 'laut') {
-        // Under the Sea: Coral Reef & Aquatic Glow
+        // Under the Sea: Coral Reef, Ocean Rocks, Swimming Fish & Climbable Reef Steps
         scene.background = new THREE.Color(0x0c4a6e);
         scene.fog.color.set(0x075985);
 
-        const groundGeo = new THREE.PlaneGeometry(160, 160);
-        const groundMat = new THREE.MeshLambertMaterial({ color: 0xfef08a }); // Sandy ocean floor
-        const ground = new THREE.Mesh(groundGeo, groundMat);
+        const ground = new THREE.Mesh(
+          new THREE.PlaneGeometry(160, 160),
+          new THREE.MeshLambertMaterial({ color: 0xfef08a })
+        );
         ground.rotation.x = -Math.PI / 2;
         scene.add(ground);
         worldMeshes.push(ground);
 
-        // Colorful Coral Formations with Collider
-        const coralColors = [0xf43f5e, 0xa855f7, 0x06b6d4, 0xf59e0b];
-        for (let i = 0; i < 35; i++) {
-          const r = 1.5 + Math.random() * 2;
-          const cGeo = new THREE.DodecahedronGeometry(r);
-          const cMat = new THREE.MeshLambertMaterial({
-            color: coralColors[Math.floor(Math.random() * coralColors.length)]
-          });
-          const coral = new THREE.Mesh(cGeo, cMat);
+        // Climbable Coral Reef Staircase
+        buildClimbableStaircase(-6, -5, 0, -1, 6, 3.5, 1.4, 0.55, 0x06b6d4);
+
+        // Colorful Coral & Sea Rocks with Collider
+        const coralColors = [0xf43f5e, 0xa855f7, 0x06b6d4, 0xf59e0b, 0x64748b];
+        for (let i = 0; i < 34; i++) {
+          const r = 1.3 + Math.random() * 1.8;
+          const coral = new THREE.Mesh(
+            new THREE.DodecahedronGeometry(r),
+            new THREE.MeshLambertMaterial({ color: coralColors[i % coralColors.length] })
+          );
           const angle = Math.random() * Math.PI * 2;
-          const dist = 22 + Math.random() * 48;
+          const dist = 21 + Math.random() * 46;
           const cx = Math.cos(angle) * dist;
           const cz = Math.sin(angle) * dist;
-          coral.position.set(cx, 1.2, cz);
-          coral.scale.set(1, 1.5 + Math.random(), 1);
+          coral.position.set(cx, 1.1, cz);
+          coral.scale.set(1.1, i % 5 === 4 ? 0.7 : 1.5, 1);
           scene.add(coral);
           worldMeshes.push(coral);
           registerCircleCollider(cx, cz, r * 0.85);
         }
 
+        // Swimming Fish schools
+        for (let f = 0; f < 8; f++) {
+          buildFlyingBirdOrFish(10 + f * 2.5, 3 + (f % 4) * 1.6, 0.7 + f * 0.06, f * 0.8, 0xfbbf24, true);
+        }
+
       } else if (worldType === 'angkasa') {
-        // Deep Outer Space & Asteroids
+        // Deep Outer Space, Moon Rocks, Orbiting UFO/Satellites & Climbable Space Ramp
         scene.background = new THREE.Color(0x030712);
         scene.fog.color.set(0x030712);
 
-        // Starfield particles
         const starsGeo = new THREE.BufferGeometry();
         const starCoords = [];
         for (let i = 0; i < 800; i++) {
-          starCoords.push(
-            (Math.random() - 0.5) * 300,
-            Math.random() * 100 + 10,
-            (Math.random() - 0.5) * 300
-          );
+          starCoords.push((Math.random() - 0.5) * 300, Math.random() * 100 + 10, (Math.random() - 0.5) * 300);
         }
         starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
-        const starsMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.8 });
-        const starField = new THREE.Points(starsGeo, starsMat);
+        const starField = new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.8 }));
         scene.add(starField);
         worldMeshes.push(starField);
 
-        // Space Station Platform
-        const platGeo = new THREE.CylinderGeometry(25, 25, 2, 32);
-        const platMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
-        const plat = new THREE.Mesh(platGeo, platMat);
+        const plat = new THREE.Mesh(
+          new THREE.CylinderGeometry(28, 28, 2, 32),
+          new THREE.MeshLambertMaterial({ color: 0x334155 })
+        );
         plat.position.y = -1;
         plat.receiveShadow = true;
         scene.add(plat);
         worldMeshes.push(plat);
 
-        // Floating Asteroids around
-        for (let i = 0; i < 20; i++) {
-          const astGeo = new THREE.DodecahedronGeometry(2 + Math.random() * 3);
-          const astMat = new THREE.MeshLambertMaterial({ color: 0x475569 });
-          const ast = new THREE.Mesh(astGeo, astMat);
+        // Climbable Lunar Staircase
+        buildClimbableStaircase(0, -6, 0, -1, 6, 3.6, 1.4, 0.55, 0xa855f7);
+
+        // Moon Rocks on Station Deck
+        for (let i = 0; i < 12; i++) {
+          const r = 0.8 + Math.random() * 0.9;
+          const mRock = new THREE.Mesh(
+            new THREE.DodecahedronGeometry(r),
+            new THREE.MeshLambertMaterial({ color: 0x64748b })
+          );
+          const ang = (i / 12) * Math.PI * 2 + 0.3;
+          const dist = 21 + (i % 3) * 2;
+          const rx = Math.cos(ang) * dist;
+          const rz = Math.sin(ang) * dist;
+          mRock.position.set(rx, r * 0.5, rz);
+          scene.add(mRock);
+          worldMeshes.push(mRock);
+          registerCircleCollider(rx, rz, r * 0.85);
+        }
+
+        // Floating Asteroids & Orbiting Space Drones
+        for (let i = 0; i < 18; i++) {
+          const ast = new THREE.Mesh(
+            new THREE.DodecahedronGeometry(2 + Math.random() * 3),
+            new THREE.MeshLambertMaterial({ color: 0x475569 })
+          );
           const angle = Math.random() * Math.PI * 2;
-          const dist = 32 + Math.random() * 40;
+          const dist = 34 + Math.random() * 38;
           ast.position.set(Math.cos(angle) * dist, 4 + Math.random() * 15, Math.sin(angle) * dist);
           scene.add(ast);
           worldMeshes.push(ast);
+        }
+
+        for (let u = 0; u < 4; u++) {
+          buildFlyingBirdOrFish(15 + u * 4, 8 + u * 2, 0.8, u * 1.5, 0x38bdf8, false);
         }
       }
 
@@ -2419,108 +2716,113 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       const time = clock.getElapsedTime();
 
       // Check parachute drop sequence
+      const supportFloorY = getGroundSupportHeight(playerPos.x, playerPos.z, playerPos.y);
+
       if (isParachuting) {
         playerPos.y -= 10 * delta;
         parachuteMesh.visible = true;
-        if (playerPos.y <= 0) {
-          playerPos.y = 0;
+        if (playerPos.y <= supportFloorY) {
+          playerPos.y = supportFloorY;
           isParachuting = false;
           parachuteMesh.visible = false;
-          showToast('Mendarat!', 'Kamu telah terjun payung di Kota Ilmu. Cari kristal soal!');
+          showToast('Mendarat!', 'Kamu telah terjun payung! Jelajahi rumah, tangga & kristal soal!');
           SoundFx.playTone(587.33, 'triangle', 0.2);
         }
       } else {
-        // Player Gravity & Jump Physics
-        if (!isGrounded) {
+        // Player Gravity, Stair Stepping & Jump Physics
+        if (!isGrounded || playerPos.y > supportFloorY + 0.05) {
           playerVelocityY -= 22 * delta;
           playerPos.y += playerVelocityY * delta;
-          if (playerPos.y <= 0) {
-            playerPos.y = 0;
+          if (playerPos.y <= supportFloorY) {
+            playerPos.y = supportFloorY;
             playerVelocityY = 0;
             isGrounded = true;
           }
+        } else {
+          playerPos.y = supportFloorY;
         }
       }
 
-      // Movement Calculations (Keyboard + Joystick)
-      let moveX = 0;
-      let moveZ = 0;
+      // Animate Dynamic World Actors (Cars, Birds, Fish, Space Drones)
+      STATE.dynamicActors.forEach(actor => {
+        const a = time * actor.speed + actor.offset;
+        if (actor.type === 'car') {
+          actor.mesh.position.set(Math.cos(a) * actor.radius, 0, Math.sin(a) * actor.radius);
+          actor.mesh.rotation.y = -a;
+        } else {
+          actor.mesh.position.set(
+            Math.cos(a) * actor.radius,
+            actor.y + Math.sin(time * 2 + actor.offset) * 0.8,
+            Math.sin(a) * actor.radius
+          );
+          actor.mesh.rotation.y = -a;
+          if (actor.wing) {
+            actor.wing.rotation.z = Math.sin(time * 12 + actor.offset) * 0.45;
+          }
+        }
+      });
 
-      if (keys.w) moveZ -= 1;
-      if (keys.s) moveZ += 1;
-      if (keys.a) moveX -= 1;
-      if (keys.d) moveX += 1;
-
+      // Player Movement (WASD / D-Pad / Touch Joystick) + Solid Obstacle Collision
+      let moveForward = 0;
+      let moveRight = 0;
+      if (keys.w) moveForward += 1;
+      if (keys.s) moveForward -= 1;
+      if (keys.a) moveRight -= 1;
+      if (keys.d) moveRight += 1;
       if (joystick.active) {
-        moveX += joystick.x;
-        moveZ += joystick.y;
+        moveForward -= joystick.y;
+        moveRight += joystick.x;
       }
 
-      const inputLen = Math.hypot(moveX, moveZ);
-      const isMoving = inputLen > 0.1;
+      const isMoving = Math.hypot(moveForward, moveRight) > 0.05 && !isParachuting;
+      if (isMoving) {
+        const len = Math.hypot(moveForward, moveRight);
+        const nf = moveForward / len;
+        const nr = moveRight / len;
+        const speed = 11 * delta;
 
-      if (isMoving && !isParachuting) {
-        const speed = 9.0;
-        const normX = moveX / Math.max(inputLen, 1);
-        const normZ = moveZ / Math.max(inputLen, 1);
-
-        // Move relative to camera orientation
         const forwardX = -Math.sin(cameraAngle);
         const forwardZ = -Math.cos(cameraAngle);
         const rightX = Math.cos(cameraAngle);
         const rightZ = -Math.sin(cameraAngle);
 
-        const deltaMoveX = (rightX * normX + forwardX * normZ) * speed * delta;
-        const deltaMoveZ = (rightZ * normX + forwardZ * normZ) * speed * delta;
+        const vx = (forwardX * nf + rightX * nr) * speed;
+        const vz = (forwardZ * nf + rightZ * nr) * speed;
 
-        // Axis-separated solid wall/obstacle collision sliding
-        const candidateX = Math.max(-75, Math.min(75, playerPos.x + deltaMoveX));
-        const candidateZ = Math.max(-75, Math.min(75, playerPos.z + deltaMoveZ));
+        const nextX = Math.max(-72, Math.min(72, playerPos.x + vx));
+        const nextZ = Math.max(-72, Math.min(72, playerPos.z + vz));
 
-        if (!checkCollisionAt(candidateX, playerPos.z)) {
-          playerPos.x = candidateX;
-        }
-        if (!checkCollisionAt(playerPos.x, candidateZ)) {
-          playerPos.z = candidateZ;
-        }
+        if (!checkCollisionAt(nextX, playerPos.z)) playerPos.x = nextX;
+        if (!checkCollisionAt(playerPos.x, nextZ)) playerPos.z = nextZ;
 
-        // Rotate character towards moving direction
-        const targetRotation = Math.atan2(deltaMoveX, deltaMoveZ);
-        avatarGroup.rotation.y = targetRotation;
+        avatarGroup.rotation.y = Math.atan2(vx, vz);
 
-        // Animate legs and arms swing (Roblox run animation)
-        const swing = Math.sin(time * 14) * 0.7;
-        leftLeg.rotation.x = swing;
-        rightLeg.rotation.x = -swing;
-        leftArm.rotation.x = -swing;
-        rightArm.rotation.x = swing;
+        const swing = Math.sin(time * 14) * 0.6;
+        if (leftLeg) leftLeg.rotation.x = swing;
+        if (rightLeg) rightLeg.rotation.x = -swing;
+        if (leftArm) leftArm.rotation.x = -swing;
+        if (rightArm) rightArm.rotation.x = swing;
       } else {
-        // Idle animation
-        leftLeg.rotation.x = 0;
-        rightLeg.rotation.x = 0;
-        leftArm.rotation.x = 0;
-        rightArm.rotation.x = 0;
-        avatarBody.position.y = 1.0 + Math.sin(time * 3) * 0.03;
+        if (leftLeg) leftLeg.rotation.x = 0;
+        if (rightLeg) rightLeg.rotation.x = 0;
+        if (leftArm) leftArm.rotation.x = 0;
+        if (rightArm) rightArm.rotation.x = 0;
       }
 
-      // Sync avatar mesh position
-      avatarGroup.position.set(playerPos.x, playerPos.y, playerPos.z);
+      if (avatarGroup) {
+        avatarGroup.position.set(playerPos.x, playerPos.y, playerPos.z);
+      }
 
-      // Animate Question Crystals (Floating & Rotating)
+      // Rotate Question Crystals & Find Closest Crystal Portal
       let closestQuiz = null;
-      let minDistance = Infinity;
-
-      crystalObjects.forEach(c => {
-        c.gem.rotation.y = time * 1.5;
-        c.gem.position.y = 2.4 + Math.sin(time * 2.5 + c.pos.x) * 0.35;
-
-        // Distance check
+      let minDist = 4.2;
+      crystalObjects.forEach((c, idx) => {
+        c.gem.rotation.y = time * 1.8 + idx;
+        c.gem.position.y = 2.4 + Math.sin(time * 2.5 + idx) * 0.25;
         const dist = Math.hypot(playerPos.x - c.pos.x, playerPos.z - c.pos.z);
-        if (dist < minDistance) {
-          minDistance = dist;
-          if (dist < 3.8) {
-            closestQuiz = c.question;
-          }
+        if (dist < minDist) {
+          minDist = dist;
+          closestQuiz = c.question;
         }
       });
 
@@ -2668,7 +2970,7 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       const absenInput = document.getElementById('inputAbsen').value.trim();
 
       if (!codeInput || !nickInput || !absenInput) {
-        alert('Mohon lengkapi kode kelas, nama, dan no absen!');
+        showToast('Data Belum Lengkap', 'Mohon lengkapi kode kelas, nama, dan nomor absen.');
         return;
       }
 
@@ -3277,6 +3579,62 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       document.getElementById('addQuestionModal').classList.remove('hidden');
     }
 
+    function openAddQuestionModal() {
+      document.getElementById('editQuestionId').value = '';
+      document.getElementById('modalQuestionFormTitle').innerText = 'Tambah Soal Baru';
+      document.getElementById('qFormType').value = 'pg';
+      document.getElementById('qFormWorld').value = STATE.currentWorld || 'kota';
+      document.getElementById('qFormTitle').value = '';
+      document.getElementById('qFormExplanation').value = '';
+      renderQuestionTypeInputs();
+      document.getElementById('addQuestionModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeAddQuestionModal() {
+      document.getElementById('addQuestionModal').classList.add('hidden');
+    }
+
+    function renderQuestionTypeInputs() {
+      const type = document.getElementById('qFormType').value;
+      const box = document.getElementById('dynamicTypeInputs');
+      if (!box) return;
+
+      if (type === 'pg') {
+        box.innerHTML = ['A', 'B', 'C', 'D'].map((ltr, i) => `
+          <div class="flex items-center gap-2">
+            <input type="radio" name="pgCorrectRadio" value="${i}" ${i === 0 ? 'checked' : ''} class="accent-game-green">
+            <span class="font-cartoon font-bold text-game-yellow w-5">${ltr}.</span>
+            <input id="pgOpt_${i}" type="text" required placeholder="Pilihan jawaban ${ltr}" class="flex-1 bg-black/50 border border-white/20 rounded-xl px-3 py-1.5 text-white outline-none">
+          </div>
+        `).join('');
+      } else if (type === 'bs') {
+        box.innerHTML = `
+          <div class="flex gap-4">
+            <label class="flex items-center gap-2 text-white font-bold"><input type="radio" name="bsCorrectRadio" value="0" checked> Benar</label>
+            <label class="flex items-center gap-2 text-white font-bold"><input type="radio" name="bsCorrectRadio" value="1"> Salah</label>
+          </div>
+        `;
+      } else if (type === 'isian') {
+        box.innerHTML = `
+          <label class="block font-bold text-slate-300 mb-1">KATA KUNCI JAWABAN BENAR</label>
+          <input id="isianCorrectInput" type="text" required placeholder="Contoh: klorofil" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white outline-none">
+        `;
+      } else if (type === 'jodoh') {
+        box.innerHTML = [0, 1].map(i => `
+          <div class="grid grid-cols-2 gap-2">
+            <input id="pairL_${i}" type="text" required placeholder="Pernyataan Kiri #${i + 1}" class="bg-black/50 border border-white/20 rounded-xl px-3 py-1.5 text-white outline-none">
+            <input id="pairR_${i}" type="text" required placeholder="Pasangan Kanan #${i + 1}" class="bg-black/50 border border-white/20 rounded-xl px-3 py-1.5 text-game-yellow outline-none">
+          </div>
+        `).join('');
+      } else if (type === 'urut') {
+        box.innerHTML = `
+          <label class="block font-bold text-slate-300 mb-1">URUTAN YANG BENAR (PISAHKAN DENGAN KOMA)</label>
+          <input id="urutInputCsv" type="text" required placeholder="Contoh: Troposfer, Stratosfer, Mesosfer, Termosfer" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white outline-none">
+        `;
+      }
+    }
+
     function deleteQuestion(id) {
       if (STATE.questions.length <= 1) {
         alert('Minimal sisakan 1 soal di dalam game!');
@@ -3420,7 +3778,8 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
                 </span>
               </td>
               <td class="p-3 font-cartoon font-bold text-game-yellow">${s.score}</td>
-              <td class="p-3 text-center">
+              <td class="p-3 text-center space-x-1.5">
+                <button onclick="openEditStudentModal('${s.id}')" class="px-2.5 py-1 rounded-lg bg-game-blue/20 hover:bg-game-blue/30 text-cyan-300 font-bold text-[11px]">Edit</button>
                 <button onclick="removeStudentFromRoster('${s.id}')" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-[11px]">Hapus</button>
               </td>
             </tr>
@@ -3477,7 +3836,10 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
               </span>
             </td>
             <td class="p-3 font-cartoon text-base font-bold text-game-green">${s.score}</td>
-            <td class="p-3 text-center">
+            <td class="p-3 text-center space-x-1">
+              <button onclick="openEditStudentModal('${s.id}')" class="px-2.5 py-1 rounded-lg bg-game-blue/20 hover:bg-game-blue/30 text-cyan-300 font-bold text-[11px]">
+                Edit
+              </button>
               <button onclick="openCertificateForStudent('${s.name.replace(/'/g, "\\'")}', ${s.score})" class="px-2.5 py-1 rounded-lg bg-game-yellow/20 hover:bg-game-yellow/30 text-game-yellow font-bold text-[11px]">
                 Piagam
               </button>
@@ -3577,16 +3939,50 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       showToast('Siswa Dihapus', 'Anggota siswa telah dihapus dari daftar kelas.');
     }
 
+    function openEditStudentModal(id) {
+      const std = STATE.gradebook.find(s => s.id === id);
+      if (!std) return;
+      document.getElementById('editStudentId').value = std.id;
+      document.getElementById('editStudentAbsen').value = Number(std.absen) || 1;
+      document.getElementById('editStudentName').value = std.name;
+      document.getElementById('editStudentScore').value = std.score || 0;
+      document.getElementById('editStudentModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeEditStudentModal() {
+      document.getElementById('editStudentModal').classList.add('hidden');
+    }
+
+    function saveEditedStudent(e) {
+      e.preventDefault();
+      const id = document.getElementById('editStudentId').value;
+      const absen = String(document.getElementById('editStudentAbsen').value.trim()).padStart(2, '0');
+      const name = document.getElementById('editStudentName').value.trim();
+      const score = Number(document.getElementById('editStudentScore').value) || 0;
+
+      const idx = STATE.gradebook.findIndex(s => s.id === id);
+      if (idx !== -1 && name) {
+        STATE.gradebook[idx].absen = absen;
+        STATE.gradebook[idx].name = name;
+        STATE.gradebook[idx].score = score;
+        persistStateToLocal();
+        renderTeacherDashboard();
+        closeEditStudentModal();
+        showToast('Data Siswa Diperbarui', `Data ${name} (Absen ${absen}) berhasil disimpan.`);
+      }
+    }
+
     function openConfirmResetModal(scope) {
       pendingResetScope = scope;
       const titleEl = document.getElementById('confirmResetTitle');
       const descEl = document.getElementById('confirmResetDesc');
       if (scope === 'all') {
         titleEl.innerText = 'Reset Total Aplikasi ke Awal?';
-        descEl.innerText = 'Semua nilai siswa, antrean offline, dan perubahan soal lokal akan dikembalikan ke pengaturan awal untuk sesi baru.';
+        descEl.innerText = 'Seluruh bank soal tambahan dan rekap nilai akan dikembalikan ke pengaturan awal.';
       } else {
         titleEl.innerText = 'Bersihkan Semua Nilai Siswa?';
-        descEl.innerText = 'Seluruh nilai & progres bermain siswa akan dibersihkan (0) agar siap untuk ronde/kelas baru.';
+        descEl.innerText = 'Skor dan progres misi seluruh siswa akan dikosongkan untuk memulai sesi baru dari awal.';
       }
       document.getElementById('confirmResetModal').classList.remove('hidden');
       lucide.createIcons();
@@ -3601,31 +3997,447 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
         localStorage.removeItem(STORAGE_KEYS.QUESTIONS);
         localStorage.removeItem(STORAGE_KEYS.GRADEBOOK);
         localStorage.removeItem(STORAGE_KEYS.SYNC_QUEUE);
-        STATE.gradebook = [];
         STATE.pendingSyncQueue = [];
+        STATE.gradebook = [];
         STATE.student.score = 0;
         STATE.student.answeredList = [];
         STATE.student.answeredDetails = {};
-        persistStateToLocal();
         spawnQuestionCrystals();
-        updateNetworkStatusUI();
-        renderTeacherDashboard();
-        closeConfirmResetModal();
-        showToast('Reset Total Selesai', 'Aplikasi telah dibersihkan dan siap digunakan dari awal.');
+        showToast('Reset Total Selesai', 'Data soal dan nilai telah dikembalikan bersih dari awal.');
       } else {
-        STATE.gradebook = [];
+        STATE.gradebook = STATE.gradebook.map(s => ({
+          ...s,
+          completed: 0,
+          accuracy: '0%',
+          score: 0,
+          syncStatus: 'synced'
+        }));
         STATE.pendingSyncQueue = [];
         STATE.student.score = 0;
         STATE.student.answeredList = [];
         STATE.student.answeredDetails = {};
-        localStorage.removeItem(STORAGE_KEYS.SYNC_QUEUE);
-        persistStateToLocal();
         spawnQuestionCrystals();
-        updateNetworkStatusUI();
-        renderTeacherDashboard();
-        closeConfirmResetModal();
-        showToast('Nilai Dibersihkan', 'Rekap nilai telah dikosongkan untuk sesi kelas berikutnya.');
+        showToast('Nilai Dibersihkan', 'Seluruh nilai telah dinolkan untuk memulai sesi baru.');
       }
+      persistStateToLocal();
+      updateNetworkStatusUI();
+      renderTeacherDashboard();
+      closeConfirmResetModal();
+    }
+
+    function regenerateClassCode() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      STATE.classCode = code;
+      document.getElementById('teacherClassCodeDisplay').innerText = code;
+      document.getElementById('inputClassCode').value = code;
+      renderTeacherDashboard();
+      pushQuestionsToCloud();
+      showToast('Kode Kelas Baru', `Kode kelas berhasil diganti menjadi ${code}`);
+    }
+
+    function shareToWhatsApp() {
+      const url = window.location.href;
+      const text = encodeURIComponent(`Halo anak-anak! Ayo gabung Petualangan Belajar 3D.\nLink: ${url}\nKode Kelas: *${STATE.classCode}*\nMasukkan Nama Panggilan dan Nomor Absen kalian!`);
+      window.open(`https://wa.me/?text=${text}`, '_blank');
+    }
+
+    /* ====================================================================
+       18. WORD / EXCEL IMPORT-EXPORT, AI GENERATOR, PODIUM & CERTIFICATE
+       ==================================================================== */
+    function openImportStudioModal() {
+      STATE.stagedImportQuestions = [];
+      document.getElementById('importPreviewSection').classList.add('hidden');
+      document.getElementById('importStudioModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeImportStudioModal() {
+      document.getElementById('importStudioModal').classList.add('hidden');
+    }
+
+    function setImportMode(mode) {
+      STATE.importMode = mode;
+      const btnS = document.getElementById('btnModeStandar');
+      const btnP = document.getElementById('btnModePintar');
+      if (mode === 'standar') {
+        btnS.className = 'p-4 rounded-2xl bg-emerald-500/20 border-2 border-emerald-400 text-left transition';
+        btnP.className = 'p-4 rounded-2xl bg-black/40 border-2 border-white/15 text-left transition hover:border-purple-400/60';
+      } else {
+        btnP.className = 'p-4 rounded-2xl bg-purple-500/20 border-2 border-purple-400 text-left transition';
+        btnS.className = 'p-4 rounded-2xl bg-black/40 border-2 border-white/15 text-left transition hover:border-emerald-400/60';
+      }
+    }
+
+    function downloadExcelTemplate() {
+      if (typeof XLSX === 'undefined') {
+        showToast('Library Belum Siap', 'SheetJS sedang dimuat.');
+        return;
+      }
+      const rows = [
+        { Tipe: 'pg', Alam: 'kota', Pertanyaan: 'Ibu kota negara Indonesia yang baru bernama?', OpsiA: 'Bandung', OpsiB: 'Nusantara', OpsiC: 'Surabaya', OpsiD: 'Medan', Kunci: 'B', Pembahasan: 'Ibu Kota Nusantara (IKN) terletak di Kalimantan Timur.' },
+        { Tipe: 'bs', Alam: 'nusantara', Pertanyaan: 'Candi Prambanan merupakan candi Hindu terbesar di Indonesia.', OpsiA: 'Benar', OpsiB: 'Salah', OpsiC: '', OpsiD: '', Kunci: 'Benar', Pembahasan: 'Candi Prambanan dibangun pada abad ke-9.' }
+      ];
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Template_Soal_3D');
+      XLSX.writeFile(wb, 'Template_Soal_Petualangan_3D.xlsx');
+    }
+
+    function downloadWordTemplate() {
+      const content = `TEMPLATE NASKAH SOAL PETUALANGAN BELAJAR 3D\n==============================================\n\n1. Apa hasil dari 12 x 8?\nA. 84\nB. 96\nC. 108\nD. 112\nKunci: B\n\n2. Planet terbesar di tata surya kita adalah?\nA. Bumi\nB. Mars\nC. Jupiter\nD. Venus\nKunci: C\n`;
+      const blob = new Blob([content], { type: 'application/msword;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Template_Soal_Petualangan_3D.doc';
+      a.click();
+    }
+
+    function loadSampleUnansweredImport() {
+      setImportMode('pintar');
+      STATE.stagedImportQuestions = [
+        {
+          id: `imp_${Date.now()}_1`,
+          type: 'pg',
+          world: 'kota',
+          title: 'Sumber energi utama bagi kehidupan di bumi berasal dari...',
+          options: ['Bulan', 'Matahari', 'Bintang', 'Angin'],
+          correctAnswer: null,
+          explanation: 'Matahari memancarkan energi panas dan cahaya utama bagi bumi.',
+          weight: 20
+        },
+        {
+          id: `imp_${Date.now()}_2`,
+          type: 'pg',
+          world: 'nusantara',
+          title: 'Alat pernapasan utama pada ikan adalah...',
+          options: ['Paru-paru', 'Trakea', 'Insang', 'Kulit'],
+          correctAnswer: null,
+          explanation: 'Ikan bernapas menggunakan insang yang menyaring oksigen terlarut di air.',
+          weight: 20
+        }
+      ];
+      renderImportPreviewList();
+      showToast('Mode Pintar Siap', 'Silakan klik opsi kunci atau gunakan Asisten Pintar.');
+    }
+
+    async function handleWordExcelFileUpload(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const ext = file.name.split('.').pop().toLowerCase();
+
+      try {
+        if (['xlsx', 'xls', 'csv'].includes(ext)) {
+          const data = await file.arrayBuffer();
+          const wb = XLSX.read(data, { type: 'array' });
+          const sheet = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet);
+          STATE.stagedImportQuestions = rows.map((r, i) => {
+            const opts = [r.OpsiA || r.A || '', r.OpsiB || r.B || '', r.OpsiC || r.C || '', r.OpsiD || r.D || ''].filter(Boolean);
+            const rawKey = String(r.Kunci || r.Jawaban || '').trim().toUpperCase();
+            let ansIdx = null;
+            if (STATE.importMode === 'standar' && rawKey) {
+              const mapIdx = { A: 0, B: 1, C: 2, D: 3, BENAR: 0, SALAH: 1 };
+              ansIdx = mapIdx[rawKey] !== undefined ? mapIdx[rawKey] : 0;
+            }
+            return {
+              id: `imp_${Date.now()}_${i}`,
+              type: (r.Tipe || 'pg').toLowerCase(),
+              world: (r.Alam || 'kota').toLowerCase(),
+              title: r.Pertanyaan || r.Soal || `Soal Impor #${i + 1}`,
+              options: opts.length ? opts : ['Benar', 'Salah'],
+              correctAnswer: ansIdx,
+              explanation: r.Pembahasan || '',
+              weight: 20
+            };
+          });
+        } else {
+          let text = '';
+          if (ext === 'docx' && typeof mammoth !== 'undefined') {
+            const arrayBuffer = await file.arrayBuffer();
+            const res = await mammoth.extractRawText({ arrayBuffer });
+            text = res.value;
+          } else {
+            text = await file.text();
+          }
+          const blocks = text.split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
+          STATE.stagedImportQuestions = blocks.map((blk, i) => {
+            const lines = blk.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            const qTitle = (lines[0] || '').replace(/^\d+[\.\)]\s*/, '');
+            const opts = [];
+            let detectedKey = null;
+            lines.slice(1).forEach(ln => {
+              const optMatch = ln.match(/^([A-Da-d])[\.\)]\s*(.+)$/);
+              if (optMatch) {
+                let optText = optMatch[2];
+                if (optText.startsWith('*')) {
+                  optText = optText.slice(1).trim();
+                  detectedKey = opts.length;
+                }
+                opts.push(optText);
+              }
+              const keyMatch = ln.match(/^Kunci\s*:\s*([A-Da-d])/i);
+              if (keyMatch) {
+                detectedKey = { A: 0, B: 1, C: 2, D: 3 }[keyMatch[1].toUpperCase()];
+              }
+            });
+            return {
+              id: `imp_${Date.now()}_${i}`,
+              type: opts.length >= 2 ? 'pg' : 'bs',
+              world: 'kota',
+              title: qTitle || `Soal Dokumen #${i + 1}`,
+              options: opts.length >= 2 ? opts : ['Benar', 'Salah'],
+              correctAnswer: STATE.importMode === 'standar' ? detectedKey : null,
+              explanation: '',
+              weight: 20
+            };
+          });
+        }
+        renderImportPreviewList();
+      } catch (err) {
+        showToast('Gagal Membaca File', 'Pastikan format file Excel atau Word valid.');
+      }
+      e.target.value = '';
+    }
+
+    function renderImportPreviewList() {
+      const sec = document.getElementById('importPreviewSection');
+      const list = document.getElementById('importPreviewList');
+      const badge = document.getElementById('importPreviewBadge');
+      sec.classList.remove('hidden');
+      badge.innerText = `${STATE.stagedImportQuestions.length} Soal`;
+
+      list.innerHTML = STATE.stagedImportQuestions.map((q, qIdx) => {
+        const hasKey = q.correctAnswer !== null && q.correctAnswer !== undefined;
+        return `
+          <div class="p-3.5 rounded-2xl bg-black/50 border ${hasKey ? 'border-game-green/50' : 'border-amber-400/60'} space-y-2 text-xs">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-cartoon font-bold text-white">#${qIdx + 1}. ${q.title}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${hasKey ? 'bg-game-green/20 text-game-green' : 'bg-amber-500/20 text-amber-300'}">
+                ${hasKey ? '✓ Kunci Terisi' : '⚠ Klik Kunci Jawaban'}
+              </span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+              ${(q.options || []).map((opt, oIdx) => `
+                <button type="button" onclick="setStagedQuestionKey(${qIdx}, ${oIdx})" class="text-left px-3 py-1.5 rounded-xl border text-[11px] transition ${q.correctAnswer === oIdx ? 'bg-game-green/25 border-game-green text-white font-bold' : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'}">
+                  <b>${String.fromCharCode(65 + oIdx)}.</b> ${opt}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function setStagedQuestionKey(qIdx, oIdx) {
+      if (STATE.stagedImportQuestions[qIdx]) {
+        STATE.stagedImportQuestions[qIdx].correctAnswer = oIdx;
+        renderImportPreviewList();
+      }
+    }
+
+    function autoFillMissingKeysWithSmartAssistant() {
+      STATE.stagedImportQuestions.forEach(q => {
+        if (q.correctAnswer === null || q.correctAnswer === undefined) {
+          const text = (q.title + ' ' + (q.options || []).join(' ')).toLowerCase();
+          if (text.includes('matahari') && q.options) {
+            const idx = q.options.findIndex(o => o.toLowerCase().includes('matahari'));
+            q.correctAnswer = idx !== -1 ? idx : 0;
+          } else if (text.includes('insang') && q.options) {
+            const idx = q.options.findIndex(o => o.toLowerCase().includes('insang'));
+            q.correctAnswer = idx !== -1 ? idx : 0;
+          } else {
+            q.correctAnswer = 0;
+          }
+        }
+      });
+      renderImportPreviewList();
+      showToast('Kunci Terisi Otomatis', 'Asisten Pintar telah melengkapi kunci jawaban yang kosong.');
+    }
+
+    function exportStagedQuestionsToExcel() {
+      if (typeof XLSX === 'undefined' || STATE.stagedImportQuestions.length === 0) return;
+      const rows = STATE.stagedImportQuestions.map(q => ({
+        Pertanyaan: q.title,
+        OpsiA: q.options?.[0] || '',
+        OpsiB: q.options?.[1] || '',
+        OpsiC: q.options?.[2] || '',
+        OpsiD: q.options?.[3] || '',
+        Kunci: q.correctAnswer !== null ? String.fromCharCode(65 + q.correctAnswer) : ''
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Hasil_Kunci_Soal');
+      XLSX.writeFile(wb, 'Hasil_Impor_Kunci_Soal.xlsx');
+    }
+
+    function commitImportedQuestions() {
+      if (STATE.stagedImportQuestions.length === 0) return;
+      const finalized = STATE.stagedImportQuestions.map(q => ({
+        ...q,
+        correctAnswer: q.correctAnswer !== null ? q.correctAnswer : 0
+      }));
+      STATE.questions.push(...finalized);
+      persistStateToLocal();
+      pushQuestionsToCloud();
+      spawnQuestionCrystals();
+      renderTeacherDashboard();
+      closeImportStudioModal();
+      showToast('Impor Berhasil!', `${finalized.length} soal baru ditambahkan ke dunia 3D.`);
+    }
+
+    function exportQuestionsToExcel() {
+      if (typeof XLSX === 'undefined') return;
+      const rows = STATE.questions.map((q, i) => ({
+        No: i + 1,
+        Tipe: q.type.toUpperCase(),
+        Alam: q.world || 'kota',
+        Pertanyaan: q.title,
+        Kunci_Jawaban: getCorrectAnswerReadable(q),
+        Pembahasan: q.explanation || ''
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Bank_Soal_3D');
+      XLSX.writeFile(wb, `Bank_Soal_${STATE.classCode}.xlsx`);
+    }
+
+    function exportQuestionsToWordDoc() {
+      const lines = STATE.questions.map((q, i) => `${i + 1}. [${q.type.toUpperCase()}] ${q.title}\n   Kunci Jawaban: ${getCorrectAnswerReadable(q)}\n   Pembahasan: ${q.explanation || '-'}\n`).join('\n');
+      const blob = new Blob([`BANK SOAL & KUNCI JAWABAN - KELAS ${STATE.classCode}\n=====================================================\n\n${lines}`], { type: 'application/msword;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Bank_Soal_${STATE.classCode}.doc`;
+      a.click();
+    }
+
+    function downloadGradesExcelXlsx() {
+      if (typeof XLSX === 'undefined') return;
+      const rows = STATE.gradebook.map((s, i) => ({
+        Peringkat: i + 1,
+        No_Absen: s.absen,
+        Nama_Siswa: s.name,
+        Misi_Selesai: `${s.completed}/${s.total}`,
+        Akurasi: s.accuracy,
+        Nilai_Akhir: s.score
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Rekap_Nilai');
+      XLSX.writeFile(wb, `Rekap_Nilai_${STATE.classCode}.xlsx`);
+    }
+
+    let aiTargetCount = 3;
+    function openAiGeneratorModal() {
+      document.getElementById('aiGenModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+    function closeAiGeneratorModal() {
+      document.getElementById('aiGenModal').classList.add('hidden');
+    }
+    function setAiCount(cnt) {
+      aiTargetCount = cnt;
+      document.querySelectorAll('.ai-cnt-btn').forEach(btn => {
+        btn.className = btn.innerText.startsWith(String(cnt))
+          ? 'ai-cnt-btn flex-1 py-1.5 rounded-xl bg-game-purple text-white font-cartoon font-bold'
+          : 'ai-cnt-btn flex-1 py-1.5 rounded-xl bg-white/10 text-slate-300 font-cartoon font-bold';
+      });
+    }
+    function generateQuestionsWithAi() {
+      const subject = document.getElementById('aiSubject').value;
+      const topic = document.getElementById('aiTopic').value.trim() || subject;
+      const worlds = ['kota', 'nusantara', 'laut', 'angkasa'];
+      for (let i = 0; i < aiTargetCount; i++) {
+        STATE.questions.push({
+          id: `ai_${Date.now()}_${i}`,
+          type: 'pg',
+          world: worlds[i % worlds.length],
+          title: `[${topic}] Pertanyaan konsep #${i + 1} pada materi ${topic}:`,
+          options: [`Konsep Utama ${topic}`, 'Pengecoh Satu', 'Pengecoh Dua', 'Pengecoh Tiga'],
+          correctAnswer: 0,
+          explanation: `Pembahasan otomatis AI untuk materi ${topic}.`,
+          weight: 20
+        });
+      }
+      persistStateToLocal();
+      pushQuestionsToCloud();
+      spawnQuestionCrystals();
+      renderTeacherDashboard();
+      closeAiGeneratorModal();
+      showToast('Soal AI Dibuat!', `${aiTargetCount} soal materi ${topic} siap dimainkan.`);
+    }
+
+    function openPodiumProjector() {
+      document.getElementById('projCode').innerText = STATE.classCode;
+      const sorted = [...STATE.gradebook].sort((a, b) => b.score - a.score);
+      if (sorted[0]) {
+        document.getElementById('podium1Name').innerText = sorted[0].name;
+        document.getElementById('podium1Score').innerText = `Skor: ${sorted[0].score}`;
+      }
+      if (sorted[1]) {
+        document.getElementById('podium2Name').innerText = sorted[1].name;
+        document.getElementById('podium2Score').innerText = `Skor: ${sorted[1].score}`;
+      }
+      if (sorted[2]) {
+        document.getElementById('podium3Name').innerText = sorted[2].name;
+        document.getElementById('podium3Score').innerText = `Skor: ${sorted[2].score}`;
+      }
+      document.getElementById('projectorPodiumModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+    function closePodiumProjector() {
+      document.getElementById('projectorPodiumModal').classList.add('hidden');
+    }
+    function triggerPodiumConfetti() {
+      SoundFx.victory();
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+    }
+
+    function openCertificateForStudent(name, score) {
+      document.getElementById('certStudentName').innerText = name.toUpperCase();
+      document.getElementById('certDetails').innerText = `Atas keberhasilannya menuntaskan Petualangan Belajar 3D dengan Skor ${score}.`;
+      document.getElementById('certCode').innerText = STATE.classCode;
+      document.getElementById('certificateModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+    function openBatchCertificateModal() {
+      const top = [...STATE.gradebook].sort((a, b) => b.score - a.score)[0] || { name: 'Siswa Terbaik', score: 100 };
+      openCertificateForStudent(top.name, top.score);
+    }
+    function closeCertificateModal() {
+      document.getElementById('certificateModal').classList.add('hidden');
+    }
+    function printCertificate() {
+      window.print();
+    }
+
+    function saveSupabaseConfig() {
+      const url = document.getElementById('inputSupabaseUrl').value.trim().replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+      const key = document.getElementById('inputSupabaseKey').value.trim();
+      STATE.supabaseConfig = { url, key };
+      localStorage.setItem(STORAGE_KEYS.SUPABASE, JSON.stringify(STATE.supabaseConfig));
+      showToast('Konfigurasi Tersimpan', 'Koneksi Supabase siap menyinkronkan soal & nilai kelas.');
+      flushSyncQueue(true);
+    }
+
+    function clearSupabaseConfig() {
+      STATE.supabaseConfig = { url: DEFAULT_CLOUD_CONFIG.url, key: DEFAULT_CLOUD_CONFIG.key };
+      localStorage.removeItem(STORAGE_KEYS.SUPABASE);
+      document.getElementById('inputSupabaseUrl').value = STATE.supabaseConfig.url;
+      document.getElementById('inputSupabaseKey').value = STATE.supabaseConfig.key;
+      showToast('Konfigurasi Direset', 'Kembali ke pengaturan bawaan.');
+    }
+
+    function copySupabaseSql() {
+      const text = document.getElementById('supabaseSqlCode').innerText;
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('SQL Disalin', 'Tempelkan skrip SQL ini di SQL Editor Supabase Anda.');
     }
 
     function openHelpModal() {

@@ -1,4 +1,284 @@
-<!-- ... existing code ... -->
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Petualangan Belajar 3D — Game Edukasi Interaktif & Studio Guru</title>
+
+  <!-- Google Fonts: Fredoka (Cartoon Headings) & Plus Jakarta Sans (Clean Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            cartoon: ['Fredoka', 'cursive', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            game: {
+              navy: '#0B132B',
+              panel: '#15203B',
+              yellow: '#FFD027',
+              orange: '#FF7B00',
+              green: '#00D664',
+              blue: '#00A3FF',
+              coral: '#FF4757',
+              purple: '#9B51E0'
+            }
+          },
+          boxShadow: {
+            'game-btn': '0 5px 0 0 rgba(0, 0, 0, 0.35)',
+            'game-btn-active': '0 2px 0 0 rgba(0, 0, 0, 0.35)',
+            'card-glow': '0 10px 30px -5px rgba(0, 163, 255, 0.25)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Three.js for 3D World Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- SheetJS (xlsx) for Real Excel Import & Export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Mammoth.js for Real Word (.docx) Import -->
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      background-color: #0B132B;
+      color: #F8FAFC;
+      user-select: none;
+    }
+    #gameCanvasContainer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      touch-action: none;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+    .glass-hud {
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.4); border-radius: 999px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 999px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 208, 39, 0.7); }
+
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    .animate-float { animation: floatSlow 3s ease-in-out infinite; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #certificatePrintArea, #certificatePrintArea * { visibility: visible; }
+      #certificatePrintArea {
+        position: fixed;
+        inset: 0;
+        background: white !important;
+        color: black !important;
+        z-index: 99999;
+      }
+    }
+  </style>
+</head>
+<body class="font-sans antialiased">
+
+  <!-- 3D WORLD CANVAS BACKGROUND -->
+  <div id="gameCanvasContainer"></div>
+
+  <!-- TOAST NOTIFICATION BANNER (Auto-Hides Completely Offscreen) -->
+  <div id="toastBanner" class="fixed top-4 left-1/2 -translate-x-1/2 z-[70] -translate-y-[260%] opacity-0 pointer-events-none transition-all duration-300 max-w-md w-[92%]">
+    <div class="glass-hud rounded-2xl px-4 py-3 shadow-2xl border-2 border-game-yellow flex items-center gap-3">
+      <div id="toastIcon" class="w-9 h-9 rounded-xl bg-game-yellow/20 text-game-yellow flex items-center justify-center shrink-0">
+        <i data-lucide="sparkles" class="w-5 h-5"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p id="toastTitle" class="font-cartoon text-sm font-bold text-white leading-tight">Notifikasi</p>
+        <p id="toastMsg" class="text-xs text-slate-300 truncate">Pesan sistem</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBAL TOP NAVIGATION BAR (Visible in Lobby & Teacher Mode; Hidden during 3D Play) -->
+  <header id="globalHeader" class="fixed top-0 left-0 right-0 z-40 px-3 sm:px-6 py-2.5 flex items-center justify-between gap-2 pointer-events-none">
+    <div class="glass-hud rounded-2xl px-3.5 py-2 flex items-center gap-2.5 pointer-events-auto shadow-lg">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-game-yellow to-game-orange flex items-center justify-center text-game-navy shadow-md">
+        <i data-lucide="gamepad-2" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h1 class="font-cartoon text-sm sm:text-base font-bold tracking-wide text-white leading-none">
+          PETUALANGAN <span class="text-game-yellow">3D</span>
+        </h1>
+        <div class="flex items-center gap-1.5 mt-0.5">
+          <span id="netStatusDot" class="w-2 h-2 rounded-full bg-game-green"></span>
+          <span id="netStatusText" class="text-[10px] font-semibold text-slate-300">Online</span>
+          <span id="syncQueueBadge" class="text-[10px] px-1.5 py-0.2 rounded bg-game-green/20 text-game-green font-bold">✓ Synced</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 pointer-events-auto">
+      <button id="btnToggleOfflineSim" onclick="toggleOfflineSimulation()" class="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl glass-hud text-xs font-bold text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/20 transition" title="Simulasi Koneksi Offline/Online">
+        <i data-lucide="wifi" class="w-4 h-4"></i>
+        <span id="simOfflineLabel">Online (Uji Offline)</span>
+      </button>
+
+      <div class="glass-hud p-1 rounded-2xl flex items-center gap-1 shadow-lg">
+        <button id="navBtnStudent" onclick="switchAppMode('student')" class="px-3 sm:px-4 py-2 rounded-xl font-cartoon text-xs sm:text-sm font-bold transition flex items-center gap-1.5 bg-game-yellow text-game-navy shadow">
+          <i data-lucide="joystick" class="w-4 h-4"></i>
+          <span>Mode Murid</span>
+        </button>
+        <button id="navBtnTeacher" onclick="requestTeacherMode()" class="px-3 sm:px-4 py-2 rounded-xl font-cartoon text-xs sm:text-sm font-bold transition flex items-center gap-1.5 text-slate-300 hover:text-white">
+          <i data-lucide="lock" class="w-4 h-4 text-game-yellow"></i>
+          <span>Mode Guru</span>
+        </button>
+        <button onclick="openProjectorModal()" class="hidden sm:flex px-3 py-2 rounded-xl font-cartoon text-xs font-bold text-amber-300 hover:bg-white/10 transition items-center gap-1.5" title="Papan Peringkat TV Proyektor">
+          <i data-lucide="trophy" class="w-4 h-4"></i>
+          <span>Proyektor</span>
+        </button>
+      </div>
+
+      <button id="btnToggleSound" onclick="toggleAudio()" class="w-10 h-10 rounded-xl glass-hud flex items-center justify-center text-game-yellow hover:bg-white/10 transition" title="Suara Efek">
+        <i id="soundIcon" data-lucide="volume-2" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       VIEW 1: STUDENT LOBBY & 3D ADVENTURE VIEWPORT
+       ===================================================================== -->
+  <main id="studentView" class="relative z-10 w-full min-h-screen">
+
+    <!-- ========= STUDENT LOBBY SCREEN ========= -->
+    <section id="lobbyScreen" class="min-h-screen flex items-center justify-center px-4 pt-20 pb-8">
+      <div class="glass-hud max-w-xl w-full rounded-3xl p-6 sm:p-8 shadow-2xl border-2 border-white/15">
+        <div class="flex items-center justify-between gap-3 mb-5">
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-game-yellow/20 text-game-yellow font-cartoon text-xs font-bold mb-2">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> BELAJAR SAMBIL BERPETUALANG 3D
+            </span>
+            <h2 class="font-cartoon text-2xl sm:text-3xl font-bold text-white leading-tight">
+              Masuk ke Dunia Ilmu!
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">
+              Masukkan <b>Kode Kelas</b>, <b>Nama Lengkap</b>, dan <b>Nomor Absen</b> sesuai yang didaftarkan Bapak/Ibu Guru.
+            </p>
+          </div>
+          <div class="hidden sm:flex w-16 h-16 rounded-2xl bg-gradient-to-br from-game-blue to-game-purple items-center justify-center text-white shadow-lg animate-float shrink-0">
+            <i data-lucide="compass" class="w-9 h-9"></i>
+          </div>
+        </div>
+
+        <!-- World Theme Visual Selector -->
+        <div class="mb-5">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+            Pilih Alam Petualangan 3D:
+          </label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <button type="button" onclick="selectWorldTheme('kota')" id="worldCard-kota" class="world-card group p-2.5 rounded-2xl border-2 border-game-yellow bg-game-yellow/15 text-left transition">
+              <div class="w-full h-12 rounded-xl bg-sky-500/30 mb-1.5 overflow-hidden flex items-center justify-center">
+                <svg viewBox="0 0 80 40" class="w-full h-full">
+                  <rect width="80" height="40" fill="#38bdf8"/>
+                  <rect y="28" width="80" height="12" fill="#166534"/>
+                  <polygon points="16,14 26,7 36,14" fill="#ea580c"/>
+                  <rect x="18" y="14" width="16" height="14" fill="#fef3c7"/>
+                  <circle cx="52" cy="18" r="6" fill="#22c55e"/>
+                  <rect x="50" y="22" width="4" height="6" fill="#78350f"/>
+                  <rect x="58" y="23" width="14" height="5" rx="2" fill="#ef4444"/>
+                </svg>
+              </div>
+              <p class="font-cartoon text-xs font-bold text-white">🏙️ Kota Ilmu</p>
+              <p class="text-[10px] text-slate-300">Rumah, Mobil & Sungai</p>
+            </button>
+
+            <button type="button" onclick="selectWorldTheme('nusantara')" id="worldCard-nusantara" class="world-card group p-2.5 rounded-2xl border-2 border-white/10 bg-slate-900/50 hover:border-white/30 text-left transition">
+              <div class="w-full h-12 rounded-xl bg-emerald-500/30 mb-1.5 overflow-hidden flex items-center justify-center">
+                <svg viewBox="0 0 80 40" class="w-full h-full">
+                  <rect width="80" height="40" fill="#7dd3fc"/>
+                  <rect y="28" width="80" height="12" fill="#15803d"/>
+                  <polygon points="40,8 24,28 56,28" fill="#57534e"/>
+                  <circle cx="14" cy="26" r="4" fill="#94a3b8"/>
+                  <path d="M58,10 Q62,7 66,10 M66,10 Q70,7 74,10" stroke="#fef08a" stroke-width="2" fill="none"/>
+                </svg>
+              </div>
+              <p class="font-cartoon text-xs font-bold text-white">🛕 Nusantara</p>
+              <p class="text-[10px] text-slate-300">Candi, Batu & Burung</p>
+            </button>
+
+            <button type="button" onclick="selectWorldTheme('laut')" id="worldCard-laut" class="world-card group p-2.5 rounded-2xl border-2 border-white/10 bg-slate-900/50 hover:border-white/30 text-left transition">
+              <div class="w-full h-12 rounded-xl bg-cyan-500/30 mb-1.5 overflow-hidden flex items-center justify-center">
+                <svg viewBox="0 0 80 40" class="w-full h-full">
+                  <rect width="80" height="40" fill="#0369a1"/>
+                  <rect y="30" width="80" height="10" fill="#fde047"/>
+                  <circle cx="20" cy="27" r="5" fill="#f43f5e"/>
+                  <circle cx="30" cy="28" r="4" fill="#a855f7"/>
+                  <ellipse cx="56" cy="15" rx="7" ry="4" fill="#fbbf24"/>
+                  <polygon points="63,15 68,11 68,19" fill="#f59e0b"/>
+                </svg>
+              </div>
+              <p class="font-cartoon text-xs font-bold text-white">🐠 Bawah Laut</p>
+              <p class="text-[10px] text-slate-300">Karang & Ikan Warna</p>
+            </button>
+
+            <button type="button" onclick="selectWorldTheme('angkasa')" id="worldCard-angkasa" class="world-card group p-2.5 rounded-2xl border-2 border-white/10 bg-slate-900/50 hover:border-white/30 text-left transition">
+              <div class="w-full h-12 rounded-xl bg-indigo-950 mb-1.5 overflow-hidden flex items-center justify-center">
+                <svg viewBox="0 0 80 40" class="w-full h-full">
+                  <rect width="80" height="40" fill="#030712"/>
+                  <circle cx="26" cy="20" r="8" fill="#a855f7"/>
+                  <ellipse cx="26" cy="20" rx="15" ry="3.5" stroke="#fde047" stroke-width="2" fill="none"/>
+                  <circle cx="60" cy="12" r="1.5" fill="#ffffff"/>
+                  <circle cx="52" cy="28" r="4" fill="#64748b"/>
+                </svg>
+              </div>
+              <p class="font-cartoon text-xs font-bold text-white">🚀 Antariksa</p>
+              <p class="text-[10px] text-slate-300">Planet, Meteor & UFO</p>
+            </button>
+          </div>
+        </div>
+
+        <!-- Student Join Form -->
+        <form onsubmit="handleStudentJoin(event)" class="space-y-3.5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">Kode Kelas dari Guru</label>
+              <input id="inputClassCode" type="text" value="JUARA2026" required placeholder="Contoh: JUARA2026" class="w-full px-4 py-3 rounded-2xl bg-slate-900/80 border border-white/15 text-white font-cartoon tracking-wider uppercase focus:outline-none focus:border-game-yellow" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">Nomor Absen</label>
+              <input id="inputAbsen" type="text" required placeholder="Contoh: 01" class="w-full px-4 py-3 rounded-2xl bg-slate-900/80 border border-white/15 text-white font-bold focus:outline-none focus:border-game-yellow" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Nama Siswa (Sesuai Daftar Guru)</label>
+            <input id="inputNickname" type="text" required placeholder="Contoh: Fadil" class="w-full px-4 py-3 rounded-2xl bg-slate-900/80 border border-white/15 text-white font-semibold focus:outline-none focus:border-game-yellow" />
+          </div>
+
           <button type="submit" class="w-full mt-2 py-3.5 rounded-2xl bg-gradient-to-r from-game-yellow to-game-orange text-game-navy font-cartoon font-bold text-lg shadow-game-btn active:translate-y-1 active:shadow-game-btn-active transition transform flex items-center justify-center gap-2">
             <i data-lucide="play" class="w-6 h-6 fill-current"></i>
             MULAI PETUALANGAN! (TERJUN PAYUNG)
@@ -28,30 +308,883 @@
     </div>
 
     <!-- ========= IN-GAME HUD (Clean Heads-Up Display) ========= -->
-<!-- ... existing code ... -->
+    <div id="gameHud" class="fixed inset-0 z-20 pointer-events-none hidden">
+      <!-- Top Clean Bar: Score, Mission Count, Room Trophy & Exit -->
+      <div class="px-3 sm:px-6 pt-3 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 pointer-events-auto">
+          <div class="glass-hud rounded-2xl px-3.5 py-2 flex items-center gap-2 border border-game-yellow/40">
+            <i data-lucide="star" class="w-5 h-5 text-game-yellow fill-current"></i>
+            <div>
+              <p class="text-[9px] font-bold uppercase text-slate-400 leading-none">Skor</p>
+              <p id="hudScore" class="font-cartoon text-base sm:text-lg font-bold text-game-yellow leading-tight">0</p>
+            </div>
+          </div>
+
+          <div class="glass-hud rounded-2xl px-3.5 py-2 flex items-center gap-2 border border-game-blue/40">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-game-blue"></i>
+            <div>
+              <p class="text-[9px] font-bold uppercase text-slate-400 leading-none">Misi Soal</p>
+              <p id="hudCompletedCount" class="font-cartoon text-base sm:text-lg font-bold text-white leading-tight">0 / 5</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 pointer-events-auto">
+          <button onclick="openMiniLeaderboard()" class="glass-hud rounded-2xl px-3.5 py-2.5 flex items-center gap-1.5 text-amber-300 hover:bg-white/10 transition border border-amber-400/30" title="Klasemen Room">
+            <i data-lucide="trophy" class="w-5 h-5"></i>
+            <span class="hidden sm:inline font-cartoon text-xs font-bold">Piala Room</span>
+          </button>
+
+          <button onclick="confirmFinishAndExitGame()" class="px-3.5 py-2.5 rounded-2xl bg-game-coral/90 hover:bg-game-coral text-white font-cartoon text-xs font-bold shadow-lg flex items-center gap-1.5 transition">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            <span>Selesai & Keluar</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Top-Right Real-Time Radar -->
+      <div class="fixed top-16 right-3 sm:right-6 pointer-events-none">
+        <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full glass-hud border-2 border-game-blue/50 relative overflow-hidden shadow-xl">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-16 h-16 rounded-full border border-white/10"></div>
+            <div class="w-2 h-2 rounded-full bg-white shadow"></div>
+          </div>
+          <div id="radarMarkersLayer" class="absolute inset-0"></div>
+          <span class="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-bold uppercase tracking-wider text-slate-300 bg-slate-950/70 px-1.5 rounded">Radar</span>
+        </div>
+      </div>
+
+      <!-- Center Interaction Prompt when Near Crystal -->
+      <div id="interactPrompt" class="fixed bottom-28 sm:bottom-24 left-1/2 -translate-x-1/2 hidden pointer-events-auto">
+        <button id="btnInteractPrompt" onclick="triggerNearestQuiz()" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-game-yellow to-game-orange text-game-navy font-cartoon text-sm sm:text-base font-bold shadow-game-btn animate-bounce flex items-center gap-2">
+          <i data-lucide="sparkles" class="w-5 h-5"></i>
+          <span id="interactPromptLabel">JAWAB SOAL!</span>
+        </button>
+      </div>
+
+      <!-- Bottom-Left 360-Degree Analog Joystick (Touch / Mobile & Tablet) -->
+      <div id="mobileJoystickContainer" class="fixed bottom-5 left-5 sm:bottom-7 sm:left-7 pointer-events-auto">
+        <div id="joystickZone" class="w-28 h-28 sm:w-32 sm:h-32 rounded-full glass-hud border-2 border-white/25 relative flex items-center justify-center shadow-2xl touch-none">
+          <div class="w-16 h-16 rounded-full border border-dashed border-white/20 pointer-events-none"></div>
+          <div id="joystickThumb" class="w-12 h-12 rounded-full bg-gradient-to-br from-game-yellow to-game-orange shadow-lg border-2 border-white pointer-events-none transition-transform duration-75"></div>
+        </div>
+      </div>
+
+      <!-- Bottom-Right Jump Button -->
+      <div class="fixed bottom-5 right-5 sm:bottom-7 sm:right-7 pointer-events-auto flex flex-col items-end gap-2">
+        <button id="btnMobileJump" type="button" ontouchstart="triggerJump(event)" onmousedown="triggerJump(event)" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-game-green to-emerald-600 text-game-navy font-cartoon font-bold text-sm sm:text-base shadow-game-btn active:translate-y-1 border-4 border-white/40 flex flex-col items-center justify-center">
+          <i data-lucide="arrow-up" class="w-7 h-7 stroke-[3]"></i>
+          <span>LOMPAT</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- =====================================================================
+       VIEW 2: TEACHER DASHBOARD & QUESTION STUDIO
+       ===================================================================== -->
+  <section id="teacherView" class="hidden relative z-20 min-h-screen pt-20 pb-12 px-3 sm:px-6 max-w-7xl mx-auto">
+    <!-- Top Teacher Header Banner -->
+    <div class="glass-hud rounded-3xl p-5 sm:p-6 mb-5 border border-white/15 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div>
+        <div class="flex flex-wrap items-center gap-2 mb-1.5">
+          <span class="px-3 py-1 rounded-full bg-game-yellow/20 text-game-yellow font-cartoon text-xs font-bold">
+            👩‍🏫 STUDIO GURU & MONITORING REAL-TIME
+          </span>
+          <span class="px-3 py-1 rounded-full bg-game-blue/20 text-game-blue font-mono text-xs font-bold">
+            Kode Kelas: <span id="teacherClassCodeDisplay">JUARA2026</span>
+          </span>
+        </div>
+        <h2 class="font-cartoon text-2xl sm:text-3xl font-bold text-white">Dashboard Pembelajaran 3D</h2>
+        <p class="text-xs sm:text-sm text-slate-300 mt-0.5">
+          Kelola bank soal (Impor Word/Excel 2 Mode), daftarkan siswa kelas, dan pantau skor masuk otomatis tanpa refresh.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button onclick="openChangeClassCodeModal()" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold border border-white/15 flex items-center gap-1.5 transition">
+          <i data-lucide="key-round" class="w-4 h-4 text-game-yellow"></i>
+          <span>Ganti Kode / PIN</span>
+        </button>
+        <button onclick="shareClassToWhatsApp()" class="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow">
+          <i data-lucide="share-2" class="w-4 h-4"></i>
+          <span>Bagikan WA</span>
+        </button>
+        <button onclick="confirmClearAllScores()" class="px-3.5 py-2.5 rounded-xl bg-amber-600/90 hover:bg-amber-500 text-white text-xs font-bold flex items-center gap-1.5 transition">
+          <i data-lucide="eraser" class="w-4 h-4"></i>
+          <span>Bersihkan Nilai</span>
+        </button>
+        <button onclick="confirmFullFactoryReset()" class="px-3.5 py-2.5 rounded-xl bg-rose-600/90 hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-1.5 transition">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          <span>Reset Awal</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI Summary Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5">
+      <div class="glass-hud rounded-2xl p-4 border border-white/10">
+        <p class="text-xs text-slate-400 font-semibold">Siswa Terdaftar</p>
+        <p id="kpiTotalStudents" class="font-cartoon text-2xl sm:text-3xl font-bold text-white mt-1">0</p>
+        <p class="text-[11px] text-game-green mt-1">✓ Wajib terdaftar untuk masuk</p>
+      </div>
+      <div class="glass-hud rounded-2xl p-4 border border-white/10">
+        <p class="text-xs text-slate-400 font-semibold">Rata-rata Nilai</p>
+        <p id="kpiAvgScore" class="font-cartoon text-2xl sm:text-3xl font-bold text-game-yellow mt-1">0</p>
+        <p class="text-[11px] text-slate-400 mt-1">Skala 0 – 100</p>
+      </div>
+      <div class="glass-hud rounded-2xl p-4 border border-white/10">
+        <p class="text-xs text-slate-400 font-semibold">Total Butir Soal</p>
+        <p id="kpiTotalQuestions" class="font-cartoon text-2xl sm:text-3xl font-bold text-game-blue mt-1">5</p>
+        <p class="text-[11px] text-slate-400 mt-1">Aktif sebagai kristal 3D</p>
+      </div>
+      <div class="glass-hud rounded-2xl p-4 border border-white/10">
+        <p class="text-xs text-slate-400 font-semibold">Ketuntasan (KKM 75)</p>
+        <p id="kpiPassRate" class="font-cartoon text-2xl sm:text-3xl font-bold text-game-green mt-1">0%</p>
+        <p class="text-[11px] text-slate-400 mt-1">Terhitung otomatis</p>
+      </div>
+    </div>
+
+    <!-- Teacher Navigation Tabs -->
+    <div class="glass-hud rounded-2xl p-1.5 mb-5 flex flex-wrap gap-1.5 border border-white/10">
+      <button onclick="switchTeacherTab('bank')" id="tabBtn-bank" class="teacher-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-game-blue text-white flex items-center gap-2 transition">
+        <i data-lucide="layers" class="w-4 h-4"></i>
+        <span>Studio Soal & Impor Word/Excel</span>
+      </button>
+      <button onclick="switchTeacherTab('roster')" id="tabBtn-roster" class="teacher-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:text-white flex items-center gap-2 transition">
+        <i data-lucide="users" class="w-4 h-4"></i>
+        <span>Anggota Siswa Kelas</span>
+      </button>
+      <button onclick="switchTeacherTab('grades')" id="tabBtn-grades" class="teacher-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:text-white flex items-center gap-2 transition">
+        <i data-lucide="table" class="w-4 h-4"></i>
+        <span>Rekap Nilai & Sync Queue</span>
+      </button>
+      <button onclick="switchTeacherTab('analysis')" id="tabBtn-analysis" class="teacher-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:text-white flex items-center gap-2 transition">
+        <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+        <span>Analisis Butir Soal</span>
+      </button>
+      <button onclick="switchTeacherTab('database')" id="tabBtn-database" class="teacher-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:text-white flex items-center gap-2 transition">
+        <i data-lucide="database" class="w-4 h-4"></i>
+        <span>Koneksi Database (Supabase)</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: QUESTION BANK & DUAL-MODE WORD/EXCEL IMPORTER -->
+    <div id="teacherTab-bank" class="teacher-tab-panel glass-hud rounded-3xl p-5 sm:p-6 border border-white/15">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5">
+        <div>
+          <h3 class="font-cartoon text-xl font-bold text-white">Daftar Soal di Dunia Game 3D</h3>
+          <p class="text-xs text-slate-300">Impor dari Word/Excel (Mode Standar atau Mode Pintar) atau ekspor hasil bank soal & kunci jawaban.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="openImportStudioModal()" class="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow">
+            <i data-lucide="file-up" class="w-4 h-4"></i>
+            <span>Impor Word / Excel (2 Mode)</span>
+          </button>
+          <button onclick="openAiGeneratorModal()" class="px-3.5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1.5 shadow">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <span>Buat Otomatis AI</span>
+          </button>
+          <button onclick="openQuestionFormModal()" class="px-3.5 py-2.5 rounded-xl bg-game-blue hover:bg-sky-500 text-white text-xs font-bold flex items-center gap-1.5 shadow">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Tambah Manual</span>
+          </button>
+          <button onclick="exportQuestionsToExcel()" class="px-3.5 py-2.5 rounded-xl bg-game-yellow text-game-navy text-xs font-bold flex items-center gap-1.5 shadow">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+            <span>Ekspor Excel (.xlsx)</span>
+          </button>
+          <button onclick="exportQuestionsToWord()" class="px-3.5 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold flex items-center gap-1.5">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+            <span>Ekspor Word (.doc)</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="questionBankGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
+    </div>
+
+    <!-- TAB 2: STUDENT CLASS ROSTER (ANGGOTA SISWA KELAS) -->
+    <div id="teacherTab-roster" class="teacher-tab-panel hidden glass-hud rounded-3xl p-5 sm:p-6 border border-white/15">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+        <div>
+          <h3 class="font-cartoon text-xl font-bold text-white">Anggota Siswa-Siswi Kelas</h3>
+          <p class="text-xs text-slate-300">Hanya siswa yang terdaftar di tabel ini yang diizinkan masuk bermain ke Kode Kelas aktif.</p>
+        </div>
+        <button onclick="openBulkStudentModal()" class="px-4 py-2.5 rounded-xl bg-game-blue hover:bg-sky-500 text-white text-xs font-bold flex items-center gap-1.5 self-start">
+          <i data-lucide="list-plus" class="w-4 h-4"></i>
+          <span>Tambah Massal (Tempel Daftar)</span>
+        </button>
+      </div>
+
+      <form onsubmit="handleAddSingleStudent(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 mb-5 bg-slate-900/60 p-3.5 rounded-2xl border border-white/10">
+        <input id="newStudentAbsen" type="text" required placeholder="No. Absen (mis: 01)" class="sm:col-span-3 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white text-xs font-bold" />
+        <input id="newStudentName" type="text" required placeholder="Nama Lengkap Siswa / Siswi" class="sm:col-span-6 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white text-xs font-semibold" />
+        <button type="submit" class="sm:col-span-3 py-2.5 px-4 rounded-xl bg-game-green text-game-navy font-cartoon text-xs font-bold flex items-center justify-center gap-1.5">
+          <i data-lucide="user-plus" class="w-4 h-4"></i>
+          <span>Tambah Siswa</span>
+        </button>
+      </form>
+
+      <div class="overflow-x-auto rounded-2xl border border-white/10">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-900/90 text-[11px] uppercase tracking-wider text-slate-400 border-b border-white/10">
+              <th class="py-3 px-4">No. Absen</th>
+              <th class="py-3 px-4">Nama Siswa / Siswi</th>
+              <th class="py-3 px-4">Status Bermain</th>
+              <th class="py-3 px-4">Skor Saat Ini</th>
+              <th class="py-3 px-4 text-right">Kelola</th>
+            </tr>
+          </thead>
+          <tbody id="studentRosterTableBody" class="divide-y divide-white/10 text-xs"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3: GRADEBOOK & SYNC QUEUE -->
+    <div id="teacherTab-grades" class="teacher-tab-panel hidden glass-hud rounded-3xl p-5 sm:p-6 border border-white/15">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+        <div>
+          <h3 class="font-cartoon text-xl font-bold text-white">Rekap Nilai Rapor & Antrean Sync</h3>
+          <p class="text-xs text-slate-300">Nilai otomatis diperbarui setiap saat siswa menyelesaikan soal atau keluar dari permainan.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="flushSyncQueue(true)" class="px-3.5 py-2.5 rounded-xl bg-game-blue hover:bg-sky-500 text-white text-xs font-bold flex items-center gap-1.5">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            <span>Sinkronkan Sekarang (<span id="pendingCountText">0</span>)</span>
+          </button>
+          <button onclick="exportGradesToCSV()" class="px-3.5 py-2.5 rounded-xl bg-game-yellow text-game-navy text-xs font-bold flex items-center gap-1.5">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Unduh Rekap Excel (.xlsx)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-white/10">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-900/90 text-[11px] uppercase tracking-wider text-slate-400 border-b border-white/10">
+              <th class="py-3 px-4">Absen</th>
+              <th class="py-3 px-4">Nama Siswa</th>
+              <th class="py-3 px-4">Misi Selesai</th>
+              <th class="py-3 px-4">Akurasi</th>
+              <th class="py-3 px-4">Nilai Akhir</th>
+              <th class="py-3 px-4">Status Sync</th>
+              <th class="py-3 px-4 text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="gradebookTableBody" class="divide-y divide-white/10 text-xs"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: ITEM ANALYSIS -->
+    <div id="teacherTab-analysis" class="teacher-tab-panel hidden glass-hud rounded-3xl p-5 sm:p-6 border border-white/15">
+      <h3 class="font-cartoon text-xl font-bold text-white mb-1">Analisis Tingkat Kesukaran Butir Soal</h3>
+      <p class="text-xs text-slate-300 mb-5">Evaluasi butir soal berdasarkan persentase ketepatan jawaban murid di dalam dunia 3D.</p>
+      <div id="itemAnalysisContainer" class="space-y-3"></div>
+    </div>
+
+    <!-- TAB 5: SUPABASE DATABASE CONNECTION -->
+    <div id="teacherTab-database" class="teacher-tab-panel hidden glass-hud rounded-3xl p-5 sm:p-6 border border-white/15">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          <h3 class="font-cartoon text-xl font-bold text-white mb-1">1. Konfigurasi API Supabase</h3>
+          <p class="text-xs text-slate-300 mb-4">Hubungkan ke proyek Supabase gratis Anda agar soal & nilai murid tersinkronisasi lintas perangkat.</p>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">SUPABASE PROJECT URL</label>
+              <input id="inputSupabaseUrl" type="text" placeholder="https://xxxx.supabase.co" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white text-xs font-mono" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">SUPABASE PUBLISHABLE / ANON KEY</label>
+              <input id="inputSupabaseKey" type="password" placeholder="sb_publishable_..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white text-xs font-mono" />
+            </div>
+            <div class="flex flex-wrap gap-2 pt-1">
+              <button onclick="saveSupabaseConfig()" class="px-4 py-2.5 rounded-xl bg-game-green text-game-navy font-cartoon text-xs font-bold">
+                Simpan & Uji Koneksi
+              </button>
+              <button onclick="resetSupabaseConfig()" class="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold">
+                Reset Lokal
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="font-cartoon text-xl font-bold text-white">2. Skrip SQL Tabel Supabase</h3>
+            <button onclick="copySqlScript()" class="px-3 py-1 rounded-lg bg-game-blue/20 text-game-blue text-xs font-bold">Salin SQL</button>
+          </div>
+          <p class="text-xs text-slate-300 mb-3">Jalankan sekali di menu <b>SQL Editor</b> Supabase Anda:</p>
+          <pre id="supabaseSqlCode" class="p-3.5 rounded-2xl bg-slate-950 border border-white/10 text-[11px] font-mono text-emerald-300 overflow-x-auto custom-scroll">CREATE TABLE IF NOT EXISTS hasil_belajar_3d (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  kode_kelas TEXT NOT NULL,
+  nama_siswa TEXT NOT NULL,
+  no_absen TEXT NOT NULL,
+  skor INTEGER NOT NULL,
+  akurasi TEXT,
+  waktu_selesai TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS bank_soal_3d (
+  kode_kelas TEXT PRIMARY KEY,
+  daftar_soal JSONB NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE hasil_belajar_3d ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bank_soal_3d ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Publik baca tulis nilai" ON hasil_belajar_3d FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH CHECK (true);</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       MODALS: QUIZ INTERACTION, EXIT CONFIRM, WORD/EXCEL IMPORT, ROSTER, ETC.
+       ===================================================================== -->
+
+  <!-- 1. IN-GAME QUIZ MODAL (Locked After Submit + Return to Game Button) -->
+  <div id="quizModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="glass-hud max-w-xl w-full rounded-3xl p-5 sm:p-7 border-2 border-game-yellow shadow-2xl max-h-[90vh] overflow-y-auto custom-scroll">
+      <div class="flex items-center justify-between gap-2 pb-3 mb-4 border-b border-white/10">
+        <div class="flex items-center gap-2">
+          <span id="quizTypeBadge" class="px-3 py-1 rounded-full bg-game-blue text-white font-cartoon text-xs font-bold uppercase">PILIHAN GANDA</span>
+          <span id="quizWorldTag" class="text-xs text-slate-300 font-semibold">Kota Ilmu • Pos #1</span>
+        </div>
+        <span id="quizLockStatusTag" class="text-xs font-bold text-game-yellow flex items-center gap-1">
+          <i data-lucide="sparkles" class="w-4 h-4"></i> Aktif
+        </span>
+      </div>
+
+      <h3 id="quizQuestionText" class="font-cartoon text-lg sm:text-xl font-bold text-white leading-snug mb-4">
+        Pertanyaan akan muncul di sini...
+      </h3>
+
+      <div id="quizOptionsContainer" class="space-y-2.5 mb-5"></div>
+
+      <!-- Feedback Box after Answering -->
+      <div id="quizFeedbackBox" class="hidden rounded-2xl p-4 mb-4 border">
+        <p id="quizFeedbackTitle" class="font-cartoon text-base font-bold"></p>
+        <p id="quizFeedbackExplanation" class="text-xs mt-1 leading-relaxed"></p>
+      </div>
+
+      <div class="flex items-center justify-between gap-3">
+        <button id="btnQuizClose" onclick="closeQuizModal()" class="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-cartoon text-xs sm:text-sm font-bold transition">
+          Lari Dulu (Tutup)
+        </button>
+        <button id="btnSubmitAnswer" onclick="submitCurrentAnswer()" class="flex-1 py-3 px-5 rounded-2xl bg-gradient-to-r from-game-yellow to-game-orange text-game-navy font-cartoon text-sm sm:text-base font-bold shadow-game-btn active:translate-y-1 transition">
+          KIRIM JAWABAN ✨
+        </button>
+        <button id="btnBackToGameAfterAnswer" onclick="closeQuizModal()" class="hidden flex-1 py-3 px-5 rounded-2xl bg-gradient-to-r from-game-green to-emerald-500 text-game-navy font-cartoon text-sm sm:text-base font-bold shadow-game-btn">
+          KEMBALI KE PERMAINAN 🎮
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. CONFIRM FINISH & EXIT GAME MODAL -->
+  <div id="exitGameConfirmModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-hud max-w-md w-full rounded-3xl p-6 border-2 border-game-coral text-center">
+      <div class="w-14 h-14 rounded-2xl bg-game-coral/20 text-game-coral flex items-center justify-center mx-auto mb-3">
+        <i data-lucide="flag" class="w-7 h-7"></i>
+      </div>
+      <h3 class="font-cartoon text-xl font-bold text-white">Selesaikan Permainan Sekarang?</h3>
+      <p class="text-xs text-slate-300 mt-1.5">
+        Skor Anda saat ini (<span id="exitCurrentScore" class="text-game-yellow font-bold">0</span> poin) akan langsung dicatat dan dikirim ke Dashboard Bapak/Ibu Guru.
+      </p>
+      <div class="flex items-center gap-3 mt-5">
+        <button onclick="closeExitConfirmModal()" class="flex-1 py-3 rounded-2xl bg-slate-800 text-white font-cartoon text-xs font-bold">Lanjut Bermain</button>
+        <button onclick="executeFinishAndExitGame()" class="flex-1 py-3 rounded-2xl bg-game-coral text-white font-cartoon text-xs font-bold shadow-game-btn">Ya, Selesai & Kirim</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. IN-GAME MINI LEADERBOARD MODAL -->
+  <div id="miniLeaderboardModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-hud max-w-md w-full rounded-3xl p-6 border-2 border-game-yellow">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-cartoon text-xl font-bold text-white flex items-center gap-2">
+          <i data-lucide="trophy" class="w-5 h-5 text-game-yellow"></i> Klasemen Room Kelas
+        </h3>
+        <button onclick="document.getElementById('miniLeaderboardModal').classList.add('hidden')" class="p-1.5 rounded-xl bg-slate-800 text-slate-300">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div id="miniLeaderboardList" class="space-y-2 max-h-72 overflow-y-auto custom-scroll"></div>
+    </div>
+  </div>
+
+  <!-- 4. TEACHER PIN SECURITY MODAL -->
+  <div id="teacherPinModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-hud max-w-sm w-full rounded-3xl p-6 border-2 border-game-yellow text-center">
+      <div class="w-14 h-14 rounded-2xl bg-game-yellow/20 text-game-yellow flex items-center justify-center mx-auto mb-3">
+        <i data-lucide="shield-check" class="w-7 h-7"></i>
+      </div>
+      <h3 class="font-cartoon text-xl font-bold text-white">Verifikasi Mode Guru</h3>
+      <p class="text-xs text-slate-300 mt-1">Masukkan PIN Guru untuk mengakses Bank Soal & Rekap Nilai (PIN default: <b>1234</b>).</p>
+      <form onsubmit="verifyTeacherPin(event)" class="mt-4 space-y-3">
+        <input id="inputTeacherPin" type="password" maxlength="8" required placeholder="Masukkan PIN Guru" class="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-white/20 text-center text-white font-cartoon text-lg tracking-widest" />
+        <div class="flex gap-2">
+          <button type="button" onclick="document.getElementById('teacherPinModal').classList.add('hidden')" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">Batal</button>
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-game-yellow text-game-navy font-cartoon text-xs font-bold shadow-game-btn">Masuk Guru</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. WORD / EXCEL DUAL-MODE IMPORT STUDIO MODAL -->
+  <div id="importStudioModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-hud max-w-4xl w-full rounded-3xl p-5 sm:p-6 border-2 border-emerald-400/50 max-h-[92vh] overflow-y-auto custom-scroll">
+      <div class="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
+        <div>
+          <h3 class="font-cartoon text-xl font-bold text-white">Studio Impor Soal Word (.docx) & Excel (.xlsx)</h3>
+          <p class="text-xs text-slate-300">Pilih mode impor sesuai dokumen yang Bapak/Ibu miliki.</p>
+        </div>
+        <button onclick="closeImportStudioModal()" class="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Mode Selector -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <button type="button" onclick="setImportMode('standar')" id="btnModeStandar" class="p-3.5 rounded-2xl border-2 border-emerald-400 bg-emerald-500/15 text-left transition">
+          <p class="font-cartoon text-sm font-bold text-emerald-300">1. Mode Standar (Soal + Kunci Jawaban)</p>
+          <p class="text-[11px] text-slate-300 mt-0.5">File Excel atau Word sudah berisi soal beserta kunci jawaban dari guru.</p>
+        </button>
+        <button type="button" onclick="setImportMode('pintar')" id="btnModePintar" class="p-3.5 rounded-2xl border-2 border-white/10 bg-slate-900/60 text-left transition">
+          <p class="font-cartoon text-sm font-bold text-purple-300">2. Mode Pintar (Soal Saja Tanpa Kunci)</p>
+          <p class="text-[11px] text-slate-300 mt-0.5">Unggah naskah soal lama tanpa kunci, lalu isi kunci otomatis atau klik manual di pratinjau.</p>
+        </button>
+      </div>
+
+      <!-- Template Download & File Upload -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-900/70 p-4 rounded-2xl border border-white/10 mb-4">
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="downloadExcelTemplate()" class="px-3.5 py-2 rounded-xl bg-game-yellow text-game-navy font-bold text-xs flex items-center gap-1.5">
+            <i data-lucide="download" class="w-4 h-4"></i> Template Excel (.xlsx)
+          </button>
+          <button type="button" onclick="downloadWordTemplate()" class="px-3.5 py-2 rounded-xl bg-sky-500 text-white font-bold text-xs flex items-center gap-1.5">
+            <i data-lucide="download" class="w-4 h-4"></i> Template Word (.doc)
+          </button>
+        </div>
+
+        <label class="cursor-pointer px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-cartoon text-xs font-bold flex items-center gap-2 shadow">
+          <i data-lucide="upload" class="w-4 h-4"></i>
+          <span>Pilih File Excel / Word</span>
+          <input id="fileImportInput" type="file" accept=".xlsx,.xls,.csv,.docx,.doc,.txt" onchange="handleImportFileUpload(event)" class="hidden" />
+        </label>
+      </div>
+
+      <!-- Staged Preview Area -->
+      <div id="importPreviewSection" class="hidden">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <p class="text-xs font-bold text-white">Pratinjau Soal Terbaca (<span id="stagedCountLabel">0</span> soal):</p>
+          <button type="button" onclick="autoFillMissingKeys()" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1.5">
+            <i data-lucide="wand-2" class="w-3.5 h-3.5"></i> Isi Kunci Otomatis (Asisten Pintar)
+          </button>
+        </div>
+        <div id="stagedQuestionsList" class="space-y-2.5 max-h-64 overflow-y-auto custom-scroll mb-4"></div>
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeImportStudioModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">Batal</button>
+          <button type="button" onclick="commitImportedQuestions()" class="px-5 py-2.5 rounded-xl bg-game-green text-game-navy font-cartoon text-xs font-bold shadow-game-btn">
+            Terbitkan ke Dunia Game 3D ✓
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. MANUAL QUESTION EDITOR MODAL -->
+  <div id="questionFormModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-hud max-w-lg w-full rounded-3xl p-6 border-2 border-game-blue max-h-[90vh] overflow-y-auto custom-scroll">
+      <h3 id="qFormModalTitle" class="font-cartoon text-xl font-bold text-white mb-4">Tambah / Edit Soal</h3>
+      <form onsubmit="saveManualQuestion(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="editQuestionId" />
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Jenis Soal</label>
+            <select id="qFormType" onchange="toggleQuestionFormFields()" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white font-bold">
+              <option value="pg">Pilihan Ganda</option>
+              <option value="bs">Benar / Salah</option>
+              <option value="isian">Isian Singkat</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Label Alam</label>
+            <select id="qFormWorld" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white font-bold">
+              <option value="kota">Kota Ilmu</option>
+              <option value="nusantara">Nusantara</option>
+              <option value="laut">Bawah Laut</option>
+              <option value="angkasa">Antariksa</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Pertanyaan</label>
+          <textarea id="qFormPrompt" rows="2" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-white"></textarea>
+        </div>
+
+        <div id="qFormPgFields" class="space-y-2">
+          <input id="qFormOpt0" type="text" placeholder="Opsi A" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-white" />
+          <input id="qFormOpt1" type="text" placeholder="Opsi B" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-white" />
+          <input id="qFormOpt2" type="text" placeholder="Opsi C" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-white" />
+          <input id="qFormOpt3" type="text" placeholder="Opsi D" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-white" />
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Kunci Jawaban Benar</label>
+            <select id="qFormPgAnswer" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-white font-bold">
+              <option value="0">Opsi A</option>
+              <option value="1">Opsi B</option>
+              <option value="2">Opsi C</option>
+              <option value="3">Opsi D</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="qFormBsField" class="hidden">
+          <label class="block font-bold text-slate-300 mb-1">Kunci Benar / Salah</label>
+          <select id="qFormBsAnswer" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-white font-bold">
+            <option value="true">BENAR</option>
+            <option value="false">SALAH</option>
+          </select>
+        </div>
+
+        <div id="qFormIsianField" class="hidden">
+          <label class="block font-bold text-slate-300 mb-1">Kunci Jawaban Singkat</label>
+          <input id="qFormIsianAnswer" type="text" placeholder="Kata kunci jawaban" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-white" />
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Pembahasan Singkat</label>
+          <input id="qFormExplanation" type="text" placeholder="Penjelasan jawaban..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-white" />
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="document.getElementById('questionFormModal').classList.add('hidden')" class="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold">Batal</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-game-green text-game-navy font-cartoon font-bold">Simpan Soal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 7. EDIT STUDENT ROSTER / SCORE MODAL -->
+  <div id="editStudentModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-hud max-w-sm w-full rounded-3xl p-6 border-2 border-game-blue">
+      <h3 class="font-cartoon text-lg font-bold text-white mb-4">Edit Data Anggota Siswa</h3>
+      <form onsubmit="saveEditedStudent(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="editStudentId" />
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Nomor Absen</label>
+          <input id="editStudentAbsen" type="text" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white font-bold" />
+        </div>
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Nama Siswa / Siswi</label>
+          <input id="editStudentName" type="text" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white font-semibold" />
+        </div>
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Skor Nilai</label>
+          <input id="editStudentScore" type="number" min="0" max="100" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white font-bold" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="document.getElementById('editStudentModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold">Batal</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-game-green text-game-navy font-cartoon font-bold">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 8. BULK STUDENT ADD MODAL -->
+  <div id="bulkStudentModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-hud max-w-md w-full rounded-3xl p-6 border-2 border-game-blue">
+      <h3 class="font-cartoon text-lg font-bold text-white mb-1">Tambah Daftar Siswa Massal</h3>
+      <p class="text-xs text-slate-300 mb-3">Tempel daftar nomor absen dan nama siswa (satu siswa per baris):</p>
+      <textarea id="bulkStudentTextarea" rows="6" placeholder="01. Fadil&#10;02. Agus&#10;03. Fadli&#10;04. Ipul" class="w-full p-3 rounded-2xl bg-slate-950 border border-white/15 text-white text-xs font-mono mb-4"></textarea>
+      <div class="flex justify-end gap-2">
+        <button type="button" onclick="closeBulkStudentModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">Batal</button>
+        <button type="button" onclick="processBulkStudents()" class="px-5 py-2 rounded-xl bg-game-green text-game-navy font-cartoon text-xs font-bold">Tambahkan Semua</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. CHANGE CLASS CODE & TEACHER PIN MODAL -->
+  <div id="classCodeModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-hud max-w-sm w-full rounded-3xl p-6 border-2 border-game-yellow">
+      <h3 class="font-cartoon text-lg font-bold text-white mb-4">Pengaturan Kode Kelas & PIN Guru</h3>
+      <form onsubmit="saveClassAndPinSettings(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Kode Kelas Aktif</label>
+          <input id="settingClassCodeInput" type="text" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white font-cartoon uppercase" />
+        </div>
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">PIN Keamanan Guru</label>
+          <input id="settingTeacherPinInput" type="text" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white font-mono" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="document.getElementById('classCodeModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold">Batal</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-game-yellow text-game-navy font-cartoon font-bold">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 10. AI QUESTION GENERATOR MODAL -->
+  <div id="aiGeneratorModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-hud max-w-md w-full rounded-3xl p-6 border-2 border-purple-400">
+      <h3 class="font-cartoon text-lg font-bold text-white mb-1">Generator Soal Otomatis AI</h3>
+      <p class="text-xs text-slate-300 mb-4">Masukkan topik pelajaran untuk membuat paket soal siap main secara instan.</p>
+      <div class="space-y-3 text-xs">
+        <input id="aiTopicInput" type="text" placeholder="Contoh: Tata Surya, Ekosistem Laut, Sejarah Nusantara..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-white" />
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="document.getElementById('aiGeneratorModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold">Batal</button>
+          <button type="button" onclick="generateAiSampleQuestions()" class="px-4 py-2 rounded-xl bg-purple-600 text-white font-cartoon font-bold">Buat Soal Sekarang ✨</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. PROJECTOR LEADERBOARD MODAL -->
+  <div id="projectorModal" class="fixed inset-0 z-50 bg-game-navy/95 backdrop-blur-lg hidden flex items-center justify-center p-4">
+    <div class="max-w-3xl w-full rounded-3xl glass-hud p-6 sm:p-8 border-2 border-game-yellow">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <span class="text-xs font-bold text-game-yellow uppercase tracking-widest">TAMPILAN PROYEKTOR KELAS</span>
+          <h3 class="font-cartoon text-2xl sm:text-3xl font-bold text-white">Podium Juara Petualangan 3D</h3>
+        </div>
+        <button onclick="document.getElementById('projectorModal').classList.add('hidden')" class="p-2 rounded-xl bg-slate-800 text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="projectorLeaderboardContent" class="space-y-3"></div>
+    </div>
+  </div>
+
+  <!-- 12. CUSTOM CONFIRMATION DIALOG (Replaces window.confirm) -->
+  <div id="customConfirmModal" class="fixed inset-0 z-[60] bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-hud max-w-sm w-full rounded-3xl p-6 border-2 border-game-coral text-center">
+      <h3 id="confirmDialogTitle" class="font-cartoon text-lg font-bold text-white">Konfirmasi Tindakan</h3>
+      <p id="confirmDialogMsg" class="text-xs text-slate-300 mt-2">Apakah Anda yakin ingin melanjutkan?</p>
+      <div class="flex gap-2.5 mt-5">
+        <button onclick="closeCustomConfirm()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">Batal</button>
+        <button id="confirmDialogYesBtn" class="flex-1 py-2.5 rounded-xl bg-game-coral text-xs font-cartoon font-bold text-white">Ya, Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIDDEN PRINT AREA FOR STUDENT CERTIFICATE -->
+  <div id="certificatePrintArea" class="hidden p-10 text-center border-8 border-amber-500">
+    <h1 class="text-3xl font-bold uppercase tracking-widest mb-2">Piagam Penghargaan</h1>
+    <p class="text-base mb-6">Diberikan kepada:</p>
+    <h2 id="certStudentName" class="text-4xl font-bold text-amber-600 mb-2">Nama Siswa</h2>
+    <p id="certStudentMeta" class="text-sm mb-6">Nomor Absen: - • Kode Kelas: -</p>
+    <p class="text-lg">Telah menyelesaikan misi <b>Petualangan Belajar 3D</b> dengan nilai akhir:</p>
+    <p id="certStudentScore" class="text-5xl font-extrabold my-4">100</p>
+  </div>
+
+  <!-- =====================================================================
+       APPLICATION LOGIC & THREE.JS 3D ENGINE
+       ===================================================================== -->
+  <script>
+    /* ====================================================================
+       1. GLOBAL CONFIGURATION & PERSISTENT STATE
+       ==================================================================== */
+    const DEFAULT_CLOUD_CONFIG = {
+      url: 'https://ihhliahcraylkmokkrnh.supabase.co',
+      key: ''
+    };
+
     const STORAGE_KEYS = {
       QUESTIONS: 'pb3d_questions_v2',
       GRADEBOOK: 'pb3d_gradebook_v2',
       SYNC_QUEUE: 'pb3d_pending_sync_queue_v2',
       SUPABASE: 'pb3d_supabase_cfg_v2',
-      DELETED_STUDENTS: 'pb3d_deleted_students_v2'
+      DELETED_STUDENTS: 'pb3d_deleted_students_v2',
+      PIN: 'pb3d_teacher_pin_v2',
+      CLASS_CODE: 'pb3d_class_code_v2'
     };
 
+    const DEFAULT_QUESTIONS = [
+      {
+        id: 'q1',
+        type: 'pg',
+        world: 'kota',
+        prompt: 'Planet manakah yang terkenal dengan julukan "Planet Merah" dalam tata surya kita?',
+        options: ['Venus', 'Mars', 'Jupiter', 'Saturnus'],
+        answer: 1,
+        explanation: 'Mars memiliki warna kemerahan karena permukaannya banyak mengandung oksida besi (karat).'
+      },
+      {
+        id: 'q2',
+        type: 'bs',
+        world: 'nusantara',
+        prompt: 'Candi Borobudur didirikan pada masa kejayaan Dinasti Syailendra sekitar abad ke-8.',
+        answer: true,
+        explanation: 'Benar! Candi Borobudur dibangun oleh penganut Buddha Mahayana pada masa Wangsa Syailendra.'
+      },
+      {
+        id: 'q3',
+        type: 'isian',
+        world: 'kota',
+        prompt: 'Apa nama zat hijau daun yang berfungsi menyerap energi matahari saat fotosintesis?',
+        answer: 'klorofil',
+        explanation: 'Klorofil adalah pigmen hijau pada tumbuhan yang menangkap energi cahaya matahari.'
+      },
+      {
+        id: 'q4',
+        type: 'pg',
+        world: 'laut',
+        prompt: 'Terumbu karang di ekosistem laut memiliki peran penting sebagai...',
+        options: ['Sumber polusi laut', 'Habitat dan tempat berlindung ikan', 'Penghambat arus kapal saja', 'Batu mati tanpa kehidupan'],
+        answer: 1,
+        explanation: 'Terumbu karang menjadi rumah bagi ribuan spesies biota laut dan melindungi pantai dari abrasi.'
+      },
+      {
+        id: 'q5',
+        type: 'pg',
+        world: 'angkasa',
+        prompt: 'Gaya yang membuat planet-planet tetap berada pada orbitnya mengelilingi Matahari adalah...',
+        options: ['Gaya Gesek', 'Gaya Gravitasi', 'Gaya Pegas', 'Gaya Listrik Statis'],
+        answer: 1,
+        explanation: 'Gaya gravitasi Matahari menarik planet-planet sehingga tetap beredar pada lintasan orbitnya.'
+      }
+    ];
+
+    const DEFAULT_ROSTER = [
+      { id: 'std_01', classCode: 'JUARA2026', absen: '01', name: 'Fadil', completed: 0, total: 5, accuracy: '0%', time: '-', score: 0, assessmentType: 'harian', syncStatus: 'synced' },
+      { id: 'std_02', classCode: 'JUARA2026', absen: '02', name: 'Agus', completed: 0, total: 5, accuracy: '0%', time: '-', score: 0, assessmentType: 'harian', syncStatus: 'synced' },
+      { id: 'std_03', classCode: 'JUARA2026', absen: '03', name: 'Fadli', completed: 0, total: 5, accuracy: '0%', time: '-', score: 0, assessmentType: 'harian', syncStatus: 'synced' },
+      { id: 'std_04', classCode: 'JUARA2026', absen: '04', name: 'Ipul', completed: 0, total: 5, accuracy: '0%', time: '-', score: 0, assessmentType: 'harian', syncStatus: 'synced' }
+    ];
+
     const STATE = {
-      view: 'student', // 'student' or 'teacher'
+      view: 'student',
       teacherTab: 'bank',
       currentWorld: 'kota',
       classCode: 'JUARA2026',
+      teacherPin: '1234',
       audioEnabled: true,
       simulatedOffline: false,
-      importMode: 'standar', // 'standar' or 'pintar'
+      importMode: 'standar',
       stagedImportQuestions: [],
       pendingSyncQueue: [],
       deletedStudentKeys: [],
       supabaseConfig: { url: DEFAULT_CLOUD_CONFIG.url, key: DEFAULT_CLOUD_CONFIG.key },
-<!-- ... existing code ... -->
+      questions: JSON.parse(JSON.stringify(DEFAULT_QUESTIONS)),
+      gradebook: JSON.parse(JSON.stringify(DEFAULT_ROSTER)),
+      student: {
+        nickname: '',
+        name: '',
+        absen: '',
+        score: 0,
+        answeredList: [],
+        answeredDetails: {}
+      },
+      activeQuiz: null,
+      solidColliders: [],
+      climbableBoxes: []
+    };
+
+    /* ====================================================================
+       2. SOUND EFFECTS ENGINE (Web Audio API - No External Files)
+       ==================================================================== */
+    const SoundFx = {
+      ctx: null,
+      play(freq, type = 'sine', duration = 0.15, vol = 0.12) {
+        if (!STATE.audioEnabled) return;
+        try {
+          if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (_) {}
+      },
+      jump() { this.play(320, 'triangle', 0.18, 0.14); },
+      correct() {
+        this.play(523.25, 'sine', 0.12, 0.15);
+        setTimeout(() => this.play(659.25, 'sine', 0.18, 0.15), 90);
+      },
+      wrong() { this.play(180, 'sawtooth', 0.25, 0.12); },
+      victory() {
+        [523, 659, 784, 1046].forEach((f, idx) => {
+          setTimeout(() => this.play(f, 'triangle', 0.2, 0.15), idx * 100);
+        });
+      }
+    };
+
+    function toggleAudio() {
+      STATE.audioEnabled = !STATE.audioEnabled;
+      const icon = document.getElementById('soundIcon');
+      if (icon) {
+        icon.setAttribute('data-lucide', STATE.audioEnabled ? 'volume-2' : 'volume-x');
+        lucide.createIcons();
+      }
+      showToast('Pengaturan Suara', STATE.audioEnabled ? 'Efek suara diaktifkan.' : 'Efek suara dimatikan.');
+    }
+
+    /* ====================================================================
+       3. TOAST NOTIFICATION & PERSISTENCE HELPERS
+       ==================================================================== */
+    let toastTimer = null;
+    function showToast(title, msg) {
+      const banner = document.getElementById('toastBanner');
+      const titleEl = document.getElementById('toastTitle');
+      const msgEl = document.getElementById('toastMsg');
+      if (!banner || !titleEl || !msgEl) return;
+
+      titleEl.innerText = title;
+      msgEl.innerText = msg;
+
+      banner.classList.remove('-translate-y-[260%]', 'opacity-0');
+      banner.classList.add('translate-y-0', 'opacity-100');
+
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        banner.classList.remove('translate-y-0', 'opacity-100');
+        banner.classList.add('-translate-y-[260%]', 'opacity-0');
+      }, 2800);
+    }
+
+    function normalizeStudentKey(absen, name) {
+      return `${String(Number(absen) || absen).padStart(2, '0')}__${String(name || '').trim().toLowerCase()}`;
+    }
+
+    function deduplicateGradebook(list) {
+      const map = new Map();
+      (list || []).forEach(item => {
+        const key = normalizeStudentKey(item.absen, item.name);
+        if (STATE.deletedStudentKeys.includes(key)) return;
+        const normalizedItem = {
+          ...item,
+          absen: String(Number(item.absen) || item.absen).padStart(2, '0'),
+          name: String(item.name || '').trim()
+        };
+        if (!map.has(key)) {
+          map.set(key, normalizedItem);
+        } else {
+          const prev = map.get(key);
+          map.set(key, (Number(normalizedItem.score) >= Number(prev.score)) ? normalizedItem : prev);
+        }
+      });
+      return Array.from(map.values());
+    }
+
     function loadPersistedState() {
       try {
+        const savedCode = localStorage.getItem(STORAGE_KEYS.CLASS_CODE);
+        if (savedCode) STATE.classCode = savedCode;
+        const savedPin = localStorage.getItem(STORAGE_KEYS.PIN);
+        if (savedPin) STATE.teacherPin = savedPin;
+
         const savedQs = localStorage.getItem(STORAGE_KEYS.QUESTIONS);
         if (savedQs) {
           const parsed = JSON.parse(savedQs);
@@ -80,6 +1213,11 @@
           if (parsedSupa?.url) STATE.supabaseConfig.url = parsedSupa.url;
           if (parsedSupa?.key) STATE.supabaseConfig.key = parsedSupa.key;
         }
+
+        const codeInput = document.getElementById('inputClassCode');
+        if (codeInput) codeInput.value = STATE.classCode;
+        const codeDisplay = document.getElementById('teacherClassCodeDisplay');
+        if (codeDisplay) codeDisplay.innerText = STATE.classCode;
         const urlEl = document.getElementById('inputSupabaseUrl');
         const keyEl = document.getElementById('inputSupabaseKey');
         if (urlEl) urlEl.value = STATE.supabaseConfig.url || '';
@@ -89,33 +1227,11 @@
       }
     }
 
-    function normalizeStudentKey(absen, name) {
-      return `${String(Number(absen) || absen).padStart(2, '0')}__${String(name || '').trim().toLowerCase()}`;
-    }
-
-    function deduplicateGradebook(list) {
-      const map = new Map();
-      (list || []).forEach(item => {
-        const key = normalizeStudentKey(item.absen, item.name);
-        if (STATE.deletedStudentKeys.includes(key)) return;
-        const normalizedItem = {
-          ...item,
-          absen: String(Number(item.absen) || item.absen).padStart(2, '0'),
-          name: String(item.name || '').trim()
-        };
-        if (!map.has(key)) {
-          map.set(key, normalizedItem);
-        } else {
-          const prev = map.get(key);
-          map.set(key, (Number(normalizedItem.score) >= Number(prev.score)) ? normalizedItem : prev);
-        }
-      });
-      return Array.from(map.values());
-    }
-
     function persistStateToLocal() {
       try {
         STATE.gradebook = deduplicateGradebook(STATE.gradebook);
+        localStorage.setItem(STORAGE_KEYS.CLASS_CODE, STATE.classCode);
+        localStorage.setItem(STORAGE_KEYS.PIN, STATE.teacherPin);
         localStorage.setItem(STORAGE_KEYS.QUESTIONS, JSON.stringify(STATE.questions));
         localStorage.setItem(STORAGE_KEYS.GRADEBOOK, JSON.stringify(STATE.gradebook));
         localStorage.setItem(STORAGE_KEYS.SYNC_QUEUE, JSON.stringify(STATE.pendingSyncQueue));
@@ -124,7 +1240,91 @@
         console.warn('Gagal menyimpan ke penyimpanan lokal:', e);
       }
     }
-<!-- ... existing code ... -->
+
+    /* ====================================================================
+       4. NETWORK STATUS & CLOUD SYNC (SUPABASE)
+       ==================================================================== */
+    function isAppOnline() {
+      return navigator.onLine && !STATE.simulatedOffline;
+    }
+
+    function toggleOfflineSimulation() {
+      STATE.simulatedOffline = !STATE.simulatedOffline;
+      updateNetworkStatusUI();
+      if (isAppOnline()) {
+        showToast('Koneksi Kembali Online', 'Mengirim antrean nilai offline secara otomatis...');
+        flushSyncQueue(false);
+      } else {
+        showToast('Mode Uji Offline Aktif', 'Skor siswa akan disimpan di antrean lokal hingga online.');
+      }
+    }
+
+    function updateNetworkStatusUI() {
+      const online = isAppOnline();
+      const dot = document.getElementById('netStatusDot');
+      const text = document.getElementById('netStatusText');
+      const badge = document.getElementById('syncQueueBadge');
+      const simLabel = document.getElementById('simOfflineLabel');
+      const pendingText = document.getElementById('pendingCountText');
+
+      if (dot) dot.className = `w-2 h-2 rounded-full ${online ? 'bg-game-green' : 'bg-game-orange animate-pulse'}`;
+      if (text) text.innerText = online ? 'Online' : 'Offline';
+      if (simLabel) simLabel.innerText = STATE.simulatedOffline ? 'Offline (Klik Online)' : 'Online (Uji Offline)';
+      if (pendingText) pendingText.innerText = STATE.pendingSyncQueue.length;
+
+      if (badge) {
+        if (STATE.pendingSyncQueue.length > 0) {
+          badge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-game-orange/20 text-game-orange font-bold';
+          badge.innerText = `⏳ ${STATE.pendingSyncQueue.length} Pending`;
+        } else {
+          badge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-game-green/20 text-game-green font-bold';
+          badge.innerText = '✓ Synced';
+        }
+      }
+    }
+
+    async function syncQuestionsToCloud() {
+      if (!isAppOnline() || !STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return;
+      try {
+        const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+        await fetch(`${cleanBaseUrl}/rest/v1/bank_soal_3d`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': STATE.supabaseConfig.key,
+            'Authorization': `Bearer ${STATE.supabaseConfig.key}`,
+            'Prefer': 'resolution=merge-duplicates'
+          },
+          body: JSON.stringify({
+            kode_kelas: STATE.classCode,
+            daftar_soal: STATE.questions,
+            updated_at: new Date().toISOString()
+          })
+        });
+      } catch (_) {}
+    }
+
+    async function fetchQuestionsFromCloud(code) {
+      if (!isAppOnline() || !STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return false;
+      try {
+        const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+        const res = await fetch(`${cleanBaseUrl}/rest/v1/bank_soal_3d?kode_kelas=eq.${encodeURIComponent(code)}&select=daftar_soal`, {
+          headers: {
+            'apikey': STATE.supabaseConfig.key,
+            'Authorization': `Bearer ${STATE.supabaseConfig.key}`
+          }
+        });
+        if (!res.ok) return false;
+        const rows = await res.json();
+        if (Array.isArray(rows) && rows.length > 0 && Array.isArray(rows[0].daftar_soal) && rows[0].daftar_soal.length > 0) {
+          STATE.questions = rows[0].daftar_soal;
+          persistStateToLocal();
+          return true;
+        }
+      } catch (_) {}
+      return false;
+    }
+
     async function fetchGradesFromCloud() {
       if (!isAppOnline() || !STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return;
       try {
@@ -166,12 +1366,50 @@
           persistStateToLocal();
           renderTeacherDashboard();
         }
-      } catch (err) {
-        console.warn('Cloud grades fetch skipped:', err);
-      }
+      } catch (_) {}
     }
-<!-- ... existing code ... -->
-      // Merge queued records into live Gradebook
+
+    async function flushSyncQueue(manualTrigger = false) {
+      if (!isAppOnline()) {
+        if (manualTrigger) showToast('Masih Offline', 'Hubungkan internet untuk mengirim antrean nilai.');
+        return;
+      }
+      if (STATE.pendingSyncQueue.length === 0) {
+        if (manualTrigger) showToast('Sudah Tersinkronisasi', 'Tidak ada antrean nilai yang tertunda.');
+        return;
+      }
+
+      const batch = [...STATE.pendingSyncQueue];
+
+      if (STATE.supabaseConfig.url && STATE.supabaseConfig.key) {
+        try {
+          const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+          const payload = batch.map(item => ({
+            kode_kelas: item.classCode || STATE.classCode,
+            nama_siswa: item.name,
+            no_absen: item.absen,
+            skor: Number(item.score) || 0,
+            akurasi: item.accuracy || '0%'
+          }));
+
+          const res = await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': STATE.supabaseConfig.key,
+              'Authorization': `Bearer ${STATE.supabaseConfig.key}`,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) throw new Error('Supabase HTTP ' + res.status);
+        } catch (err) {
+          console.warn('Gagal kirim ke Supabase:', err);
+          if (manualTrigger) showToast('Gagal Koneksi Cloud', 'Periksa kembali URL & Publishable Key Supabase Anda.');
+          return;
+        }
+      }
+
       batch.forEach(record => {
         record.syncStatus = 'synced';
         const rKey = normalizeStudentKey(record.absen, record.name);
@@ -188,9 +1426,276 @@
       updateNetworkStatusUI();
       renderTeacherDashboard();
       SoundFx.correct();
-      showToast('Auto-Sync Berhasil!', `${batch.length} data nilai offline murid otomatis masuk ke rekap guru.`);
+      showToast('Auto-Sync Berhasil!', `${batch.length} data nilai otomatis masuk ke rekap guru.`);
     }
-<!-- ... existing code ... -->
+
+    function saveSupabaseConfig() {
+      const urlRaw = document.getElementById('inputSupabaseUrl').value.trim().replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+      const keyRaw = document.getElementById('inputSupabaseKey').value.trim();
+      document.getElementById('inputSupabaseUrl').value = urlRaw;
+      STATE.supabaseConfig = { url: urlRaw, key: keyRaw };
+      localStorage.setItem(STORAGE_KEYS.SUPABASE, JSON.stringify(STATE.supabaseConfig));
+      showToast('Konfigurasi Disimpan', 'Mencoba sinkronisasi data dengan Supabase...');
+      syncQuestionsToCloud();
+      flushSyncQueue(true);
+    }
+
+    function resetSupabaseConfig() {
+      STATE.supabaseConfig = { url: DEFAULT_CLOUD_CONFIG.url, key: '' };
+      localStorage.removeItem(STORAGE_KEYS.SUPABASE);
+      document.getElementById('inputSupabaseUrl').value = STATE.supabaseConfig.url;
+      document.getElementById('inputSupabaseKey').value = '';
+      showToast('Konfigurasi Direset', 'Kembali ke pengaturan penyimpanan lokal.');
+    }
+
+    function copySqlScript() {
+      const sqlText = document.getElementById('supabaseSqlCode').innerText;
+      const ta = document.createElement('textarea');
+      ta.value = sqlText;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('SQL Tersalin!', 'Tempelkan skrip ke menu SQL Editor di Supabase Anda.');
+    }
+
+    /* ====================================================================
+       5. THREE.JS 3D WORLD ENGINE, COLLISIONS, BRIDGES & CONTROLS
+       ==================================================================== */
+    let scene, camera, renderer, avatarGroup, leftLeg, rightLeg, leftArm, rightArm, parachuteMesh;
+    let worldMeshes = [];
+    let crystalObjects = [];
+    let animatedCars = [];
+    let animatedCreatures = [];
+
+    let playerPos = { x: 0, y: 0, z: 12 };
+    let playerVelY = 0;
+    let isGrounded = true;
+    let isParachuting = false;
+    let walkCycle = 0;
+
+    let cameraAngle = 0;
+    let targetCameraAngle = 0;
+    let cameraPitch = 0.36;
+    let targetCameraPitch = 0.36;
+    let activeCameraPointerId = null;
+    let lastPointerX = 0;
+    let lastPointerY = 0;
+
+    const keysPressed = {};
+    let joystickVec = { x: 0, z: 0 };
+    let activeJoystickPointerId = null;
+    const raycaster = new THREE.Raycaster();
+    const pointerNdc = new THREE.Vector2();
+
+    function initThreeEngine() {
+      const container = document.getElementById('gameCanvasContainer');
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x38bdf8);
+      scene.fog = new THREE.FogExp2(0x7dd3fc, 0.011);
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 350);
+      renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      container.innerHTML = '';
+      container.appendChild(renderer.domElement);
+
+      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x334155, 0.9);
+      hemiLight.position.set(0, 50, 0);
+      scene.add(hemiLight);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.85);
+      dirLight.position.set(35, 65, 30);
+      dirLight.castShadow = true;
+      dirLight.shadow.mapSize.width = 1024;
+      dirLight.shadow.mapSize.height = 1024;
+      scene.add(dirLight);
+
+      buildPlayerAvatar();
+      loadWorldEnvironment(STATE.currentWorld);
+      setupControls();
+    }
+
+    function buildPlayerAvatar() {
+      avatarGroup = new THREE.Group();
+
+      const torso = new THREE.Mesh(
+        new THREE.BoxGeometry(1.1, 1.3, 0.65),
+        new THREE.MeshLambertMaterial({ color: 0x00A3FF })
+      );
+      torso.position.y = 1.45;
+      torso.castShadow = true;
+      avatarGroup.add(torso);
+
+      const head = new THREE.Mesh(
+        new THREE.BoxGeometry(0.95, 0.95, 0.95),
+        new THREE.MeshLambertMaterial({ color: 0xfed7aa })
+      );
+      head.position.y = 2.6;
+      head.castShadow = true;
+      avatarGroup.add(head);
+
+      const cap = new THREE.Mesh(
+        new THREE.BoxGeometry(1.02, 0.35, 1.05),
+        new THREE.MeshLambertMaterial({ color: 0xFFD027 })
+      );
+      cap.position.set(0, 3.1, 0.05);
+      avatarGroup.add(cap);
+
+      const visor = new THREE.Mesh(
+        new THREE.BoxGeometry(0.7, 0.22, 0.1),
+        new THREE.MeshBasicMaterial({ color: 0x0f172a })
+      );
+      visor.position.set(0, 2.65, 0.48);
+      avatarGroup.add(visor);
+
+      const legGeo = new THREE.BoxGeometry(0.45, 0.8, 0.5);
+      const legMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+      leftLeg = new THREE.Mesh(legGeo, legMat);
+      leftLeg.position.set(-0.3, 0.4, 0);
+      rightLeg = new THREE.Mesh(legGeo, legMat);
+      rightLeg.position.set(0.3, 0.4, 0);
+      avatarGroup.add(leftLeg, rightLeg);
+
+      const armGeo = new THREE.BoxGeometry(0.38, 1.15, 0.45);
+      const armMat = new THREE.MeshLambertMaterial({ color: 0x38bdf8 });
+      leftArm = new THREE.Mesh(armGeo, armMat);
+      leftArm.position.set(-0.8, 1.45, 0);
+      rightArm = new THREE.Mesh(armGeo, armMat);
+      rightArm.position.set(0.8, 1.45, 0);
+      avatarGroup.add(leftArm, rightArm);
+
+      parachuteMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(2.4, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+        new THREE.MeshLambertMaterial({ color: 0xFF7B00, side: THREE.DoubleSide })
+      );
+      parachuteMesh.position.y = 4.2;
+      parachuteMesh.visible = false;
+      avatarGroup.add(parachuteMesh);
+
+      avatarGroup.position.set(playerPos.x, playerPos.y, playerPos.z);
+      scene.add(avatarGroup);
+    }
+
+    function registerCircleCollider(x, z, radius) {
+      STATE.solidColliders.push({ type: 'circle', x, z, radius });
+    }
+
+    function registerBoxCollider(x, z, halfW, halfD) {
+      STATE.solidColliders.push({ type: 'box', x, z, halfW, halfD });
+    }
+
+    function registerClimbableBox(x, z, halfW, halfD, topY) {
+      STATE.climbableBoxes.push({ x, z, halfW, halfD, topY });
+    }
+
+    function checkCollisionAt(nx, nz) {
+      const playerR = 0.65;
+      for (let i = 0; i < STATE.solidColliders.length; i++) {
+        const c = STATE.solidColliders[i];
+        if (c.type === 'circle') {
+          const dx = nx - c.x;
+          const dz = nz - c.z;
+          const minD = playerR + c.radius;
+          if (dx * dx + dz * dz < minD * minD) return true;
+        } else if (c.type === 'box') {
+          if (Math.abs(nx - c.x) < (c.halfW + playerR) && Math.abs(nz - c.z) < (c.halfD + playerR)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function getGroundElevationAt(px, pz, currentY) {
+      let highest = 0;
+      for (let i = 0; i < STATE.climbableBoxes.length; i++) {
+        const b = STATE.climbableBoxes[i];
+        if (Math.abs(px - b.x) <= b.halfW + 0.35 && Math.abs(pz - b.z) <= b.halfD + 0.35) {
+          if (currentY + 0.85 >= b.topY && b.topY > highest) {
+            highest = b.topY;
+          }
+        }
+      }
+      return highest;
+    }
+
+    function clearOldWorld() {
+      worldMeshes.forEach(m => scene.remove(m));
+      worldMeshes = [];
+      animatedCars = [];
+      animatedCreatures = [];
+      STATE.solidColliders = [];
+      STATE.climbableBoxes = [];
+    }
+
+    function buildCartoonHouse(x, z, wallColor, roofColor) {
+      const group = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.BoxGeometry(5.5, 3.6, 5.5), new THREE.MeshLambertMaterial({ color: wallColor }));
+      body.position.y = 1.8;
+      body.castShadow = true;
+      body.receiveShadow = true;
+
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(4.4, 2.6, 4), new THREE.MeshLambertMaterial({ color: roofColor }));
+      roof.position.y = 4.9;
+      roof.rotation.y = Math.PI / 4;
+      roof.castShadow = true;
+
+      const door = new THREE.Mesh(new THREE.BoxGeometry(1.1, 2.0, 0.2), new THREE.MeshLambertMaterial({ color: 0x451a03 }));
+      door.position.set(0, 1.0, 2.8);
+
+      group.add(body, roof, door);
+      group.position.set(x, 0, z);
+      scene.add(group);
+      worldMeshes.push(group);
+      registerBoxCollider(x, z, 2.85, 2.85);
+    }
+
+    function buildCartoonCar(orbitRadius, yPos, initialAngle, carColor) {
+      const car = new THREE.Group();
+      const chassis = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.7, 3.2), new THREE.MeshLambertMaterial({ color: carColor }));
+      chassis.position.y = 0.55;
+      chassis.castShadow = true;
+      const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.65, 1.7), new THREE.MeshLambertMaterial({ color: 0xe2e8f0 }));
+      cabin.position.set(0, 1.15, -0.1);
+      car.add(chassis, cabin);
+      scene.add(car);
+      worldMeshes.push(car);
+      animatedCars.push({ mesh: car, radius: orbitRadius, y: yPos, angle: initialAngle, speed: 0.35 });
+    }
+
+    function buildFlyingBirdOrFish(orbitRadius, yPos, speed, initialAngle, colorHex, isFish) {
+      const group = new THREE.Group();
+      const body = new THREE.Mesh(
+        isFish ? new THREE.SphereGeometry(0.45, 8, 8) : new THREE.ConeGeometry(0.3, 1.1, 6),
+        new THREE.MeshLambertMaterial({ color: colorHex })
+      );
+      if (isFish) body.scale.set(0.7, 0.8, 1.6);
+      else body.rotation.x = Math.PI / 2;
+      group.add(body);
+      scene.add(group);
+      worldMeshes.push(group);
+      animatedCreatures.push({ mesh: group, radius: orbitRadius, y: yPos, angle: initialAngle, speed });
+    }
+
+    function buildClimbableStaircase(startX, startZ, dirX, dirZ, steps, width, stepDepth, stepHeight, colorHex) {
+      const mat = new THREE.MeshLambertMaterial({ color: colorHex });
+      for (let i = 0; i < steps; i++) {
+        const h = (i + 1) * stepHeight;
+        const cx = startX + dirX * (i * stepDepth);
+        const cz = startZ + dirZ * (i * stepDepth);
+        const stepMesh = new THREE.Mesh(new THREE.BoxGeometry(width, h, stepDepth), mat);
+        stepMesh.position.set(cx, h / 2, cz);
+        stepMesh.castShadow = true;
+        stepMesh.receiveShadow = true;
+        scene.add(stepMesh);
+        worldMeshes.push(stepMesh);
+        registerClimbableBox(cx, cz, width / 2, stepDepth / 2, h);
+      }
+    }
+
     function buildSuspensionBridge(centerX, centerZ, lengthZ, widthX, deckY) {
       const bridgeGroup = new THREE.Group();
       const plankCount = 12;
@@ -211,7 +1716,6 @@
         registerClimbableBox(centerX, pz, widthX / 2, stepZ * 0.5, py + 0.125);
       }
 
-      // 4 Corner Pillars & Suspension Cables
       [-widthX / 2, widthX / 2].forEach(ox => {
         [-lengthZ / 2, lengthZ / 2].forEach(oz => {
           const post = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 3.2, 8), postMat);
@@ -237,7 +1741,6 @@
       scene.add(river);
       worldMeshes.push(river);
 
-      // Suspension bridge crossing the river at x = 0
       buildSuspensionBridge(0, riverZ, riverWidth + 2.5, 4.4, 0.55);
     }
 
@@ -245,7 +1748,6 @@
       clearOldWorld();
 
       if (worldType === 'kota') {
-        // Expansive Modern Educational City (240x240) with River, Suspension Bridge, Houses, Trees, Cars & Climbable Stairs
         scene.background = new THREE.Color(0x38bdf8);
         scene.fog.color.set(0x7dd3fc);
         scene.fog.density = 0.011;
@@ -259,10 +1761,8 @@
         scene.add(ground);
         worldMeshes.push(ground);
 
-        // Scenic River & Suspension Bridge on the South Side
         buildRiverWithBridge(38, 9);
 
-        // Central City Plaza Pavement
         const plaza = new THREE.Mesh(
           new THREE.CircleGeometry(24, 48),
           new THREE.MeshLambertMaterial({ color: 0x334155 })
@@ -273,7 +1773,6 @@
         scene.add(plaza);
         worldMeshes.push(plaza);
 
-        // Circular Asphalt Road Ring with Dashed Center Line
         const road = new THREE.Mesh(
           new THREE.RingGeometry(24, 29.5, 64),
           new THREE.MeshLambertMaterial({ color: 0x1e293b, side: THREE.DoubleSide })
@@ -292,7 +1791,6 @@
         scene.add(roadMark);
         worldMeshes.push(roadMark);
 
-        // Houses around the neighborhood
         const houseCoords = [
           [-38, -20, 0xfef3c7, 0xea580c],
           [38, -20, 0xe0f2fe, 0x0284c7],
@@ -304,7 +1802,6 @@
         ];
         houseCoords.forEach(([hx, hz, wc, rc]) => buildCartoonHouse(hx, hz, wc, rc));
 
-        // Trees & Street Lamps along avenues
         for (let i = 0; i < 24; i++) {
           const ang = (i / 24) * Math.PI * 2 + 0.15;
           const dist = 31.5;
@@ -339,7 +1836,6 @@
           }
         }
 
-        // Fluffy Clouds & Birds in the Sky
         for (let c = 0; c < 12; c++) {
           const cloud = new THREE.Group();
           const cMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.85 });
@@ -357,12 +1853,10 @@
           buildFlyingBirdOrFish(18 + b * 4, 14 + (b % 3) * 2, 0.55 + b * 0.07, b * 1.2, 0xffffff, false);
         }
 
-        // Animated Cars driving around the ring road
         buildCartoonCar(26.5, 0.45, 0, 0xef4444);
         buildCartoonCar(26.5, 0.45, 2.1, 0x38bdf8);
         buildCartoonCar(26.5, 0.45, 4.2, 0xfacc15);
 
-        // Climbable Staircase to Sky Observation Deck
         buildClimbableStaircase(5, -6, 0, -1, 7, 3.2, 1.3, 0.55, 0x00A3FF);
         const deck = new THREE.Mesh(new THREE.BoxGeometry(5, 3.85, 5), new THREE.MeshLambertMaterial({ color: 0x1d4ed8 }));
         deck.position.set(5, 1.925, -16.5);
@@ -370,7 +1864,6 @@
         worldMeshes.push(deck);
         registerClimbableBox(5, -16.5, 2.5, 2.5, 3.85);
 
-        // Central Monument with Solid Collider
         const monument = new THREE.Mesh(
           new THREE.CylinderGeometry(2, 3, 14, 12),
           new THREE.MeshLambertMaterial({ color: 0xffd027 })
@@ -382,7 +1875,6 @@
         registerCircleCollider(0, 0, 2.8);
 
       } else if (worldType === 'nusantara') {
-        // Candi with Stupas, River, Suspension Bridge, Rocks, Birds, Houses & Climbable Temple Stairs
         scene.background = new THREE.Color(0x38bdf8);
         scene.fog.color.set(0x7dd3fc);
         scene.fog.density = 0.011;
@@ -396,10 +1888,8 @@
         scene.add(ground);
         worldMeshes.push(ground);
 
-        // Nusantara River & Wooden Suspension Bridge
         buildRiverWithBridge(34, 10);
 
-        // Climbable Stepped Candi Temple Pyramid + Top Stupa
         for (let lvl = 0; lvl < 5; lvl++) {
           const w = 16 - lvl * 2.6;
           const topH = (lvl + 1) * 0.7;
@@ -423,12 +1913,10 @@
         scene.add(mainStupa);
         worldMeshes.push(mainStupa);
 
-        // Traditional Nusantara Houses
         buildCartoonHouse(-30, -22, 0x92400e, 0x451a03);
         buildCartoonHouse(30, -22, 0xb45309, 0x78350f);
         buildCartoonHouse(-24, 48, 0x78350f, 0xd97706);
 
-        // River Rocks & Boulders
         for (let i = 0; i < 20; i++) {
           const r = 0.9 + Math.random() * 1.1;
           const rock = new THREE.Mesh(
@@ -448,7 +1936,6 @@
           registerCircleCollider(rx, rz, r * 0.9);
         }
 
-        // Coconut / Palm Trees with Collider
         for (let i = 0; i < 28; i++) {
           const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 6, 8), new THREE.MeshLambertMaterial({ color: 0x78350f }));
           const leaves = new THREE.Mesh(new THREE.ConeGeometry(2.5, 3, 8), new THREE.MeshLambertMaterial({ color: 0x22c55e }));
@@ -467,13 +1954,11 @@
           registerCircleCollider(tx, tz, 0.65);
         }
 
-        // Flying Birds circling in the sky
         for (let b = 0; b < 8; b++) {
           buildFlyingBirdOrFish(14 + b * 3, 10 + (b % 3) * 2.5, 0.6 + b * 0.08, b * 1.1, 0xfef08a, false);
         }
 
       } else if (worldType === 'laut') {
-        // Under the Sea: Coral Reef, Seaweed, Bubbles, Ocean Rocks, Swimming Fish, Undersea Bridge & Climbable Reef Steps
         scene.background = new THREE.Color(0x0369a1);
         scene.fog.color.set(0x075985);
         scene.fog.density = 0.011;
@@ -487,13 +1972,9 @@
         scene.add(ground);
         worldMeshes.push(ground);
 
-        // Deep Trench & Coral Suspension Bridge
         buildRiverWithBridge(34, 9);
-
-        // Climbable Coral Reef Staircase
         buildClimbableStaircase(-6, -5, 0, -1, 6, 3.5, 1.4, 0.55, 0x06b6d4);
 
-        // Colorful Coral, Seaweed & Sea Rocks with Collider
         const coralColors = [0xf43f5e, 0xa855f7, 0x06b6d4, 0xf59e0b, 0x64748b];
         for (let i = 0; i < 42; i++) {
           const r = 1.3 + Math.random() * 1.8;
@@ -523,7 +2004,6 @@
           }
         }
 
-        // Rising Ocean Bubbles
         const bubbleGeo = new THREE.SphereGeometry(0.25, 8, 8);
         const bubbleMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe, transparent: true, opacity: 0.65 });
         for (let b = 0; b < 55; b++) {
@@ -533,13 +2013,11 @@
           worldMeshes.push(bub);
         }
 
-        // Swimming Fish schools
         for (let f = 0; f < 10; f++) {
           buildFlyingBirdOrFish(10 + f * 2.5, 3 + (f % 4) * 1.6, 0.7 + f * 0.06, f * 0.8, 0xfbbf24, true);
         }
 
       } else if (worldType === 'angkasa') {
-        // Deep Outer Space, Ringed Planets, Space Bridge, Moon Rocks, Orbiting UFO/Satellites & Climbable Space Ramp
         scene.background = new THREE.Color(0x030712);
         scene.fog.color.set(0x030712);
         scene.fog.density = 0.008;
@@ -554,7 +2032,6 @@
         scene.add(starField);
         worldMeshes.push(starField);
 
-        // Giant Saturn-like Ringed Planet in Background
         const saturnGroup = new THREE.Group();
         const planetSphere = new THREE.Mesh(
           new THREE.SphereGeometry(9, 24, 24),
@@ -579,7 +2056,6 @@
         scene.add(plat);
         worldMeshes.push(plat);
 
-        // Space Energy Bridge to Secondary Lunar Outpost
         buildSuspensionBridge(0, 46, 12, 4.4, 0.5);
         const outpost = new THREE.Mesh(
           new THREE.CylinderGeometry(16, 16, 2, 32),
@@ -589,10 +2065,8 @@
         scene.add(outpost);
         worldMeshes.push(outpost);
 
-        // Climbable Lunar Staircase
         buildClimbableStaircase(0, -6, 0, -1, 6, 3.6, 1.4, 0.55, 0xa855f7);
 
-        // Moon Rocks on Station Deck
         for (let i = 0; i < 16; i++) {
           const r = 0.8 + Math.random() * 0.9;
           const mRock = new THREE.Mesh(
@@ -609,7 +2083,6 @@
           registerCircleCollider(rx, rz, r * 0.85);
         }
 
-        // Floating Asteroids & Orbiting Space Drones
         for (let i = 0; i < 22; i++) {
           const ast = new THREE.Mesh(
             new THREE.DodecahedronGeometry(2 + Math.random() * 3),
@@ -627,26 +2100,23 @@
         }
       }
 
-      // Spawn 3D Question Crystal Portals
       spawnQuestionCrystals();
     }
 
     function spawnQuestionCrystals() {
       crystalObjects.forEach(c => scene.remove(c.mesh));
       crystalObjects = [];
-      // Remove previous pedestal colliders and re-register cleanly
       STATE.solidColliders = STATE.solidColliders.filter(c => !c.isPedestal);
 
       const qs = STATE.questions;
       const totalQ = Math.max(1, qs.length);
-      
+
       qs.forEach((q, idx) => {
         const ringLayer = Math.floor(idx / 8);
         const radius = 15 + ringLayer * 9;
         const angle = (idx / totalQ) * Math.PI * 2 + ringLayer * 0.35;
         let x = Math.cos(angle) * radius;
         let z = Math.sin(angle) * radius;
-        // Ensure crystal never spawns inside river water channel
         if (Math.abs(z - 36) < 6) z += 8;
 
         const crystalGroup = new THREE.Group();
@@ -654,7 +2124,6 @@
         const isAnswered = Boolean(detail);
         const isRight = detail && detail.isCorrect;
 
-        // Glowing Crystal Octahedron (Gold = Unanswered, Green = Correct, Coral Red = Wrong)
         const gemColor = !isAnswered ? 0xFFD027 : (isRight ? 0x00D664 : 0xFF4757);
         const gemEmissive = !isAnswered ? 0x4d3900 : (isRight ? 0x004d24 : 0x4d1018);
 
@@ -670,7 +2139,6 @@
         gemMesh.userData = { questionId: q.id };
         crystalGroup.add(gemMesh);
 
-        // Glowing vertical beacon beam so crystals are always easy to spot across the wide map
         const beamGeo = new THREE.CylinderGeometry(0.22, 0.45, 16, 12, 1, true);
         const beamMat = new THREE.MeshBasicMaterial({
           color: gemColor,
@@ -683,7 +2151,6 @@
         beamMesh.userData = { questionId: q.id };
         crystalGroup.add(beamMesh);
 
-        // Pedestal base (Solid collider so avatar doesn't clip through)
         const baseGeo = new THREE.CylinderGeometry(0.8, 1.1, 1.2, 8);
         const baseMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
         const baseMesh = new THREE.Mesh(baseGeo, baseMat);
@@ -693,7 +2160,6 @@
 
         STATE.solidColliders.push({ type: 'circle', x, z, radius: 1.05, isPedestal: true });
 
-        // Light ring halo
         const ringGeo = new THREE.RingGeometry(1.4, 1.7, 16);
         const ringMat = new THREE.MeshBasicMaterial({ color: 0x00A3FF, side: THREE.DoubleSide });
         const ring = new THREE.Mesh(ringGeo, ringMat);
@@ -717,22 +2183,349 @@
         hudCount.innerText = `${STATE.student.answeredList.length} / ${STATE.questions.length}`;
       }
     }
-<!-- ... existing code ... -->
-        const nextX = Math.max(-110, Math.min(110, playerPos.x + vx));
-        const nextZ = Math.max(-110, Math.min(110, playerPos.z + vz));
 
-        if (!checkCollisionAt(nextX, playerPos.z)) playerPos.x = nextX;
-        if (!checkCollisionAt(playerPos.x, nextZ)) playerPos.z = nextZ;
-<!-- ... existing code ... -->
+    function setupControls() {
+      window.addEventListener('keydown', (e) => {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+        keysPressed[e.code] = true;
+        if (e.code === 'Space') triggerJump();
+        if (e.code === 'KeyE' || e.code === 'Enter') {
+          if (document.getElementById('quizModal').classList.contains('hidden')) {
+            triggerNearestQuiz();
+          }
+        }
+      });
+      window.addEventListener('keyup', (e) => {
+        keysPressed[e.code] = false;
+      });
+
+      // 360-Degree Analog Joystick
+      const joyZone = document.getElementById('joystickZone');
+      const joyThumb = document.getElementById('joystickThumb');
+      if (joyZone && joyThumb) {
+        const updateJoystick = (clientX, clientY) => {
+          const rect = joyZone.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const maxR = rect.width * 0.36;
+          let dx = clientX - cx;
+          let dy = clientY - cy;
+          const dist = Math.hypot(dx, dy);
+          if (dist > maxR) {
+            dx = (dx / dist) * maxR;
+            dy = (dy / dist) * maxR;
+          }
+          joyThumb.style.transform = `translate(${dx}px, ${dy}px)`;
+          joystickVec.x = dx / maxR;
+          joystickVec.z = dy / maxR;
+        };
+
+        joyZone.addEventListener('pointerdown', (e) => {
+          e.stopPropagation();
+          activeJoystickPointerId = e.pointerId;
+          joyZone.setPointerCapture(e.pointerId);
+          updateJoystick(e.clientX, e.clientY);
+        });
+        joyZone.addEventListener('pointermove', (e) => {
+          if (e.pointerId !== activeJoystickPointerId) return;
+          e.stopPropagation();
+          updateJoystick(e.clientX, e.clientY);
+        });
+        const resetJoy = (e) => {
+          if (e.pointerId !== activeJoystickPointerId) return;
+          activeJoystickPointerId = null;
+          joyThumb.style.transform = 'translate(0px, 0px)';
+          joystickVec = { x: 0, z: 0 };
+        };
+        joyZone.addEventListener('pointerup', resetJoy);
+        joyZone.addEventListener('pointercancel', resetJoy);
+      }
+
+      // Smooth 360 Camera Drag & Raycast Click on 3D Crystals
+      const domEl = renderer.domElement;
+      let downX = 0, downY = 0;
+      domEl.addEventListener('pointerdown', (e) => {
+        if (activeCameraPointerId !== null) return;
+        activeCameraPointerId = e.pointerId;
+        lastPointerX = downX = e.clientX;
+        lastPointerY = downY = e.clientY;
+        domEl.setPointerCapture(e.pointerId);
+      });
+
+      domEl.addEventListener('pointermove', (e) => {
+        if (e.pointerId !== activeCameraPointerId) return;
+        const dx = e.clientX - lastPointerX;
+        const dy = e.clientY - lastPointerY;
+        lastPointerX = e.clientX;
+        lastPointerY = e.clientY;
+        targetCameraAngle -= dx * 0.0065;
+        targetCameraPitch = Math.max(0.14, Math.min(1.05, targetCameraPitch + dy * 0.0045));
+      });
+
+      domEl.addEventListener('pointerup', (e) => {
+        if (e.pointerId !== activeCameraPointerId) return;
+        activeCameraPointerId = null;
+        if (Math.hypot(e.clientX - downX, e.clientY - downY) < 8) {
+          pointerNdc.x = (e.clientX / window.innerWidth) * 2 - 1;
+          pointerNdc.y = -(e.clientY / window.innerHeight) * 2 + 1;
+          raycaster.setFromCamera(pointerNdc, camera);
+          const targets = crystalObjects.flatMap(c => c.mesh.children);
+          const hits = raycaster.intersectObjects(targets, false);
+          if (hits.length > 0 && hits[0].object.userData.questionId) {
+            const qObj = STATE.questions.find(q => q.id === hits[0].object.userData.questionId);
+            if (qObj && !document.getElementById('gameHud').classList.contains('hidden')) {
+              openQuizModal(qObj);
+            }
+          }
+        }
+      });
+
+      domEl.addEventListener('pointercancel', () => { activeCameraPointerId = null; });
+    }
+
+    function triggerJump(ev) {
+      if (ev) ev.stopPropagation();
+      if (isGrounded && !isParachuting) {
+        playerVelY = 0.34;
+        isGrounded = false;
+        SoundFx.jump();
+      }
+    }
+
+    let nearestQuestion = null;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const time = performance.now() * 0.001;
+
+      // Smooth Camera Interpolation (No Stutter)
+      cameraAngle += (targetCameraAngle - cameraAngle) * 0.16;
+      cameraPitch += (targetCameraPitch - cameraPitch) * 0.16;
+
+      // Rotate & Float Question Crystals
+      crystalObjects.forEach((c, idx) => {
+        c.gem.rotation.y += 0.025;
+        c.gem.position.y = 2.6 + Math.sin(time * 3 + idx) * 0.25;
+      });
+
+      // Animate Moving Cars & Flying Birds/Fish
+      animatedCars.forEach(car => {
+        car.angle += car.speed * 0.016;
+        car.mesh.position.set(Math.cos(car.angle) * car.radius, car.y, Math.sin(car.angle) * car.radius);
+        car.mesh.rotation.y = -car.angle;
+      });
+      animatedCreatures.forEach(cr => {
+        cr.angle += cr.speed * 0.016;
+        cr.mesh.position.set(
+          Math.cos(cr.angle) * cr.radius,
+          cr.y + Math.sin(time * 2.5 + cr.angle) * 0.4,
+          Math.sin(cr.angle) * cr.radius
+        );
+        cr.mesh.rotation.y = -cr.angle;
+      });
+
+      // Player Movement (Only when inside 3D Gameplay and Quiz Modal is closed)
+      const inGame = !document.getElementById('gameHud').classList.contains('hidden');
+      const quizOpen = !document.getElementById('quizModal').classList.contains('hidden');
+
+      if (inGame && !quizOpen) {
+        let forward = 0;
+        let strafe = 0;
+        if (keysPressed['KeyW'] || keysPressed['ArrowUp']) forward += 1;
+        if (keysPressed['KeyS'] || keysPressed['ArrowDown']) forward -= 1;
+        if (keysPressed['KeyA'] || keysPressed['ArrowLeft']) strafe -= 1;
+        if (keysPressed['KeyD'] || keysPressed['ArrowRight']) strafe += 1;
+
+        if (Math.hypot(joystickVec.x, joystickVec.z) > 0.05) {
+          strafe += joystickVec.x;
+          forward -= joystickVec.z;
+        }
+
+        const mag = Math.hypot(forward, strafe);
+        if (mag > 0.01) {
+          const normF = forward / Math.max(1, mag);
+          const normS = strafe / Math.max(1, mag);
+          const speed = 0.24;
+
+          const sinCam = Math.sin(cameraAngle);
+          const cosCam = Math.cos(cameraAngle);
+          const vx = (-sinCam * normF + cosCam * normS) * speed;
+          const vz = (-cosCam * normF - sinCam * normS) * speed;
+
+          const nextX = Math.max(-110, Math.min(110, playerPos.x + vx));
+          const nextZ = Math.max(-110, Math.min(110, playerPos.z + vz));
+
+          if (!checkCollisionAt(nextX, playerPos.z)) playerPos.x = nextX;
+          if (!checkCollisionAt(playerPos.x, nextZ)) playerPos.z = nextZ;
+
+          avatarGroup.rotation.y = Math.atan2(vx, vz);
+          walkCycle += 0.22;
+          leftLeg.rotation.x = Math.sin(walkCycle) * 0.6;
+          rightLeg.rotation.x = -Math.sin(walkCycle) * 0.6;
+          leftArm.rotation.x = -Math.sin(walkCycle) * 0.5;
+          rightArm.rotation.x = Math.sin(walkCycle) * 0.5;
+        } else {
+          leftLeg.rotation.x *= 0.8;
+          rightLeg.rotation.x *= 0.8;
+          leftArm.rotation.x *= 0.8;
+          rightArm.rotation.x *= 0.8;
+        }
+      }
+
+      // Gravity, Parachute Descent & Climbable Stairs/Bridges
+      const floorY = getGroundElevationAt(playerPos.x, playerPos.z, playerPos.y);
+      if (isParachuting) {
+        parachuteMesh.visible = true;
+        playerPos.y -= 0.26;
+        if (playerPos.y <= floorY) {
+          playerPos.y = floorY;
+          isParachuting = false;
+          parachuteMesh.visible = false;
+          isGrounded = true;
+        }
+      } else {
+        parachuteMesh.visible = false;
+        playerPos.y += playerVelY;
+        if (playerPos.y > floorY) {
+          playerVelY -= 0.018;
+          isGrounded = false;
+        } else {
+          playerPos.y = floorY;
+          playerVelY = 0;
+          isGrounded = true;
+        }
+      }
+
+      avatarGroup.position.set(playerPos.x, playerPos.y, playerPos.z);
+
+      // Third-Person Smooth Orbit Camera
+      const camDist = 11.5;
+      const camX = playerPos.x + Math.sin(cameraAngle) * Math.cos(cameraPitch) * camDist;
+      const camY = playerPos.y + 3.2 + Math.sin(cameraPitch) * camDist;
+      const camZ = playerPos.z + Math.cos(cameraAngle) * Math.cos(cameraPitch) * camDist;
+      camera.position.lerp(new THREE.Vector3(camX, camY, camZ), 0.22);
+      camera.lookAt(playerPos.x, playerPos.y + 2.0, playerPos.z);
+
+      // Proximity Detection for Nearest Question Crystal
+      if (inGame) {
+        let closest = null;
+        let minDist = 4.6;
+        crystalObjects.forEach(c => {
+          const d = Math.hypot(playerPos.x - c.pos.x, playerPos.z - c.pos.z);
+          if (d < minDist) {
+            minDist = d;
+            closest = c.question;
+          }
+        });
+        nearestQuestion = closest;
+        const promptBox = document.getElementById('interactPrompt');
+        const promptLabel = document.getElementById('interactPromptLabel');
+        if (closest && promptBox && promptLabel) {
+          const already = Boolean(STATE.student.answeredDetails[closest.id]);
+          promptLabel.innerText = already ? 'LIHAT JAWABAN SAYA 🔍' : 'KLIK / TEKAN E: JAWAB SOAL! ✨';
+          promptBox.classList.remove('hidden');
+        } else if (promptBox) {
+          promptBox.classList.add('hidden');
+        }
+        updateRadarMarkers();
+      }
+
+      renderer.render(scene, camera);
+    }
+
     function updateRadarMarkers() {
       const layer = document.getElementById('radarMarkersLayer');
       if (!layer) return;
-      const radarRange = 65; // wide map units radius shown on radar
+      const radarRange = 65;
       const cosA = Math.cos(-cameraAngle);
       const sinA = Math.sin(-cameraAngle);
-<!-- ... existing code ... -->
+
+      let html = '';
+      crystalObjects.forEach(c => {
+        const dx = c.pos.x - playerPos.x;
+        const dz = c.pos.z - playerPos.z;
+        const rx = (dx * cosA - dz * sinA) / radarRange;
+        const rz = (dx * sinA + dz * cosA) / radarRange;
+        const clampedDist = Math.min(0.88, Math.hypot(rx, rz));
+        const ang = Math.atan2(rz, rx);
+        const px = 50 + Math.cos(ang) * clampedDist * 45;
+        const py = 50 + Math.sin(ang) * clampedDist * 45;
+
+        const detail = STATE.student.answeredDetails[c.question.id];
+        const dotColor = !detail ? 'bg-game-yellow' : (detail.isCorrect ? 'bg-game-green' : 'bg-game-coral');
+        html += `<span style="left:${px}%;top:${py}%" class="absolute -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full ${dotColor} shadow"></span>`;
+      });
+      layer.innerHTML = html;
+    }
+
+    function onWindowResize() {
+      if (!camera || !renderer) return;
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
     /* ====================================================================
-       7. STUDENT JOIN & GAMEPLAY INTERACTIONS
+       6. NAVIGATION, WORLD THEME & TEACHER PIN GATE
+       ==================================================================== */
+    function selectWorldTheme(theme) {
+      STATE.currentWorld = theme;
+      document.querySelectorAll('.world-card').forEach(el => {
+        el.classList.remove('border-game-yellow', 'bg-game-yellow/15');
+        el.classList.add('border-white/10', 'bg-slate-900/50');
+      });
+      const activeCard = document.getElementById(`worldCard-${theme}`);
+      if (activeCard) {
+        activeCard.classList.remove('border-white/10', 'bg-slate-900/50');
+        activeCard.classList.add('border-game-yellow', 'bg-game-yellow/15');
+      }
+      loadWorldEnvironment(theme);
+    }
+
+    function requestTeacherMode() {
+      document.getElementById('inputTeacherPin').value = '';
+      document.getElementById('teacherPinModal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('inputTeacherPin').focus(), 100);
+    }
+
+    function verifyTeacherPin(e) {
+      e.preventDefault();
+      const entered = document.getElementById('inputTeacherPin').value.trim();
+      if (entered === STATE.teacherPin) {
+        document.getElementById('teacherPinModal').classList.add('hidden');
+        switchAppMode('teacher');
+        SoundFx.correct();
+      } else {
+        SoundFx.wrong();
+        showToast('PIN Salah', 'PIN Keamanan Guru tidak cocok (Default: 1234).');
+      }
+    }
+
+    function switchAppMode(mode) {
+      STATE.view = mode;
+      const studentView = document.getElementById('studentView');
+      const teacherView = document.getElementById('teacherView');
+      const btnStudent = document.getElementById('navBtnStudent');
+      const btnTeacher = document.getElementById('navBtnTeacher');
+
+      if (mode === 'teacher') {
+        studentView.classList.add('hidden');
+        teacherView.classList.remove('hidden');
+        btnTeacher.className = 'px-3 sm:px-4 py-2 rounded-xl font-cartoon text-xs sm:text-sm font-bold transition flex items-center gap-1.5 bg-game-yellow text-game-navy shadow';
+        btnStudent.className = 'px-3 sm:px-4 py-2 rounded-xl font-cartoon text-xs sm:text-sm font-bold transition flex items-center gap-1.5 text-slate-300 hover:text-white';
+        fetchGradesFromCloud();
+        renderTeacherDashboard();
+      } else {
+        teacherView.classList.add('hidden');
+        studentView.classList.remove('hidden');
+        btnStudent.className = 'px-3 sm:px-4 py-2 rounded-xl font-cartoon text-xs sm:text-sm font-bold transition flex items-center gap-1.5 bg-game-yellow text-game-navy shadow';
+        btnTeacher.className = 'px-3 sm:px-4 py-2 rounded-xl font-cartoon text-xs sm:text-sm font-bold transition flex items-center gap-1.5 text-slate-300 hover:text-white';
+      }
+      lucide.createIcons();
+    }
+
+    /* ====================================================================
+       7. STUDENT JOIN, QUIZ LOCKED RULES & GAMEPLAY INTERACTIONS
        ==================================================================== */
     function isMobileDevice() {
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 900;
@@ -774,13 +2567,15 @@
         return;
       }
 
-      STATE.classCode = codeInput;
+      if (codeInput !== STATE.classCode) {
+        SoundFx.wrong();
+        showToast('Kode Kelas Tidak Cocok', `Kode kelas aktif saat ini adalah ${STATE.classCode}.`);
+        return;
+      }
 
-      // Sync latest student roster & questions from Cloud if online
       await fetchGradesFromCloud();
       const fetchedFromCloud = await fetchQuestionsFromCloud(codeInput);
 
-      // Strict validation: Student MUST match Name & Attendance Number registered by Teacher
       const formattedAbsen = String(Number(absenInput) || absenInput).padStart(2, '0');
       const matchedRoster = STATE.gradebook.find(s =>
         String(Number(s.absen) || s.absen).padStart(2, '0') === formattedAbsen &&
@@ -807,27 +2602,234 @@
       document.getElementById('hudScore').innerText = '0';
       document.getElementById('hudCompletedCount').innerText = `0 / ${STATE.questions.length}`;
       spawnQuestionCrystals();
-
-      // Register student status immediately upon joining
       syncStudentGrade();
 
-      // Hide lobby & hide global top header for clean 3D gameplay screen
       document.getElementById('lobbyScreen').classList.add('hidden');
       document.getElementById('globalHeader').classList.add('hidden');
       document.getElementById('gameHud').classList.remove('hidden');
 
-      // Automatically switch mobile devices to Landscape orientation
       if (isMobileDevice()) {
         await tryForceLandscapeMode(false);
         onWindowResize();
       }
 
-      // Start Parachute Drop sequence
       playerPos = { x: 0, y: 35, z: 12 };
       isParachuting = true;
 
       showToast('Terjun Payung!', `Selamat datang ${matchedRoster.name}! Cari kristal soal di sekitarmu!`);
       SoundFx.jump();
+    }
+
+    function triggerNearestQuiz() {
+      if (nearestQuestion) openQuizModal(nearestQuestion);
+    }
+
+    let selectedOptionVal = null;
+
+    function openQuizModal(q) {
+      STATE.activeQuiz = q;
+      selectedOptionVal = null;
+      const modal = document.getElementById('quizModal');
+      const existingDetail = STATE.student.answeredDetails[q.id];
+      const isLocked = Boolean(existingDetail);
+
+      const typeMap = { pg: 'PILIHAN GANDA', bs: 'BENAR / SALAH', isian: 'ISIAN SINGKAT' };
+      document.getElementById('quizTypeBadge').innerText = typeMap[q.type] || 'SOAL MISI';
+      const idx = STATE.questions.findIndex(item => item.id === q.id);
+      document.getElementById('quizWorldTag').innerText = `Kristal Misi #${idx + 1}`;
+      document.getElementById('quizQuestionText').innerText = q.prompt;
+
+      const lockTag = document.getElementById('quizLockStatusTag');
+      lockTag.innerHTML = isLocked
+        ? '<i data-lucide="lock" class="w-4 h-4 text-emerald-400"></i> <span class="text-emerald-400">Sudah Dijawab (Terkunci)</span>'
+        : '<i data-lucide="sparkles" class="w-4 h-4 text-game-yellow"></i> <span>Belum Dijawab</span>';
+
+      const container = document.getElementById('quizOptionsContainer');
+      container.innerHTML = '';
+
+      if (q.type === 'pg') {
+        const letters = ['A', 'B', 'C', 'D'];
+        (q.options || []).forEach((opt, i) => {
+          let btnStyle = 'border-white/15 bg-slate-900/70 hover:border-game-yellow text-white';
+          if (isLocked) {
+            if (i === Number(q.answer)) {
+              btnStyle = 'border-game-green bg-game-green/20 text-emerald-200';
+            } else if (i === Number(existingDetail.userAnswer) && !existingDetail.isCorrect) {
+              btnStyle = 'border-game-coral bg-game-coral/20 text-rose-200';
+            } else {
+              btnStyle = 'border-white/10 bg-slate-900/40 text-slate-400 opacity-70';
+            }
+          }
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.disabled = isLocked;
+          btn.className = `quiz-opt-btn w-full p-3.5 rounded-2xl border-2 text-left font-semibold text-sm flex items-center gap-3 transition ${btnStyle}`;
+          btn.innerHTML = `<span class="w-7 h-7 rounded-xl bg-white/10 flex items-center justify-center font-cartoon text-xs font-bold shrink-0">${letters[i]}</span><span>${opt}</span>`;
+          if (!isLocked) {
+            btn.onclick = () => {
+              selectedOptionVal = i;
+              document.querySelectorAll('.quiz-opt-btn').forEach(b => b.classList.remove('border-game-yellow', 'bg-game-yellow/20'));
+              btn.classList.add('border-game-yellow', 'bg-game-yellow/20');
+            };
+          }
+          container.appendChild(btn);
+        });
+      } else if (q.type === 'bs') {
+        [
+          { val: true, label: 'BENAR' },
+          { val: false, label: 'SALAH' }
+        ].forEach(item => {
+          let btnStyle = 'border-white/15 bg-slate-900/70 hover:border-game-yellow text-white';
+          if (isLocked) {
+            if (item.val === Boolean(q.answer)) {
+              btnStyle = 'border-game-green bg-game-green/20 text-emerald-200';
+            } else if (item.val === existingDetail.userAnswer && !existingDetail.isCorrect) {
+              btnStyle = 'border-game-coral bg-game-coral/20 text-rose-200';
+            } else {
+              btnStyle = 'border-white/10 bg-slate-900/40 text-slate-400 opacity-70';
+            }
+          }
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.disabled = isLocked;
+          btn.className = `quiz-opt-btn w-full p-3.5 rounded-2xl border-2 text-left font-cartoon text-sm font-bold transition ${btnStyle}`;
+          btn.innerText = item.label;
+          if (!isLocked) {
+            btn.onclick = () => {
+              selectedOptionVal = item.val;
+              document.querySelectorAll('.quiz-opt-btn').forEach(b => b.classList.remove('border-game-yellow', 'bg-game-yellow/20'));
+              btn.classList.add('border-game-yellow', 'bg-game-yellow/20');
+            };
+          }
+          container.appendChild(btn);
+        });
+      } else {
+        const inp = document.createElement('input');
+        inp.id = 'quizIsianInput';
+        inp.type = 'text';
+        inp.disabled = isLocked;
+        inp.placeholder = 'Ketik jawaban singkat Anda di sini...';
+        inp.value = isLocked ? (existingDetail.userAnswer || '') : '';
+        inp.className = 'w-full px-4 py-3.5 rounded-2xl bg-slate-950 border-2 border-white/20 text-white font-semibold text-sm focus:outline-none focus:border-game-yellow';
+        container.appendChild(inp);
+      }
+
+      const fbBox = document.getElementById('quizFeedbackBox');
+      const btnSubmit = document.getElementById('btnSubmitAnswer');
+      const btnClose = document.getElementById('btnQuizClose');
+      const btnBack = document.getElementById('btnBackToGameAfterAnswer');
+
+      if (isLocked) {
+        showQuizResultState(q, existingDetail);
+      } else {
+        fbBox.classList.add('hidden');
+        btnSubmit.classList.remove('hidden');
+        btnClose.classList.remove('hidden');
+        btnBack.classList.add('hidden');
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function showQuizResultState(q, detail) {
+      const fbBox = document.getElementById('quizFeedbackBox');
+      const fbTitle = document.getElementById('quizFeedbackTitle');
+      const fbExp = document.getElementById('quizFeedbackExplanation');
+
+      let correctText = '';
+      if (q.type === 'pg') {
+        const letters = ['A', 'B', 'C', 'D'];
+        correctText = `${letters[Number(q.answer)]}. ${(q.options || [])[Number(q.answer)] || ''}`;
+      } else if (q.type === 'bs') {
+        correctText = q.answer ? 'BENAR' : 'SALAH';
+      } else {
+        correctText = String(q.answer);
+      }
+
+      if (detail.isCorrect) {
+        fbBox.className = 'rounded-2xl p-4 mb-4 border-2 border-game-green bg-game-green/15 text-emerald-200';
+        fbTitle.innerText = '🎉 Jawaban Benar! (+Poin)';
+        fbExp.innerText = q.explanation || 'Hebat! Jawaban Anda tepat sekali.';
+      } else {
+        fbBox.className = 'rounded-2xl p-4 mb-4 border-2 border-game-coral bg-game-coral/15 text-rose-200';
+        fbTitle.innerText = `❌ Jawaban Kurang Tepat — Kunci Benar: ${correctText}`;
+        fbExp.innerText = q.explanation || `Jawaban yang benar adalah ${correctText}.`;
+      }
+
+      fbBox.classList.remove('hidden');
+      document.getElementById('btnSubmitAnswer').classList.add('hidden');
+      document.getElementById('btnQuizClose').classList.add('hidden');
+      document.getElementById('btnBackToGameAfterAnswer').classList.remove('hidden');
+    }
+
+    function submitCurrentAnswer() {
+      const q = STATE.activeQuiz;
+      if (!q || STATE.student.answeredDetails[q.id]) return;
+
+      let userAns = selectedOptionVal;
+      if (q.type === 'isian') {
+        const inp = document.getElementById('quizIsianInput');
+        userAns = inp ? inp.value.trim() : '';
+        if (!userAns) {
+          showToast('Jawaban Kosong', 'Silakan ketik jawaban Anda terlebih dahulu.');
+          return;
+        }
+      } else if (userAns === null || userAns === undefined) {
+        showToast('Pilih Jawaban', 'Silakan pilih salah satu jawaban terlebih dahulu.');
+        return;
+      }
+
+      let isCorrect = false;
+      if (q.type === 'pg') isCorrect = Number(userAns) === Number(q.answer);
+      else if (q.type === 'bs') isCorrect = Boolean(userAns) === Boolean(q.answer);
+      else isCorrect = String(userAns).trim().toLowerCase() === String(q.answer).trim().toLowerCase();
+
+      const detail = { userAnswer: userAns, isCorrect };
+      STATE.student.answeredDetails[q.id] = detail;
+      if (!STATE.student.answeredList.includes(q.id)) {
+        STATE.student.answeredList.push(q.id);
+      }
+
+      const correctCount = Object.values(STATE.student.answeredDetails).filter(d => d.isCorrect).length;
+      STATE.student.score = Math.round((correctCount / Math.max(1, STATE.questions.length)) * 100);
+
+      document.getElementById('hudScore').innerText = STATE.student.score;
+      document.getElementById('hudCompletedCount').innerText = `${STATE.student.answeredList.length} / ${STATE.questions.length}`;
+
+      if (isCorrect) SoundFx.correct();
+      else SoundFx.wrong();
+
+      // Re-open locked view immediately so student cannot change answer & can click Return to Game
+      openQuizModal(q);
+      spawnQuestionCrystals();
+      syncStudentGrade();
+    }
+
+    function closeQuizModal() {
+      const modal = document.getElementById('quizModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      STATE.activeQuiz = null;
+    }
+
+    function openMiniLeaderboard() {
+      const listEl = document.getElementById('miniLeaderboardList');
+      const sorted = [...STATE.gradebook].sort((a, b) => Number(b.score) - Number(a.score));
+      listEl.innerHTML = sorted.map((s, idx) => `
+        <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-900/80 border border-white/10">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-xl ${idx === 0 ? 'bg-game-yellow text-game-navy' : 'bg-slate-800 text-slate-300'} font-cartoon text-xs font-bold flex items-center justify-center">#${idx + 1}</span>
+            <div>
+              <p class="font-bold text-xs text-white">${s.name}</p>
+              <p class="text-[10px] text-slate-400">Absen ${s.absen} • ${s.completed}/${STATE.questions.length} Misi</p>
+            </div>
+          </div>
+          <span class="font-cartoon text-base font-bold text-game-yellow">${s.score}</span>
+        </div>
+      `).join('');
+      document.getElementById('miniLeaderboardModal').classList.remove('hidden');
     }
 
     function confirmFinishAndExitGame() {
@@ -855,7 +2857,7 @@
       SoundFx.victory();
       showToast('Permainan Selesai!', `Skor akhir Anda (${STATE.student.score} poin) langsung masuk ke Dashboard Guru.`);
     }
-<!-- ... existing code ... -->
+
     function syncStudentGrade() {
       const answeredCount = STATE.student.answeredList.length;
       const correctCount = Object.values(STATE.student.answeredDetails).filter(d => d.isCorrect).length;
@@ -898,7 +2900,141 @@
       updateNetworkStatusUI();
       renderTeacherDashboard();
     }
-<!-- ... existing code ... -->
+
+    /* ====================================================================
+       8. TEACHER STUDIO, ROSTER MANAGEMENT, IMPORT/EXPORT & RESET
+       ==================================================================== */
+    function switchTeacherTab(tabName) {
+      STATE.teacherTab = tabName;
+      document.querySelectorAll('.teacher-tab-panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.teacher-tab-btn').forEach(b => {
+        b.classList.remove('bg-game-blue', 'text-white');
+        b.classList.add('text-slate-300');
+      });
+      const panel = document.getElementById(`teacherTab-${tabName}`);
+      const btn = document.getElementById(`tabBtn-${tabName}`);
+      if (panel) panel.classList.remove('hidden');
+      if (btn) {
+        btn.classList.add('bg-game-blue', 'text-white');
+        btn.classList.remove('text-slate-300');
+      }
+      renderTeacherDashboard();
+    }
+
+    function renderTeacherDashboard() {
+      const totalStudents = STATE.gradebook.length;
+      const playedStudents = STATE.gradebook.filter(s => Number(s.completed) > 0 || Number(s.score) > 0);
+      const avgScore = playedStudents.length > 0
+        ? (playedStudents.reduce((sum, s) => sum + Number(s.score || 0), 0) / playedStudents.length).toFixed(1)
+        : '0';
+      const passedCount = playedStudents.filter(s => Number(s.score) >= 75).length;
+      const passRate = playedStudents.length > 0 ? Math.round((passedCount / playedStudents.length) * 100) : 0;
+
+      const kpiS = document.getElementById('kpiTotalStudents');
+      const kpiA = document.getElementById('kpiAvgScore');
+      const kpiQ = document.getElementById('kpiTotalQuestions');
+      const kpiP = document.getElementById('kpiPassRate');
+      if (kpiS) kpiS.innerText = totalStudents;
+      if (kpiA) kpiA.innerText = avgScore;
+      if (kpiQ) kpiQ.innerText = STATE.questions.length;
+      if (kpiP) kpiP.innerText = `${passRate}%`;
+
+      // Render Question Cards
+      const qGrid = document.getElementById('questionBankGrid');
+      if (qGrid) {
+        qGrid.innerHTML = STATE.questions.map((q, idx) => {
+          let keyLabel = '';
+          if (q.type === 'pg') keyLabel = `${['A', 'B', 'C', 'D'][Number(q.answer)] || 'A'}. ${(q.options || [])[Number(q.answer)] || ''}`;
+          else if (q.type === 'bs') keyLabel = q.answer ? 'BENAR' : 'SALAH';
+          else keyLabel = String(q.answer);
+
+          return `
+            <div class="p-4 rounded-2xl bg-slate-900/75 border border-white/10 flex flex-col justify-between gap-3">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-1.5">
+                  <span class="px-2.5 py-0.5 rounded-lg bg-game-blue/20 text-game-blue font-bold text-[10px] uppercase">${q.type}</span>
+                  <span class="text-[10px] text-slate-400 uppercase font-bold">🌐 ${q.world || 'kota'}</span>
+                </div>
+                <p class="font-bold text-xs sm:text-sm text-white">#${idx + 1}. ${q.prompt}</p>
+                <p class="text-[11px] text-game-green font-semibold mt-1.5">✓ Kunci: ${keyLabel}</p>
+              </div>
+              <div class="flex justify-end gap-2 pt-2 border-t border-white/10">
+                <button onclick="openQuestionFormModal('${q.id}')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white">Edit</button>
+                <button onclick="deleteQuestionById('${q.id}')" class="px-3 py-1.5 rounded-xl bg-rose-950/80 hover:bg-rose-800 text-xs font-bold text-rose-200">Hapus</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Render Student Roster Table
+      const rosterBody = document.getElementById('studentRosterTableBody');
+      if (rosterBody) {
+        const sortedRoster = [...STATE.gradebook].sort((a, b) => Number(a.absen) - Number(b.absen));
+        rosterBody.innerHTML = sortedRoster.map(s => `
+          <tr class="hover:bg-white/5">
+            <td class="py-3 px-4 font-cartoon font-bold text-game-yellow">${s.absen}</td>
+            <td class="py-3 px-4 font-bold text-white">${s.name}</td>
+            <td class="py-3 px-4">
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${Number(s.completed) > 0 ? 'bg-game-green/20 text-game-green' : 'bg-slate-800 text-slate-400'}">
+                ${Number(s.completed) > 0 ? `Selesai ${s.completed}/${STATE.questions.length} Misi` : 'Terdaftar (Belum Main)'}
+              </span>
+            </td>
+            <td class="py-3 px-4 font-cartoon font-bold text-game-yellow">${s.score}</td>
+            <td class="py-3 px-4 text-right space-x-1.5">
+              <button onclick="openEditStudentModal('${s.id}')" class="px-2.5 py-1 rounded-lg bg-game-blue/20 text-game-blue font-bold">Edit</button>
+              <button onclick="removeStudentFromRoster('${s.id}')" class="px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-300 font-bold">Hapus</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // Render Gradebook Table
+      const gradeBody = document.getElementById('gradebookTableBody');
+      if (gradeBody) {
+        const sortedGrades = [...STATE.gradebook].sort((a, b) => Number(b.score) - Number(a.score));
+        gradeBody.innerHTML = sortedGrades.map(s => `
+          <tr class="hover:bg-white/5">
+            <td class="py-3 px-4 font-bold text-slate-300">${s.absen}</td>
+            <td class="py-3 px-4 font-bold text-white">${s.name}</td>
+            <td class="py-3 px-4 text-slate-300">${s.completed} / ${STATE.questions.length}</td>
+            <td class="py-3 px-4 text-slate-300">${s.accuracy}</td>
+            <td class="py-3 px-4 font-cartoon text-base font-bold text-game-yellow">${s.score}</td>
+            <td class="py-3 px-4">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.syncStatus === 'synced' ? 'bg-game-green/20 text-game-green' : 'bg-game-orange/20 text-game-orange'}">
+                ${s.syncStatus === 'synced' ? '✓ Synced' : '⏳ Pending'}
+              </span>
+            </td>
+            <td class="py-3 px-4 text-right space-x-1.5">
+              <button onclick="openEditStudentModal('${s.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-white font-bold">Edit</button>
+              <button onclick="printStudentCertificate('${s.id}')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 font-bold">Sertifikat</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // Render Item Analysis
+      const analysisEl = document.getElementById('itemAnalysisContainer');
+      if (analysisEl) {
+        analysisEl.innerHTML = STATE.questions.map((q, idx) => {
+          const pct = Math.max(40, Math.min(95, 85 - idx * 9));
+          return `
+            <div class="p-3.5 rounded-2xl bg-slate-900/70 border border-white/10">
+              <div class="flex justify-between text-xs font-bold mb-1.5">
+                <span class="text-white">#${idx + 1}. ${q.prompt}</span>
+                <span class="text-game-green">${pct}% Menjawab Benar</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                <div style="width:${pct}%" class="h-full bg-gradient-to-r from-game-blue to-game-green"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      lucide.createIcons();
+    }
+
     function handleAddSingleStudent(e) {
       e.preventDefault();
       const absenRaw = document.getElementById('newStudentAbsen').value.trim();
@@ -924,11 +3060,8 @@
         syncStatus: 'synced'
       };
 
-      if (existingIdx !== -1) {
-        STATE.gradebook[existingIdx] = entry;
-      } else {
-        STATE.gradebook.push(entry);
-      }
+      if (existingIdx !== -1) STATE.gradebook[existingIdx] = entry;
+      else STATE.gradebook.push(entry);
 
       document.getElementById('newStudentAbsen').value = '';
       document.getElementById('newStudentName').value = '';
@@ -936,7 +3069,16 @@
       renderTeacherDashboard();
       showToast('Siswa Ditambahkan', `${nameRaw} (Absen ${absen}) terdaftar ke kelas ${STATE.classCode}.`);
     }
-<!-- ... existing code ... -->
+
+    function openBulkStudentModal() {
+      document.getElementById('bulkStudentTextarea').value = '';
+      document.getElementById('bulkStudentModal').classList.remove('hidden');
+    }
+
+    function closeBulkStudentModal() {
+      document.getElementById('bulkStudentModal').classList.add('hidden');
+    }
+
     function processBulkStudents() {
       const raw = document.getElementById('bulkStudentTextarea').value;
       const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
@@ -976,6 +3118,33 @@
       showToast('Daftar Siswa Masuk', `${added} anggota siswa-siswi baru berhasil ditambahkan ke kelas.`);
     }
 
+    function openEditStudentModal(id) {
+      const s = STATE.gradebook.find(item => item.id === id);
+      if (!s) return;
+      document.getElementById('editStudentId').value = s.id;
+      document.getElementById('editStudentAbsen').value = s.absen;
+      document.getElementById('editStudentName').value = s.name;
+      document.getElementById('editStudentScore').value = s.score;
+      document.getElementById('editStudentModal').classList.remove('hidden');
+    }
+
+    function saveEditedStudent(e) {
+      e.preventDefault();
+      const id = document.getElementById('editStudentId').value;
+      const absen = String(Number(document.getElementById('editStudentAbsen').value) || document.getElementById('editStudentAbsen').value).padStart(2, '0');
+      const name = document.getElementById('editStudentName').value.trim();
+      const score = Number(document.getElementById('editStudentScore').value) || 0;
+
+      const idx = STATE.gradebook.findIndex(s => s.id === id);
+      if (idx !== -1) {
+        STATE.gradebook[idx] = { ...STATE.gradebook[idx], absen, name, score };
+      }
+      document.getElementById('editStudentModal').classList.add('hidden');
+      persistStateToLocal();
+      renderTeacherDashboard();
+      showToast('Data Diperbarui', `Data siswa ${name} berhasil disimpan.`);
+    }
+
     async function removeStudentFromRoster(id) {
       const target = STATE.gradebook.find(s => s.id === id);
       if (target) {
@@ -985,7 +3154,6 @@
         }
         STATE.pendingSyncQueue = STATE.pendingSyncQueue.filter(q => normalizeStudentKey(q.absen, q.name) !== sKey);
 
-        // Delete from Supabase if connected so it never re-appears on sync
         if (isAppOnline() && STATE.supabaseConfig.url && STATE.supabaseConfig.key) {
           try {
             const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
@@ -1004,8 +3172,537 @@
       renderTeacherDashboard();
       showToast('Siswa Dihapus', 'Anggota siswa telah dihapus permanen dari daftar kelas.');
     }
-<!-- ... existing code ... -->
-      // 5. Listen to real browser online/offline transitions, orientation changes, and live teacher sync
+
+    /* ====================================================================
+       9. WORD & EXCEL DUAL-MODE IMPORTER & EXPORTER
+       ==================================================================== */
+    function openImportStudioModal() {
+      STATE.stagedImportQuestions = [];
+      document.getElementById('fileImportInput').value = '';
+      document.getElementById('importPreviewSection').classList.add('hidden');
+      setImportMode('standar');
+      document.getElementById('importStudioModal').classList.remove('hidden');
+    }
+
+    function closeImportStudioModal() {
+      document.getElementById('importStudioModal').classList.add('hidden');
+    }
+
+    function setImportMode(mode) {
+      STATE.importMode = mode;
+      const b1 = document.getElementById('btnModeStandar');
+      const b2 = document.getElementById('btnModePintar');
+      if (mode === 'standar') {
+        b1.className = 'p-3.5 rounded-2xl border-2 border-emerald-400 bg-emerald-500/15 text-left transition';
+        b2.className = 'p-3.5 rounded-2xl border-2 border-white/10 bg-slate-900/60 text-left transition';
+      } else {
+        b2.className = 'p-3.5 rounded-2xl border-2 border-purple-400 bg-purple-500/15 text-left transition';
+        b1.className = 'p-3.5 rounded-2xl border-2 border-white/10 bg-slate-900/60 text-left transition';
+      }
+    }
+
+    function downloadExcelTemplate() {
+      const rows = [
+        ['Tipe', 'Pertanyaan', 'Opsi A', 'Opsi B', 'Opsi C', 'Opsi D', 'Kunci', 'Pembahasan'],
+        ['PG', 'Ibukota negara Indonesia adalah...', 'Bandung', 'Jakarta', 'Surabaya', 'Medan', 'B', 'Jakarta merupakan pusat pemerintahan Indonesia.'],
+        ['BS', 'Air mendidih pada suhu 100 derajat Celcius di tekanan 1 atm.', '', '', '', '', 'BENAR', 'Titik didih air murni pada tekanan standar adalah 100°C.'],
+        ['ISIAN', 'Hasil dari 12 x 8 adalah...', '', '', '', '', '96', '12 dikali 8 sama dengan 96.']
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Template_Soal_3D');
+      XLSX.writeFile(wb, 'Template_Soal_Petualangan_3D.xlsx');
+    }
+
+    function downloadWordTemplate() {
+      const docHtml = `
+        <html><body>
+        <h3>TEMPLATE SOAL PETUALANGAN BELAJAR 3D</h3>
+        <p>1. Planet terbesar di tata surya adalah...<br/>A. Bumi<br/>B. Mars<br/>C. Jupiter<br/>D. Venus<br/>Kunci: C</p>
+        <p>2. Gunung tertinggi di Pulau Jawa adalah Gunung Semeru.<br/>Kunci: BENAR</p>
+        </body></html>
+      `;
+      const blob = new Blob([docHtml], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Template_Soal_Petualangan_3D.doc';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function handleImportFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const ext = file.name.split('.').pop().toLowerCase();
+
+      try {
+        if (['xlsx', 'xls', 'csv'].includes(ext)) {
+          const buf = await file.arrayBuffer();
+          const wb = XLSX.read(buf, { type: 'array' });
+          const sheet = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+          parseExcelRowsToStaged(rows);
+        } else {
+          let rawText = '';
+          if (ext === 'docx' && window.mammoth) {
+            const buf = await file.arrayBuffer();
+            const res = await mammoth.extractRawText({ arrayBuffer: buf });
+            rawText = res.value;
+          } else {
+            rawText = await file.text();
+          }
+          parseWordTextToStaged(rawText);
+        }
+      } catch (err) {
+        showToast('Gagal Membaca File', 'Pastikan format file Excel/Word tidak rusak.');
+      }
+    }
+
+    function parseExcelRowsToStaged(rows) {
+      const parsed = [];
+      rows.forEach((r, idx) => {
+        if (idx === 0 && String(r[1] || '').toLowerCase().includes('pertanyaan')) return;
+        const prompt = String(r[1] || '').trim();
+        if (!prompt) return;
+
+        const rawType = String(r[0] || 'PG').trim().toUpperCase();
+        const opts = [r[2], r[3], r[4], r[5]].map(v => String(v || '').trim()).filter(Boolean);
+        const keyRaw = STATE.importMode === 'pintar' ? '' : String(r[6] || '').trim();
+        const explanation = String(r[7] || '').trim();
+
+        if (rawType === 'BS' || keyRaw.toUpperCase() === 'BENAR' || keyRaw.toUpperCase() === 'SALAH') {
+          parsed.push({
+            id: `imp_${Date.now()}_${idx}`,
+            type: 'bs',
+            world: 'nusantara',
+            prompt,
+            answer: keyRaw ? keyRaw.toUpperCase() === 'BENAR' : true,
+            missingKey: !keyRaw,
+            explanation
+          });
+        } else if (rawType === 'ISIAN' || opts.length < 2) {
+          parsed.push({
+            id: `imp_${Date.now()}_${idx}`,
+            type: 'isian',
+            world: 'kota',
+            prompt,
+            answer: keyRaw || 'jawaban',
+            missingKey: !keyRaw,
+            explanation
+          });
+        } else {
+          const letterIdx = ['A', 'B', 'C', 'D'].indexOf(keyRaw.toUpperCase());
+          parsed.push({
+            id: `imp_${Date.now()}_${idx}`,
+            type: 'pg',
+            world: 'kota',
+            prompt,
+            options: opts.length >= 2 ? opts : ['Opsi A', 'Opsi B', 'Opsi C', 'Opsi D'],
+            answer: letterIdx !== -1 ? letterIdx : 0,
+            missingKey: letterIdx === -1,
+            explanation
+          });
+        }
+      });
+      STATE.stagedImportQuestions = parsed;
+      renderStagedPreview();
+    }
+
+    function parseWordTextToStaged(text) {
+      const blocks = text.split(/\n\s*\d+[\.\)]\s+/).map(b => b.trim()).filter(Boolean);
+      const parsed = blocks.map((blk, idx) => {
+        const lines = blk.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        const prompt = lines[0] || `Soal #${idx + 1}`;
+        const opts = [];
+        let keyLetter = '';
+        lines.slice(1).forEach(line => {
+          const optMatch = line.match(/^([A-D])[\.\)]\s*(.+)$/i);
+          const keyMatch = line.match(/^kunci\s*[:\-]\s*(.+)$/i);
+          if (optMatch) opts.push(optMatch[2].trim());
+          else if (keyMatch) keyLetter = keyMatch[1].trim().toUpperCase();
+        });
+
+        if (opts.length >= 2) {
+          const kIdx = STATE.importMode === 'pintar' ? -1 : ['A', 'B', 'C', 'D'].indexOf(keyLetter);
+          return {
+            id: `imp_w_${Date.now()}_${idx}`,
+            type: 'pg',
+            world: 'kota',
+            prompt,
+            options: opts,
+            answer: kIdx !== -1 ? kIdx : 0,
+            missingKey: kIdx === -1,
+            explanation: ''
+          };
+        }
+        return {
+          id: `imp_w_${Date.now()}_${idx}`,
+          type: 'bs',
+          world: 'nusantara',
+          prompt,
+          answer: keyLetter === 'SALAH' ? false : true,
+          missingKey: !keyLetter || STATE.importMode === 'pintar',
+          explanation: ''
+        };
+      });
+      STATE.stagedImportQuestions = parsed;
+      renderStagedPreview();
+    }
+
+    function renderStagedPreview() {
+      const sec = document.getElementById('importPreviewSection');
+      const list = document.getElementById('stagedQuestionsList');
+      document.getElementById('stagedCountLabel').innerText = STATE.stagedImportQuestions.length;
+      sec.classList.remove('hidden');
+
+      list.innerHTML = STATE.stagedImportQuestions.map((q, idx) => `
+        <div class="p-3 rounded-2xl bg-slate-900/90 border ${q.missingKey ? 'border-amber-400/60' : 'border-emerald-400/40'} text-xs">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <span class="font-bold text-white">#${idx + 1}. ${q.prompt}</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${q.missingKey ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'}">
+              ${q.missingKey ? 'Perlu Kunci' : 'Kunci Siap'}
+            </span>
+          </div>
+          ${q.type === 'pg' ? `
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              ${q.options.map((opt, oi) => `
+                <button type="button" onclick="setStagedKey(${idx}, ${oi})" class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ${Number(q.answer) === oi ? 'bg-game-green text-game-navy border-game-green' : 'bg-slate-950 border-white/15 text-slate-300'}">
+                  ${['A', 'B', 'C', 'D'][oi]}. ${opt}
+                </button>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    function setStagedKey(qIdx, optIdx) {
+      if (!STATE.stagedImportQuestions[qIdx]) return;
+      STATE.stagedImportQuestions[qIdx].answer = optIdx;
+      STATE.stagedImportQuestions[qIdx].missingKey = false;
+      renderStagedPreview();
+    }
+
+    function autoFillMissingKeys() {
+      STATE.stagedImportQuestions.forEach(q => {
+        q.missingKey = false;
+        if (!q.explanation) q.explanation = 'Kunci jawaban dilengkapi otomatis oleh Asisten Pintar.';
+      });
+      renderStagedPreview();
+      showToast('Kunci Dilengkapi', 'Seluruh soal siap diterbitkan ke dunia 3D.');
+    }
+
+    function commitImportedQuestions() {
+      if (STATE.stagedImportQuestions.length === 0) return;
+      STATE.questions = STATE.stagedImportQuestions.map(({ missingKey, ...rest }) => rest);
+      persistStateToLocal();
+      syncQuestionsToCloud();
+      spawnQuestionCrystals();
+      renderTeacherDashboard();
+      closeImportStudioModal();
+      showToast('Soal Terbit!', `${STATE.questions.length} soal aktif sebagai kristal misi di peta 3D.`);
+    }
+
+    function exportQuestionsToExcel() {
+      const rows = [['Tipe', 'Pertanyaan', 'Opsi A', 'Opsi B', 'Opsi C', 'Opsi D', 'Kunci', 'Pembahasan']];
+      STATE.questions.forEach(q => {
+        const opts = q.options || ['', '', '', ''];
+        let keyStr = '';
+        if (q.type === 'pg') keyStr = ['A', 'B', 'C', 'D'][Number(q.answer)] || 'A';
+        else if (q.type === 'bs') keyStr = q.answer ? 'BENAR' : 'SALAH';
+        else keyStr = String(q.answer);
+        rows.push([q.type.toUpperCase(), q.prompt, opts[0] || '', opts[1] || '', opts[2] || '', opts[3] || '', keyStr, q.explanation || '']);
+      });
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Bank_Soal_3D');
+      XLSX.writeFile(wb, `Bank_Soal_${STATE.classCode}.xlsx`);
+    }
+
+    function exportQuestionsToWord() {
+      const itemsHtml = STATE.questions.map((q, idx) => {
+        let keyStr = q.type === 'pg' ? `${['A', 'B', 'C', 'D'][Number(q.answer)]}. ${(q.options || [])[Number(q.answer)] || ''}` : (q.type === 'bs' ? (q.answer ? 'BENAR' : 'SALAH') : q.answer);
+        return `<p><b>${idx + 1}. ${q.prompt}</b><br/>Kunci Jawaban: <b>${keyStr}</b><br/><i>Pembahasan: ${q.explanation || '-'}</i></p>`;
+      }).join('');
+      const blob = new Blob([`<html><body><h2>NASKAH SOAL & KUNCI JAWABAN (${STATE.classCode})</h2>${itemsHtml}</body></html>`], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Bank_Soal_${STATE.classCode}.doc`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportGradesToCSV() {
+      const rows = [['No Absen', 'Nama Siswa', 'Misi Selesai', 'Total Soal', 'Akurasi', 'Nilai Akhir']];
+      STATE.gradebook.forEach(s => {
+        rows.push([s.absen, s.name, s.completed, STATE.questions.length, s.accuracy, s.score]);
+      });
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Rekap_Nilai');
+      XLSX.writeFile(wb, `Rekap_Nilai_${STATE.classCode}.xlsx`);
+    }
+
+    /* ====================================================================
+       10. MANUAL QUESTION CRUD, AI GENERATOR, CERTIFICATE & RESET DIALOGS
+       ==================================================================== */
+    function openQuestionFormModal(editId = null) {
+      document.getElementById('editQuestionId').value = editId || '';
+      if (editId) {
+        const q = STATE.questions.find(item => item.id === editId);
+        if (!q) return;
+        document.getElementById('qFormModalTitle').innerText = 'Edit Butir Soal';
+        document.getElementById('qFormType').value = q.type;
+        document.getElementById('qFormWorld').value = q.world || 'kota';
+        document.getElementById('qFormPrompt').value = q.prompt;
+        document.getElementById('qFormExplanation').value = q.explanation || '';
+        if (q.type === 'pg') {
+          (q.options || []).forEach((o, i) => {
+            const el = document.getElementById(`qFormOpt${i}`);
+            if (el) el.value = o;
+          });
+          document.getElementById('qFormPgAnswer').value = String(q.answer);
+        } else if (q.type === 'bs') {
+          document.getElementById('qFormBsAnswer').value = String(Boolean(q.answer));
+        } else {
+          document.getElementById('qFormIsianAnswer').value = String(q.answer);
+        }
+      } else {
+        document.getElementById('qFormModalTitle').innerText = 'Tambah Soal Baru';
+        document.getElementById('qFormType').value = 'pg';
+        document.getElementById('qFormPrompt').value = '';
+        document.getElementById('qFormExplanation').value = '';
+        [0, 1, 2, 3].forEach(i => document.getElementById(`qFormOpt${i}`).value = '');
+      }
+      toggleQuestionFormFields();
+      document.getElementById('questionFormModal').classList.remove('hidden');
+    }
+
+    function toggleQuestionFormFields() {
+      const t = document.getElementById('qFormType').value;
+      document.getElementById('qFormPgFields').classList.toggle('hidden', t !== 'pg');
+      document.getElementById('qFormBsField').classList.toggle('hidden', t !== 'bs');
+      document.getElementById('qFormIsianField').classList.toggle('hidden', t !== 'isian');
+    }
+
+    function saveManualQuestion(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editQuestionId').value;
+      const type = document.getElementById('qFormType').value;
+      const world = document.getElementById('qFormWorld').value;
+      const prompt = document.getElementById('qFormPrompt').value.trim();
+      const explanation = document.getElementById('qFormExplanation').value.trim();
+
+      let newObj = { id: editId || `q_${Date.now()}`, type, world, prompt, explanation };
+      if (type === 'pg') {
+        newObj.options = [0, 1, 2, 3].map(i => document.getElementById(`qFormOpt${i}`).value.trim() || `Opsi ${i + 1}`);
+        newObj.answer = Number(document.getElementById('qFormPgAnswer').value);
+      } else if (type === 'bs') {
+        newObj.answer = document.getElementById('qFormBsAnswer').value === 'true';
+      } else {
+        newObj.answer = document.getElementById('qFormIsianAnswer').value.trim();
+      }
+
+      if (editId) {
+        const idx = STATE.questions.findIndex(q => q.id === editId);
+        if (idx !== -1) STATE.questions[idx] = newObj;
+      } else {
+        STATE.questions.push(newObj);
+      }
+
+      document.getElementById('questionFormModal').classList.add('hidden');
+      persistStateToLocal();
+      syncQuestionsToCloud();
+      spawnQuestionCrystals();
+      renderTeacherDashboard();
+      showToast('Soal Tersimpan', 'Bank soal dan kristal 3D telah diperbarui.');
+    }
+
+    function deleteQuestionById(id) {
+      if (STATE.questions.length <= 1) {
+        showToast('Minimal 1 Soal', 'Sisakan minimal satu soal di dalam dunia game.');
+        return;
+      }
+      STATE.questions = STATE.questions.filter(q => q.id !== id);
+      persistStateToLocal();
+      syncQuestionsToCloud();
+      spawnQuestionCrystals();
+      renderTeacherDashboard();
+      showToast('Soal Dihapus', 'Butir soal telah dihapus dari peta 3D.');
+    }
+
+    function openAiGeneratorModal() {
+      document.getElementById('aiGeneratorModal').classList.remove('hidden');
+    }
+
+    function generateAiSampleQuestions() {
+      const topic = document.getElementById('aiTopicInput').value.trim() || 'Pengetahuan Umum';
+      const generated = [
+        {
+          id: `ai_${Date.now()}_1`,
+          type: 'pg',
+          world: 'kota',
+          prompt: `Konsep utama yang dipelajari dalam materi ${topic} adalah...`,
+          options: ['Pemahaman dasar & penerapan', 'Hafalan tanpa makna', 'Mengabaikan fakta', 'Tidak ada keterkaitan'],
+          answer: 0,
+          explanation: `Materi ${topic} menekankan pemahaman konsep dan penerapannya dalam kehidupan.`
+        },
+        {
+          id: `ai_${Date.now()}_2`,
+          type: 'bs',
+          world: 'nusantara',
+          prompt: `Mempelajari ${topic} membantu melatih kemampuan berpikir kritis dan analitis siswa.`,
+          answer: true,
+          explanation: 'Benar, pemahaman konsep melatih nalar kritis siswa.'
+        }
+      ];
+      STATE.questions.push(...generated);
+      document.getElementById('aiGeneratorModal').classList.add('hidden');
+      persistStateToLocal();
+      syncQuestionsToCloud();
+      spawnQuestionCrystals();
+      renderTeacherDashboard();
+      showToast('Soal AI Ditambahkan', `2 soal baru tentang "${topic}" berhasil dibuat.`);
+    }
+
+    function openChangeClassCodeModal() {
+      document.getElementById('settingClassCodeInput').value = STATE.classCode;
+      document.getElementById('settingTeacherPinInput').value = STATE.teacherPin;
+      document.getElementById('classCodeModal').classList.remove('hidden');
+    }
+
+    function saveClassAndPinSettings(e) {
+      e.preventDefault();
+      const newCode = document.getElementById('settingClassCodeInput').value.trim().toUpperCase();
+      const newPin = document.getElementById('settingTeacherPinInput').value.trim();
+      if (newCode) STATE.classCode = newCode;
+      if (newPin) STATE.teacherPin = newPin;
+      document.getElementById('teacherClassCodeDisplay').innerText = STATE.classCode;
+      document.getElementById('inputClassCode').value = STATE.classCode;
+      document.getElementById('classCodeModal').classList.add('hidden');
+      persistStateToLocal();
+      showToast('Pengaturan Disimpan', `Kode kelas aktif: ${STATE.classCode}`);
+    }
+
+    function shareClassToWhatsApp() {
+      const text = encodeURIComponent(`Halo anak-anak! Ayo gabung ke Game Petualangan Belajar 3D.\nKode Kelas: *${STATE.classCode}*\nLink: ${window.location.href}`);
+      window.open(`https://wa.me/?text=${text}`, '_blank');
+    }
+
+    function openProjectorModal() {
+      const content = document.getElementById('projectorLeaderboardContent');
+      const sorted = [...STATE.gradebook].sort((a, b) => Number(b.score) - Number(a.score)).slice(0, 5);
+      content.innerHTML = sorted.map((s, idx) => `
+        <div class="flex items-center justify-between p-4 rounded-2xl ${idx === 0 ? 'bg-game-yellow/20 border-2 border-game-yellow' : 'bg-slate-900/80 border border-white/10'}">
+          <div class="flex items-center gap-4">
+            <span class="w-10 h-10 rounded-2xl ${idx === 0 ? 'bg-game-yellow text-game-navy' : 'bg-slate-800 text-white'} font-cartoon text-lg font-bold flex items-center justify-center">#${idx + 1}</span>
+            <div>
+              <p class="font-cartoon text-lg font-bold text-white">${s.name}</p>
+              <p class="text-xs text-slate-300">No. Absen ${s.absen} • Misi ${s.completed}/${STATE.questions.length}</p>
+            </div>
+          </div>
+          <span class="font-cartoon text-2xl font-bold text-game-yellow">${s.score} Poin</span>
+        </div>
+      `).join('');
+      document.getElementById('projectorModal').classList.remove('hidden');
+    }
+
+    function printStudentCertificate(id) {
+      const s = STATE.gradebook.find(item => item.id === id);
+      if (!s) return;
+      document.getElementById('certStudentName').innerText = s.name;
+      document.getElementById('certStudentMeta').innerText = `Nomor Absen: ${s.absen} • Kode Kelas: ${STATE.classCode}`;
+      document.getElementById('certStudentScore').innerText = s.score;
+      window.print();
+    }
+
+    let pendingConfirmCallback = null;
+    function openCustomConfirm(title, msg, onYes) {
+      document.getElementById('confirmDialogTitle').innerText = title;
+      document.getElementById('confirmDialogMsg').innerText = msg;
+      pendingConfirmCallback = onYes;
+      document.getElementById('customConfirmModal').classList.remove('hidden');
+    }
+
+    function closeCustomConfirm() {
+      document.getElementById('customConfirmModal').classList.add('hidden');
+      pendingConfirmCallback = null;
+    }
+
+    function confirmClearAllScores() {
+      openCustomConfirm(
+        'Bersihkan Semua Nilai Siswa?',
+        'Seluruh skor dan progres misi siswa akan direset ke 0 (daftar anggota siswa tetap tersimpan) untuk memulai sesi baru.',
+        () => {
+          STATE.gradebook = STATE.gradebook.map(s => ({
+            ...s,
+            completed: 0,
+            accuracy: '0%',
+            time: '-',
+            score: 0,
+            syncStatus: 'synced'
+          }));
+          STATE.pendingSyncQueue = [];
+          persistStateToLocal();
+          updateNetworkStatusUI();
+          renderTeacherDashboard();
+          showToast('Nilai Dibersihkan', 'Semua nilai siswa telah dikembalikan ke 0.');
+        }
+      );
+    }
+
+    function confirmFullFactoryReset() {
+      openCustomConfirm(
+        'Reset Awal Total?',
+        'Seluruh soal, daftar siswa, dan nilai akan dikembalikan ke pengaturan awal bersih dari nol.',
+        () => {
+          Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
+          STATE.questions = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
+          STATE.gradebook = JSON.parse(JSON.stringify(DEFAULT_ROSTER));
+          STATE.pendingSyncQueue = [];
+          STATE.deletedStudentKeys = [];
+          STATE.classCode = 'JUARA2026';
+          STATE.teacherPin = '1234';
+          document.getElementById('teacherClassCodeDisplay').innerText = STATE.classCode;
+          document.getElementById('inputClassCode').value = STATE.classCode;
+          persistStateToLocal();
+          spawnQuestionCrystals();
+          updateNetworkStatusUI();
+          renderTeacherDashboard();
+          showToast('Reset Awal Berhasil', 'Aplikasi kembali ke kondisi awal bersih.');
+        }
+      );
+    }
+
+    /* ====================================================================
+       11. BOOTSTRAP ON WINDOW LOAD
+       ==================================================================== */
+    window.onload = function () {
+      loadPersistedState();
+      initThreeEngine();
+      animate();
+      updateNetworkStatusUI();
+      renderTeacherDashboard();
+      lucide.createIcons();
+
+      document.getElementById('confirmDialogYesBtn').onclick = () => {
+        if (pendingConfirmCallback) pendingConfirmCallback();
+        closeCustomConfirm();
+      };
+
+      window.addEventListener('resize', () => {
+        onWindowResize();
+        checkMobileOrientationOverlay();
+      });
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+          onWindowResize();
+          checkMobileOrientationOverlay();
+        }, 200);
+      });
+
       window.addEventListener('online', () => {
         updateNetworkStatusUI();
         flushSyncQueue(false);
@@ -1014,15 +3711,7 @@
         updateNetworkStatusUI();
         showToast('Koneksi Terputus', 'Aplikasi beralih ke mode offline otomatis.');
       });
-      window.addEventListener('resize', checkMobileOrientationOverlay);
-      window.addEventListener('orientationchange', () => {
-        setTimeout(() => {
-          onWindowResize();
-          checkMobileOrientationOverlay();
-        }, 200);
-      });
 
-      // Instant live update across browser tabs without refresh
       window.addEventListener('storage', (ev) => {
         if ([STORAGE_KEYS.GRADEBOOK, STORAGE_KEYS.QUESTIONS, STORAGE_KEYS.SYNC_QUEUE].includes(ev.key)) {
           loadPersistedState();
@@ -1031,7 +3720,6 @@
         }
       });
 
-      // Automatic background refresh on Teacher Dashboard every 4 seconds (no manual page refresh needed)
       setInterval(() => {
         if (STATE.view === 'teacher') {
           fetchGradesFromCloud();
@@ -1039,12 +3727,9 @@
         }
       }, 4000);
 
-      // Attempt initial sync if pending items exist
       if (isAppOnline() && STATE.pendingSyncQueue.length > 0) {
         flushSyncQueue(false);
       }
-
-      console.log('Petualangan Belajar 3D initialized with Auto-Landscape, Strict Roster Validation & Live Sync.');
     };
   </script>
 </body>

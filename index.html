@@ -107,15 +107,16 @@
     }
     /* Touch Joystick styling */
     #joystickZone {
-      position: absolute;
+      position: fixed;
       bottom: 24px;
       left: 24px;
-      width: 130px;
-      height: 130px;
+      width: 132px;
+      height: 132px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(0,163,255,0.15) 70%, rgba(0,0,0,0.4) 100%);
-      border: 3px solid rgba(255,255,255,0.3);
-      z-index: 30;
+      background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(0,163,255,0.2) 70%, rgba(15,30,54,0.65) 100%);
+      border: 3px solid rgba(255,255,255,0.45);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+      z-index: 40;
       touch-action: none;
     }
     #joystickKnob {
@@ -419,31 +420,12 @@
         </button>
       </div>
 
-      <!-- Touch Controls (Mobile & Tablet D-Pad + Jump - Always visible on touch/mobile screens) -->
+      <!-- Touch Controls (Mobile & Tablet 360° Smooth Analog Joystick + Jump) -->
       <div id="mobileControls" class="block lg:hidden pointer-events-auto">
-        <!-- Touch Joystick fallback container -->
-        <div id="joystickZone" class="hidden">
+        <!-- 360-Degree Smooth Analog Touch Joystick -->
+        <div id="joystickZone" title="Geser 360° untuk bergerak ke segala arah">
+          <div class="absolute inset-3 rounded-full border border-white/15 pointer-events-none"></div>
           <div id="joystickKnob"></div>
-        </div>
-
-        <!-- 4-Way Directional D-Pad (Atas, Bawah, Kiri, Kanan) -->
-        <div class="fixed bottom-5 left-5 w-36 h-36 select-none z-40">
-          <!-- Atas (Maju) -->
-          <button type="button" data-dir="up" class="dpad-btn absolute top-0 left-1/2 -translate-x-1/2 w-12 h-12 rounded-2xl bg-slate-900/85 active:bg-game-yellow active:text-game-navy border-2 border-white/50 text-white flex items-center justify-center shadow-xl">
-            <i data-lucide="chevron-up" class="w-7 h-7 stroke-[3]"></i>
-          </button>
-          <!-- Bawah (Mundur) -->
-          <button type="button" data-dir="down" class="dpad-btn absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-12 rounded-2xl bg-slate-900/85 active:bg-game-yellow active:text-game-navy border-2 border-white/50 text-white flex items-center justify-center shadow-xl">
-            <i data-lucide="chevron-down" class="w-7 h-7 stroke-[3]"></i>
-          </button>
-          <!-- Kiri -->
-          <button type="button" data-dir="left" class="dpad-btn absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl bg-slate-900/85 active:bg-game-yellow active:text-game-navy border-2 border-white/50 text-white flex items-center justify-center shadow-xl">
-            <i data-lucide="chevron-left" class="w-7 h-7 stroke-[3]"></i>
-          </button>
-          <!-- Kanan -->
-          <button type="button" data-dir="right" class="dpad-btn absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl bg-slate-900/85 active:bg-game-yellow active:text-game-navy border-2 border-white/50 text-white flex items-center justify-center shadow-xl">
-            <i data-lucide="chevron-right" class="w-7 h-7 stroke-[3]"></i>
-          </button>
         </div>
 
         <!-- Touch Jump Action button right side -->
@@ -456,25 +438,6 @@
     </div>
 
     <!-- ========= QUIZ POPUP MODAL (Centered across all screens) ========= -->
-    <div id="quizModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
-      <div class="relative w-full max-w-xl mx-auto glass-panel rounded-3xl p-5 md:p-8 border-2 border-game-yellow shadow-2xl max-h-[88vh] overflow-y-auto custom-scrollbar">
-          </button>
-          <!-- Kanan -->
-          <button type="button" data-dir="right" class="dpad-btn absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl bg-slate-900/85 active:bg-game-yellow active:text-game-navy border-2 border-white/50 text-white flex items-center justify-center shadow-xl">
-            <i data-lucide="chevron-right" class="w-7 h-7 stroke-[3]"></i>
-          </button>
-        </div>
-
-        <!-- Touch Jump Action button right side -->
-        <button id="btnMobileJump" type="button" class="fixed bottom-7 right-6 w-16 h-16 rounded-full bg-gradient-to-tr from-game-blue to-cyan-400 border-4 border-white/90 shadow-2xl flex flex-col items-center justify-center active:scale-90 transition transform z-30">
-          <i data-lucide="arrow-up" class="w-7 h-7 text-white stroke-[3]"></i>
-          <span class="text-[9px] font-cartoon font-bold text-white uppercase leading-none">LOMPAT</span>
-        </button>
-      </div>
-
-    </div>
-
-    <!-- ========= QUIZ POPUP MODAL (Centered Fullscreen Overlay) ========= -->
     <div id="quizModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
       <div class="relative w-full max-w-xl mx-auto glass-panel rounded-3xl p-6 md:p-8 border-2 border-game-yellow shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
         
@@ -1304,7 +1267,7 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       </div>
       <div class="my-4 space-y-3 text-xs text-slate-200">
         <p>🎮 <b>Akun & Login Murid:</b> Murid tidak perlu registrasi email/password. Cukup masukkan <b>Kode Kelas</b>, <b>Nama Panggilan</b>, dan <b>No. Absen</b> di layar awal untuk langsung masuk ke room kelas dan tercatat otomatis di daftar nilai guru.</p>
-        <p>👩‍🏫 <b>Akses Khusus Guru:</b> Mode Guru dilindungi <b>PIN Keamanan</b> agar murid tidak dapat membuka kunci jawaban atau mengubah bank soal.</p>
+        <p>👩‍🏫 <b>Akses Khusus Guru:</b> Mode Guru dilindungi <b>PIN Keamanan</b> (PIN standar awal: <b class="text-game-yellow">1234</b>) agar murid tidak dapat membuka kunci jawaban atau mengubah bank soal.</p>
         <p>🏁 <b>Selesai Kapan Saja:</b> Murid dapat menekan tombol <b>Selesai & Keluar</b> di pojok kanan atas kapan saja; skor yang sudah dikumpulkan tetap tersimpan sah ke rekap guru.</p>
       </div>
       <button onclick="closeHelpModal()" class="w-full py-2.5 rounded-xl bg-game-blue text-white font-cartoon text-xs font-bold">Mengerti</button>
@@ -1892,6 +1855,10 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
     let isGrounded = true;
     let cameraAngle = 0;
     let cameraPitch = 0.35;
+    let targetCameraAngle = 0;
+    let targetCameraPitch = 0.35;
+    let cameraVelX = 0;
+    let cameraVelY = 0;
     let isParachuting = false;
     let parachuteMesh = null;
 
@@ -2679,7 +2646,7 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
     }
 
     /* ====================================================================
-       5. CONTROLS (KEYBOARD, MOUSE DRAG, 3D CLICK, 4-WAY DPAD & JUMP)
+       5. CONTROLS (KEYBOARD, SMOOTH 360° CAMERA DRAG, 3D CLICK & 360° JOYSTICK)
        ==================================================================== */
     function setupControls() {
       window.addEventListener('keydown', (e) => {
@@ -2706,53 +2673,65 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
         if (k === 'd' || e.key === 'ArrowRight') keys.d = false;
       });
 
-      // Mouse drag rotation + Tap/Click directly on 3D Question Crystal
-      let isDragging = false;
+      // Smooth 360° camera drag rotation (multi-touch safe alongside joystick) + 3D Crystal tap
+      let activeCameraPointerId = null;
       let pointerDownX = 0;
       let pointerDownY = 0;
       let prevMouseX = 0;
       let prevMouseY = 0;
 
       const canvas = document.getElementById('gameCanvas');
+      canvas.style.touchAction = 'none';
+
       canvas.addEventListener('pointerdown', (e) => {
-        isDragging = true;
+        if (activeCameraPointerId !== null) return;
+        activeCameraPointerId = e.pointerId;
         pointerDownX = e.clientX;
         pointerDownY = e.clientY;
         prevMouseX = e.clientX;
         prevMouseY = e.clientY;
-      });
-
-      window.addEventListener('pointerup', (e) => {
-        if (isDragging) {
-          const movedDist = Math.hypot(e.clientX - pointerDownX, e.clientY - pointerDownY);
-          if (movedDist < 8 && !isParachuting) {
-            handleCanvasCrystalClick(e.clientX, e.clientY);
-          }
+        cameraVelX = 0;
+        cameraVelY = 0;
+        if (canvas.setPointerCapture) {
+          try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
         }
-        isDragging = false;
       });
 
-      window.addEventListener('pointermove', (e) => {
-        if (!isDragging) return;
+      const endCameraDrag = (e) => {
+        if (e.pointerId !== activeCameraPointerId) return;
+        const movedDist = Math.hypot(e.clientX - pointerDownX, e.clientY - pointerDownY);
+        if (movedDist < 8 && !isParachuting) {
+          handleCanvasCrystalClick(e.clientX, e.clientY);
+        }
+        activeCameraPointerId = null;
+      };
+
+      canvas.addEventListener('pointerup', endCameraDrag);
+      canvas.addEventListener('pointercancel', endCameraDrag);
+
+      canvas.addEventListener('pointermove', (e) => {
+        if (e.pointerId !== activeCameraPointerId) return;
         const deltaX = e.clientX - prevMouseX;
         const deltaY = e.clientY - prevMouseY;
         prevMouseX = e.clientX;
         prevMouseY = e.clientY;
 
-        cameraAngle -= deltaX * 0.007;
-        cameraPitch = Math.max(0.1, Math.min(1.2, cameraPitch + deltaY * 0.005));
+        cameraVelX = -deltaX * 0.0075;
+        cameraVelY = deltaY * 0.0055;
+        targetCameraAngle += cameraVelX;
+        targetCameraPitch = Math.max(0.1, Math.min(1.2, targetCameraPitch + cameraVelY));
       });
 
-      // Mobile Virtual Touch Joystick & 4-Way D-Pad
+      // Mobile 360° Virtual Touch Joystick
       setupTouchJoystick();
-      setupDpadControls();
 
       // Mobile Jump button
       const btnJump = document.getElementById('btnMobileJump');
       btnJump.addEventListener('touchstart', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         handleJump();
-      });
+      }, { passive: false });
       btnJump.addEventListener('click', () => handleJump());
     }
 
@@ -2795,9 +2774,11 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       const knob = document.getElementById('joystickKnob');
       let touchId = null;
       let center = { x: 0, y: 0 };
-      const maxRadius = 45;
+      const maxRadius = 46;
 
       zone.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         const touch = e.changedTouches[0];
         touchId = touch.identifier;
         const rect = zone.getBoundingClientRect();
@@ -2807,6 +2788,7 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
 
       zone.addEventListener('touchmove', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         for (let i = 0; i < e.changedTouches.length; i++) {
           if (e.changedTouches[i].identifier === touchId) {
             handleTouchMove(e.changedTouches[i]);
@@ -2815,7 +2797,14 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
         }
       }, { passive: false });
 
-      const resetJoystick = () => {
+      const resetJoystick = (e) => {
+        if (e && e.changedTouches) {
+          let matched = false;
+          for (let i = 0; i < e.changedTouches.length; i++) {
+            if (e.changedTouches[i].identifier === touchId) matched = true;
+          }
+          if (!matched) return;
+        }
         touchId = null;
         joystick.x = 0;
         joystick.y = 0;
@@ -2839,7 +2828,7 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
         knob.style.transform = `translate(${dx}px, ${dy}px)`;
         joystick.x = dx / maxRadius;
         joystick.y = dy / maxRadius;
-        joystick.active = Math.hypot(joystick.x, joystick.y) > 0.15;
+        joystick.active = Math.hypot(joystick.x, joystick.y) > 0.08;
       }
     }
 
@@ -2989,6 +2978,18 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
 
       // Update Dynamic Radar Markers relative to player position & camera heading
       updateRadarMarkers();
+
+      // Apply smooth rotational inertia & damped interpolation for silky 360° camera rotation
+      targetCameraAngle += cameraVelX;
+      targetCameraPitch = Math.max(0.1, Math.min(1.2, targetCameraPitch + cameraVelY));
+      cameraVelX *= 0.85;
+      cameraVelY *= 0.85;
+      if (Math.abs(cameraVelX) < 0.0001) cameraVelX = 0;
+      if (Math.abs(cameraVelY) < 0.0001) cameraVelY = 0;
+
+      const lerpFactor = 1 - Math.exp(-18 * delta);
+      cameraAngle += (targetCameraAngle - cameraAngle) * lerpFactor;
+      cameraPitch += (targetCameraPitch - cameraPitch) * lerpFactor;
 
       // Camera Follow Third-Person (Roblox style orbit)
       const camDist = 10;

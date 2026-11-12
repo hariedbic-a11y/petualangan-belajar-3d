@@ -350,8 +350,10 @@
         <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full glass-hud border-2 border-game-blue/50 relative overflow-hidden shadow-xl">
           <div class="absolute inset-0 flex items-center justify-center">
             <div class="w-16 h-16 rounded-full border border-white/10"></div>
-            <div class="w-2 h-2 rounded-full bg-white shadow"></div>
+            <div class="w-8 h-8 rounded-full border border-white/10"></div>
+            <div class="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[9px] border-b-white -translate-y-0.5"></div>
           </div>
+          <span class="absolute top-1 left-1/2 -translate-x-1/2 text-[7px] font-extrabold text-game-yellow">DEPAN</span>
           <div id="radarMarkersLayer" class="absolute inset-0"></div>
           <span class="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-bold uppercase tracking-wider text-slate-300 bg-slate-950/70 px-1.5 rounded">Radar</span>
         </div>
@@ -1626,7 +1628,8 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
     }
 
     function checkCollisionAt(nx, nz) {
-      const playerR = 0.65;
+      const playerR = 0.78;
+      if (Math.abs(nx) > 175 || Math.abs(nz) > 175) return true;
       for (let i = 0; i < STATE.solidColliders.length; i++) {
         const c = STATE.solidColliders[i];
         if (c.type === 'circle') {
@@ -1638,6 +1641,95 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
           if (Math.abs(nx - c.x) < (c.halfW + playerR) && Math.abs(nz - c.z) < (c.halfD + playerR)) {
             return true;
           }
+        }
+      }
+      return false;
+    }
+
+    function getGroundElevationAt(px, pz, currentY) {
+      let highest = 0;
+      for (let i = 0; i < STATE.climbableBoxes.length; i++) {
+        const b = STATE.climbableBoxes[i];
+        if (Math.abs(px - b.x) <= b.halfW + 0.35 && Math.abs(pz - b.z) <= b.halfD + 0.35) {
+          if (currentY + 0.85 >= b.topY && b.topY > highest) {
+            highest = b.topY;
+          }
+        }
+      }
+      return highest;
+    }
+
+    function clearOldWorld() {
+      worldMeshes.forEach(m => scene.remove(m));
+      worldMeshes = [];
+      animatedCars = [];
+      animatedCreatures = [];
+      STATE.solidColliders = [];
+      STATE.climbableBoxes = [];
+    }
+
+    function buildCartoonHouse(x, z, wallColor, roofColor) {
+      const group = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.BoxGeometry(5.8, 3.8, 5.8), new THREE.MeshLambertMaterial({ color: wallColor }));
+      body.position.y = 1.9;
+      body.castShadow = true;
+      body.receiveShadow = true;
+
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(4.6, 2.7, 4), new THREE.MeshLambertMaterial({ color: roofColor }));
+      roof.position.y = 5.1;
+      roof.rotation.y = Math.PI / 4;
+      roof.castShadow = true;
+
+      const door = new THREE.Mesh(new THREE.BoxGeometry(1.1, 2.0, 0.2), new THREE.MeshLambertMaterial({ color: 0x451a03 }));
+      door.position.set(0, 1.0, 2.95);
+
+      const winMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
+      const winL = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.15), winMat);
+      winL.position.set(-1.6, 2.1, 2.93);
+      const winR = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.15), winMat);
+      winR.position.set(1.6, 2.1, 2.93);
+
+      group.add(body, roof, door, winL, winR);
+      group.position.set(x, 0, z);
+      scene.add(group);
+      worldMeshes.push(group);
+      registerBoxCollider(x, z, 3.05, 3.05);
+    }
+
+    function buildCitySkyscraper(x, z, width, depth, height, wallColor) {
+      const group = new THREE.Group();
+      const tower = new THREE.Mesh(
+        new THREE.BoxGeometry(width, height, depth),
+        new THREE.MeshLambertMaterial({ color: wallColor })
+      );
+      tower.position.y = height / 2;
+      tower.castShadow = true;
+      tower.receiveShadow = true;
+      group.add(tower);
+
+      const roofTrim = new THREE.Mesh(
+        new THREE.BoxGeometry(width + 0.4, 0.5, depth + 0.4),
+        new THREE.MeshLambertMaterial({ color: 0x0f172a })
+      );
+      roofTrim.position.y = height + 0.25;
+      group.add(roofTrim);
+
+      const winMat = new THREE.MeshBasicMaterial({ color: 0xbae6fd });
+      const floors = Math.floor(height / 3.2);
+      for (let f = 1; f < floors; f++) {
+        const band = new THREE.Mesh(
+          new THREE.BoxGeometry(width + 0.12, 0.9, depth + 0.12),
+          winMat
+        );
+        band.position.y = f * 3.2;
+        group.add(band);
+      }
+
+      group.position.set(x, 0, z);
+      scene.add(group);
+      worldMeshes.push(group);
+      registerBoxCollider(x, z, width / 2 + 0.2, depth / 2 + 0.2);
+    }
         }
       }
       return false;
@@ -1752,9 +1844,10 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
 
       [-widthX / 2, widthX / 2].forEach(ox => {
         [-lengthZ / 2, lengthZ / 2].forEach(oz => {
-          const post = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 3.2, 8), postMat);
+          const post = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.26, 3.2, 8), postMat);
           post.position.set(centerX + ox, deckY + 1.4, centerZ + oz);
           bridgeGroup.add(post);
+          registerCircleCollider(centerX + ox, centerZ + oz, 0.35);
         });
         const rail = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.12, lengthZ), ropeMat);
         rail.position.set(centerX + ox, deckY + 1.9, centerZ);
@@ -1767,7 +1860,7 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
 
     function buildRiverWithBridge(riverZ, riverWidth) {
       const river = new THREE.Mesh(
-        new THREE.PlaneGeometry(240, riverWidth),
+        new THREE.PlaneGeometry(420, riverWidth),
         new THREE.MeshLambertMaterial({ color: 0x0284c7 })
       );
       river.rotation.x = -Math.PI / 2;
@@ -1775,7 +1868,7 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
       scene.add(river);
       worldMeshes.push(river);
 
-      buildSuspensionBridge(0, riverZ, riverWidth + 2.5, 4.4, 0.55);
+      buildSuspensionBridge(0, riverZ, riverWidth + 2.5, 4.6, 0.55);
     }
 
     function loadWorldEnvironment(worldType) {
@@ -1784,10 +1877,10 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
       if (worldType === 'kota') {
         scene.background = new THREE.Color(0x38bdf8);
         scene.fog.color.set(0x7dd3fc);
-        scene.fog.density = 0.0075;
+        scene.fog.density = 0.0045;
 
         const ground = new THREE.Mesh(
-          new THREE.PlaneGeometry(300, 300),
+          new THREE.PlaneGeometry(420, 420),
           new THREE.MeshLambertMaterial({ color: 0x166534 })
         );
         ground.rotation.x = -Math.PI / 2;
@@ -1795,10 +1888,10 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         scene.add(ground);
         worldMeshes.push(ground);
 
-        buildRiverWithBridge(46, 10);
+        buildRiverWithBridge(54, 11);
 
         const plaza = new THREE.Mesh(
-          new THREE.CircleGeometry(28, 48),
+          new THREE.CircleGeometry(30, 48),
           new THREE.MeshLambertMaterial({ color: 0x334155 })
         );
         plaza.rotation.x = -Math.PI / 2;
@@ -1807,9 +1900,9 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         scene.add(plaza);
         worldMeshes.push(plaza);
 
-        // Wide Outer Ring Road & Straight Avenue
+        // Wide Inner & Outer City Ring Roads + Cross Boulevards
         const road = new THREE.Mesh(
-          new THREE.RingGeometry(28, 36.5, 64),
+          new THREE.RingGeometry(30, 39, 64),
           new THREE.MeshLambertMaterial({ color: 0x1e293b, side: THREE.DoubleSide })
         );
         road.rotation.x = -Math.PI / 2;
@@ -1817,8 +1910,17 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         scene.add(road);
         worldMeshes.push(road);
 
+        const outerRoad = new THREE.Mesh(
+          new THREE.RingGeometry(82, 91, 64),
+          new THREE.MeshLambertMaterial({ color: 0x1e293b, side: THREE.DoubleSide })
+        );
+        outerRoad.rotation.x = -Math.PI / 2;
+        outerRoad.position.y = 0.03;
+        scene.add(outerRoad);
+        worldMeshes.push(outerRoad);
+
         const roadMark = new THREE.Mesh(
-          new THREE.RingGeometry(32.1, 32.4, 64),
+          new THREE.RingGeometry(34.3, 34.7, 64),
           new THREE.MeshBasicMaterial({ color: 0xfacc15, side: THREE.DoubleSide })
         );
         roadMark.rotation.x = -Math.PI / 2;
@@ -1827,7 +1929,7 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         worldMeshes.push(roadMark);
 
         const avenueX = new THREE.Mesh(
-          new THREE.PlaneGeometry(220, 8.5),
+          new THREE.PlaneGeometry(360, 9.5),
           new THREE.MeshLambertMaterial({ color: 0x1e293b })
         );
         avenueX.rotation.x = -Math.PI / 2;
@@ -1835,92 +1937,127 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         scene.add(avenueX);
         worldMeshes.push(avenueX);
 
+        const avenueZ = new THREE.Mesh(
+          new THREE.PlaneGeometry(9.5, 360),
+          new THREE.MeshLambertMaterial({ color: 0x1e293b })
+        );
+        avenueZ.rotation.x = -Math.PI / 2;
+        avenueZ.position.y = 0.025;
+        scene.add(avenueZ);
+        worldMeshes.push(avenueZ);
+
+        // City Skyscrapers & Commercial Towers
+        const towerCoords = [
+          [-58, -58, 11, 11, 24, 0x3b82f6],
+          [58, -58, 12, 10, 28, 0x6366f1],
+          [-64, 24, 10, 12, 20, 0x0ea5e9],
+          [64, 24, 11, 11, 22, 0x8b5cf6],
+          [-64, 84, 12, 12, 26, 0x2563eb],
+          [64, 84, 11, 11, 21, 0x0284c7],
+          [-108, -28, 12, 12, 30, 0x475569],
+          [108, -28, 12, 12, 26, 0x334155],
+          [-108, 34, 11, 11, 24, 0x1d4ed8],
+          [108, 34, 11, 11, 28, 0x4f46e5]
+        ];
+        towerCoords.forEach(([bx, bz, bw, bd, bh, bc]) => buildCitySkyscraper(bx, bz, bw, bd, bh, bc));
+
+        // Residential Houses Across Wide City Blocks
         const houseCoords = [
-          [-52, -32, 0xfef3c7, 0xea580c],
-          [52, -32, 0xe0f2fe, 0x0284c7],
-          [-56, 22, 0xfce7f3, 0xdb2777],
-          [56, 22, 0xdcfce7, 0x16a34a],
-          [0, -56, 0xfef9c3, 0xd97706],
-          [-34, -54, 0xffedd5, 0xc2410c],
-          [34, -54, 0xe0e7ff, 0x4338ca],
-          [-36, 66, 0xe0e7ff, 0x4f46e5],
-          [36, 66, 0xffedd5, 0xc2410c],
-          [0, 76, 0xfef3c7, 0x15803d]
+          [-48, -26, 0xfef3c7, 0xea580c],
+          [48, -26, 0xe0f2fe, 0x0284c7],
+          [-46, 24, 0xfce7f3, 0xdb2777],
+          [46, 24, 0xdcfce7, 0x16a34a],
+          [-18, -54, 0xfef9c3, 0xd97706],
+          [18, -54, 0xffedd5, 0xc2410c],
+          [-36, -68, 0xe0e7ff, 0x4338ca],
+          [36, -68, 0xfef3c7, 0x15803d],
+          [-26, 74, 0xe0e7ff, 0x4f46e5],
+          [26, 74, 0xffedd5, 0xc2410c],
+          [-44, 106, 0xfef3c7, 0xea580c],
+          [44, 106, 0xdcfce7, 0x16a34a],
+          [-102, -74, 0xfce7f3, 0xdb2777],
+          [102, -74, 0xe0f2fe, 0x0284c7]
         ];
         houseCoords.forEach(([hx, hz, wc, rc]) => buildCartoonHouse(hx, hz, wc, rc));
 
-        for (let i = 0; i < 36; i++) {
-          const ang = (i / 36) * Math.PI * 2 + 0.12;
-          const dist = i % 2 === 0 ? 40 : 68;
+        // Park Trees & Street Lamps
+        for (let i = 0; i < 64; i++) {
+          const ang = (i / 64) * Math.PI * 2 + 0.08;
+          const dist = i % 3 === 0 ? 43 : (i % 3 === 1 ? 74 : 118);
           const tx = Math.cos(ang) * dist;
           const tz = Math.sin(ang) * dist;
-          if (Math.abs(tz - 46) < 8 || Math.abs(tz) < 7 || Math.abs(tx) < 7) continue;
+          if (Math.abs(tz - 54) < 9 || Math.abs(tz) < 8 || Math.abs(tx) < 8) continue;
           const tree = new THREE.Group();
-          const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.42, 2.8, 8), new THREE.MeshLambertMaterial({ color: 0x78350f }));
-          trunk.position.y = 1.4;
+          const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.46, 3.0, 8), new THREE.MeshLambertMaterial({ color: 0x78350f }));
+          trunk.position.y = 1.5;
           trunk.castShadow = true;
-          const crown1 = new THREE.Mesh(new THREE.DodecahedronGeometry(1.5, 1), new THREE.MeshLambertMaterial({ color: 0x22c55e }));
-          crown1.position.y = 3.2;
+          const crown1 = new THREE.Mesh(new THREE.DodecahedronGeometry(1.6, 1), new THREE.MeshLambertMaterial({ color: 0x22c55e }));
+          crown1.position.y = 3.4;
           crown1.castShadow = true;
-          const crown2 = new THREE.Mesh(new THREE.DodecahedronGeometry(1.1, 1), new THREE.MeshLambertMaterial({ color: 0x4ade80 }));
-          crown2.position.set(0.5, 3.8, 0.3);
+          const crown2 = new THREE.Mesh(new THREE.DodecahedronGeometry(1.15, 1), new THREE.MeshLambertMaterial({ color: 0x4ade80 }));
+          crown2.position.set(0.5, 4.0, 0.3);
           tree.add(trunk, crown1, crown2);
           tree.position.set(tx, 0, tz);
           scene.add(tree);
           worldMeshes.push(tree);
-          registerCircleCollider(tx, tz, 0.5);
+          registerCircleCollider(tx, tz, 0.65);
 
           if (i % 4 === 0) {
             const lamp = new THREE.Group();
-            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.14, 4.2, 8), new THREE.MeshLambertMaterial({ color: 0x0f172a }));
-            pole.position.y = 2.1;
-            const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.32, 8, 8), new THREE.MeshBasicMaterial({ color: 0xfef08a }));
-            bulb.position.y = 4.3;
+            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 4.4, 8), new THREE.MeshLambertMaterial({ color: 0x0f172a }));
+            pole.position.y = 2.2;
+            const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.34, 8, 8), new THREE.MeshBasicMaterial({ color: 0xfef08a }));
+            bulb.position.y = 4.5;
             lamp.add(pole, bulb);
-            lamp.position.set(Math.cos(ang) * 27.2, 0, Math.sin(ang) * 27.2);
+            const lx = Math.cos(ang) * 29.2;
+            const lz = Math.sin(ang) * 29.2;
+            lamp.position.set(lx, 0, lz);
             scene.add(lamp);
             worldMeshes.push(lamp);
+            registerCircleCollider(lx, lz, 0.35);
           }
         }
 
-        for (let c = 0; c < 14; c++) {
+        for (let c = 0; c < 18; c++) {
           const cloud = new THREE.Group();
           const cMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.85 });
           for (let p = 0; p < 3; p++) {
-            const puff = new THREE.Mesh(new THREE.SphereGeometry(2.2 - p * 0.3, 10, 10), cMat);
-            puff.position.set(p * 1.8 - 1.8, (p % 2) * 0.5, 0);
+            const puff = new THREE.Mesh(new THREE.SphereGeometry(2.5 - p * 0.3, 10, 10), cMat);
+            puff.position.set(p * 2.0 - 2.0, (p % 2) * 0.5, 0);
             cloud.add(puff);
           }
-          const ca = (c / 14) * Math.PI * 2;
-          cloud.position.set(Math.cos(ca) * 72, 28 + (c % 3) * 3, Math.sin(ca) * 72);
+          const ca = (c / 18) * Math.PI * 2;
+          cloud.position.set(Math.cos(ca) * 115, 32 + (c % 3) * 4, Math.sin(ca) * 115);
           scene.add(cloud);
           worldMeshes.push(cloud);
         }
-        for (let b = 0; b < 7; b++) {
-          buildFlyingBirdOrFish(24 + b * 6, 14 + (b % 3) * 2, 0.5 + b * 0.06, b * 1.1, 0xffffff, false);
+        for (let b = 0; b < 10; b++) {
+          buildFlyingBirdOrFish(26 + b * 9, 15 + (b % 3) * 2.5, 0.5 + b * 0.05, b * 1.1, 0xffffff, false);
         }
 
-        buildCartoonCar(30.2, 0.45, 0, 0xef4444);
-        buildCartoonCar(34.2, 0.45, 1.5, 0x38bdf8);
-        buildCartoonCar(30.2, 0.45, 3.1, 0xfacc15);
-        buildCartoonCar(34.2, 0.45, 4.7, 0x10b981);
+        buildCartoonCar(32.2, 0.45, 0, 0xef4444);
+        buildCartoonCar(36.6, 0.45, 1.5, 0x38bdf8);
+        buildCartoonCar(32.2, 0.45, 3.1, 0xfacc15);
+        buildCartoonCar(36.6, 0.45, 4.7, 0x10b981);
+        buildCartoonCar(84.5, 0.45, 0.8, 0xf97316);
+        buildCartoonCar(88.5, 0.45, 3.8, 0xa855f7);
 
-        buildClimbableStaircase(6, -8, 0, -1, 7, 3.2, 1.3, 0.55, 0x00A3FF);
-        const deck = new THREE.Mesh(new THREE.BoxGeometry(5, 3.85, 5), new THREE.MeshLambertMaterial({ color: 0x1d4ed8 }));
-        deck.position.set(6, 1.925, -18.5);
+        buildClimbableStaircase(8, -10, 0, -1, 7, 3.4, 1.3, 0.55, 0x00A3FF);
+        const deck = new THREE.Mesh(new THREE.BoxGeometry(5.5, 3.85, 5.5), new THREE.MeshLambertMaterial({ color: 0x1d4ed8 }));
+        deck.position.set(8, 1.925, -20.5);
         scene.add(deck);
         worldMeshes.push(deck);
-        registerClimbableBox(6, -18.5, 2.5, 2.5, 3.85);
+        registerClimbableBox(8, -20.5, 2.75, 2.75, 3.85);
 
         const monument = new THREE.Mesh(
-          new THREE.CylinderGeometry(2, 3, 14, 12),
+          new THREE.CylinderGeometry(2.2, 3.2, 15, 12),
           new THREE.MeshLambertMaterial({ color: 0xffd027 })
         );
-        monument.position.set(0, 7, 0);
+        monument.position.set(0, 7.5, 0);
         monument.castShadow = true;
         scene.add(monument);
         worldMeshes.push(monument);
-        registerCircleCollider(0, 0, 2.8);
+        registerCircleCollider(0, 0, 3.2);
 
       } else if (worldType === 'nusantara') {
         scene.background = new THREE.Color(0x38bdf8);
@@ -2159,16 +2296,16 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
       const qs = STATE.questions;
       const totalQ = Math.max(1, qs.length);
       const scenicSectors = [
-        { x: -20, z: -18 },
-        { x: 24, z: -22 },
-        { x: -34, z: 16 },
-        { x: 38, z: 14 },
-        { x: 0, z: 62 },
-        { x: -46, z: -42 },
-        { x: 46, z: -42 },
-        { x: -26, z: 68 },
-        { x: 28, z: 68 },
-        { x: 0, z: -48 }
+        { x: -22, z: -20 },
+        { x: 26, z: -24 },
+        { x: -38, z: 20 },
+        { x: 40, z: 18 },
+        { x: 0, z: 72 },
+        { x: -58, z: -42 },
+        { x: 58, z: -42 },
+        { x: -34, z: 86 },
+        { x: 34, z: 86 },
+        { x: 0, z: -64 }
       ];
 
       qs.forEach((q, idx) => {
@@ -2178,61 +2315,71 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
           z = scenicSectors[idx].z;
         } else {
           const ringLayer = Math.floor((idx - scenicSectors.length) / 8);
-          const radius = 32 + ringLayer * 16;
+          const radius = 44 + ringLayer * 22;
           const angle = (idx / totalQ) * Math.PI * 2 + ringLayer * 0.45;
           x = Math.cos(angle) * radius;
           z = Math.sin(angle) * radius;
-          if (Math.abs(z - 46) < 8 || Math.abs(z - 34) < 8) z += 11;
+          if (Math.abs(z - 54) < 9 || Math.abs(z - 46) < 9 || Math.abs(z - 34) < 9) z += 13;
         }
 
+        // Ensure crystal never overlaps any solid obstacle
+        let guard = 0;
+        while (checkCollisionAt(x, z) && guard < 12) {
+          x += 4.5;
+          z += 4.5;
+          guard++;
+        }
+
+        const baseFloorY = getGroundElevationAt(x, z, 10);
         const crystalGroup = new THREE.Group();
         const detail = STATE.student.answeredDetails[q.id];
         const isAnswered = Boolean(detail);
         const isRight = detail && detail.isCorrect;
 
         const gemColor = !isAnswered ? 0xFFD027 : (isRight ? 0x00D664 : 0xFF4757);
-        const gemEmissive = !isAnswered ? 0x4d3900 : (isRight ? 0x004d24 : 0x4d1018);
+        const gemEmissive = !isAnswered ? 0x785900 : (isRight ? 0x006630 : 0x661420);
 
-        const gemGeo = new THREE.OctahedronGeometry(1.3, 0);
+        const gemGeo = new THREE.OctahedronGeometry(1.55, 0);
         const gemMat = new THREE.MeshLambertMaterial({
           color: gemColor,
           emissive: gemEmissive,
-          roughness: 0.2
+          roughness: 0.15
         });
         const gem = new THREE.Mesh(gemGeo, gemMat);
-        gem.position.y = 2.6;
+        gem.position.y = 2.9;
         gem.castShadow = true;
         gem.userData = { questionId: q.id };
 
-        const beamGeo = new THREE.CylinderGeometry(0.18, 0.55, 16, 12, 1, true);
+        const beamGeo = new THREE.CylinderGeometry(0.28, 0.85, 28, 12, 1, true);
         const beamMat = new THREE.MeshBasicMaterial({
           color: gemColor,
           transparent: true,
-          opacity: 0.16,
+          opacity: 0.24,
           side: THREE.DoubleSide
         });
         const beam = new THREE.Mesh(beamGeo, beamMat);
-        beam.position.y = 8;
+        beam.position.y = 14;
+        beam.userData = { questionId: q.id };
 
         const base = new THREE.Mesh(
-          new THREE.CylinderGeometry(1.4, 1.8, 0.8, 12),
-          new THREE.MeshLambertMaterial({ color: 0x1e293b })
+          new THREE.CylinderGeometry(1.6, 2.1, 0.9, 12),
+          new THREE.MeshLambertMaterial({ color: 0x0f172a })
         );
-        base.position.y = 0.4;
+        base.position.y = 0.45;
         base.userData = { questionId: q.id };
 
         const ring = new THREE.Mesh(
-          new THREE.RingGeometry(1.9, 2.3, 24),
+          new THREE.RingGeometry(2.2, 2.8, 28),
           new THREE.MeshBasicMaterial({ color: gemColor, side: THREE.DoubleSide })
         );
         ring.rotation.x = -Math.PI / 2;
-        ring.position.y = 0.06;
+        ring.position.y = 0.08;
 
         crystalGroup.add(gem, beam, base, ring);
-        crystalGroup.position.set(x, 0, z);
+        crystalGroup.position.set(x, baseFloorY, z);
         scene.add(crystalGroup);
 
-        STATE.solidColliders.push({ type: 'circle', x, z, radius: 1.5, isPedestal: true });
+        STATE.solidColliders.push({ type: 'circle', x, z, radius: 1.75, isPedestal: true });
         crystalObjects.push({ mesh: crystalGroup, gem, question: q, pos: { x, z } });
       });
     }
@@ -2409,18 +2556,23 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         if (mag > 0.01) {
           const normF = forward / Math.max(1, mag);
           const normS = strafe / Math.max(1, mag);
-          const speed = 0.24;
+          const speed = 0.28;
 
           const sinCam = Math.sin(cameraAngle);
           const cosCam = Math.cos(cameraAngle);
           const vx = (-sinCam * normF + cosCam * normS) * speed;
           const vz = (-cosCam * normF - sinCam * normS) * speed;
 
-          const nextX = Math.max(-110, Math.min(110, playerPos.x + vx));
-          const nextZ = Math.max(-110, Math.min(110, playerPos.z + vz));
-
-          if (!checkCollisionAt(nextX, playerPos.z)) playerPos.x = nextX;
-          if (!checkCollisionAt(playerPos.x, nextZ)) playerPos.z = nextZ;
+          // Sub-stepped collision check so character never tunnels through walls/obstacles
+          const subSteps = 3;
+          const stepVx = vx / subSteps;
+          const stepVz = vz / subSteps;
+          for (let s = 0; s < subSteps; s++) {
+            const nextX = Math.max(-174, Math.min(174, playerPos.x + stepVx));
+            const nextZ = Math.max(-174, Math.min(174, playerPos.z + stepVz));
+            if (!checkCollisionAt(nextX, playerPos.z)) playerPos.x = nextX;
+            if (!checkCollisionAt(playerPos.x, nextZ)) playerPos.z = nextZ;
+          }
 
           avatarGroup.rotation.y = Math.atan2(vx, vz);
           walkCycle += 0.22;
@@ -2507,24 +2659,31 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
     function updateRadarMarkers() {
       const layer = document.getElementById('radarMarkersLayer');
       if (!layer) return;
-      const radarRange = 95;
-      const cosA = Math.cos(-cameraAngle);
-      const sinA = Math.sin(-cameraAngle);
+      const radarRange = 135;
+
+      // Camera forward vector on XZ plane is (-sin(cameraAngle), -cos(cameraAngle))
+      // Camera right vector on XZ plane is (cos(cameraAngle), -sin(cameraAngle))
+      const sinCam = Math.sin(cameraAngle);
+      const cosCam = Math.cos(cameraAngle);
 
       let html = '';
       crystalObjects.forEach(c => {
         const dx = c.pos.x - playerPos.x;
         const dz = c.pos.z - playerPos.z;
-        const rx = (dx * cosA - dz * sinA) / radarRange;
-        const rz = (dx * sinA + dz * cosA) / radarRange;
-        const clampedDist = Math.min(0.88, Math.hypot(rx, rz));
-        const ang = Math.atan2(rz, rx);
-        const px = 50 + Math.cos(ang) * clampedDist * 45;
-        const py = 50 + Math.sin(ang) * clampedDist * 45;
+
+        const rightDist = (dx * cosCam - dz * sinCam) / radarRange;
+        const forwardDist = (-dx * sinCam - dz * cosCam) / radarRange;
+
+        const distRatio = Math.hypot(rightDist, forwardDist);
+        const clamped = Math.min(0.86, distRatio);
+        const ang = Math.atan2(-forwardDist, rightDist);
+
+        const px = 50 + Math.cos(ang) * clamped * 44;
+        const py = 50 + Math.sin(ang) * clamped * 44;
 
         const detail = STATE.student.answeredDetails[c.question.id];
         const dotColor = !detail ? 'bg-game-yellow' : (detail.isCorrect ? 'bg-game-green' : 'bg-game-coral');
-        html += `<span style="left:${px}%;top:${py}%" class="absolute -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full ${dotColor} shadow"></span>`;
+        html += `<span style="left:${px}%;top:${py}%" class="absolute -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full ${dotColor} ring-1 ring-slate-950 shadow"></span>`;
       });
       layer.innerHTML = html;
     }

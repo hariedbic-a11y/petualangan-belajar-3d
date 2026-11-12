@@ -2196,56 +2196,42 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
           emissive: gemEmissive,
           roughness: 0.2
         });
-      // Smooth 360 Camera Drag & Raycast Click on 3D Crystals (Landscape Touch & Mouse)
-      const domEl = renderer.domElement;
-      const hudLayer = document.getElementById('gameHud');
-      let downX = 0, downY = 0;
+        const gem = new THREE.Mesh(gemGeo, gemMat);
+        gem.position.y = 2.6;
+        gem.castShadow = true;
+        gem.userData = { questionId: q.id };
 
-      const handleCamPointerDown = (e) => {
-        if (e.target.closest('button') || e.target.closest('#joystickZone')) return;
-        if (activeCameraPointerId !== null) return;
-        activeCameraPointerId = e.pointerId;
-        lastPointerX = downX = e.clientX;
-        lastPointerY = downY = e.clientY;
-        try { e.target.setPointerCapture(e.pointerId); } catch (_) {}
-      };
+        const beamGeo = new THREE.CylinderGeometry(0.18, 0.55, 16, 12, 1, true);
+        const beamMat = new THREE.MeshBasicMaterial({
+          color: gemColor,
+          transparent: true,
+          opacity: 0.16,
+          side: THREE.DoubleSide
+        });
+        const beam = new THREE.Mesh(beamGeo, beamMat);
+        beam.position.y = 8;
 
-      const handleCamPointerMove = (e) => {
-        if (e.pointerId !== activeCameraPointerId) return;
-        const dx = e.clientX - lastPointerX;
-        const dy = e.clientY - lastPointerY;
-        lastPointerX = e.clientX;
-        lastPointerY = e.clientY;
-        targetCameraAngle -= dx * 0.0075;
-        targetCameraPitch = Math.max(0.14, Math.min(1.08, targetCameraPitch + dy * 0.005));
-      };
+        const base = new THREE.Mesh(
+          new THREE.CylinderGeometry(1.4, 1.8, 0.8, 12),
+          new THREE.MeshLambertMaterial({ color: 0x1e293b })
+        );
+        base.position.y = 0.4;
+        base.userData = { questionId: q.id };
 
-      const handleCamPointerUp = (e) => {
-        if (e.pointerId !== activeCameraPointerId) return;
-        activeCameraPointerId = null;
-        if (Math.hypot(e.clientX - downX, e.clientY - downY) < 9) {
-          pointerNdc.x = (e.clientX / window.innerWidth) * 2 - 1;
-          pointerNdc.y = -(e.clientY / window.innerHeight) * 2 + 1;
-          raycaster.setFromCamera(pointerNdc, camera);
-          const targets = crystalObjects.flatMap(c => c.mesh.children);
-          const hits = raycaster.intersectObjects(targets, false);
-          if (hits.length > 0 && hits[0].object.userData.questionId) {
-            const qObj = STATE.questions.find(q => q.id === hits[0].object.userData.questionId);
-            if (qObj && !document.getElementById('gameHud').classList.contains('hidden')) {
-              openQuizModal(qObj);
-            }
-          }
-        }
-      };
+        const ring = new THREE.Mesh(
+          new THREE.RingGeometry(1.9, 2.3, 24),
+          new THREE.MeshBasicMaterial({ color: gemColor, side: THREE.DoubleSide })
+        );
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.y = 0.06;
 
-      [domEl, hudLayer].forEach(el => {
-        if (!el) return;
-        el.addEventListener('pointerdown', handleCamPointerDown);
-        el.addEventListener('pointermove', handleCamPointerMove);
-        el.addEventListener('pointerup', handleCamPointerUp);
-        el.addEventListener('pointercancel', () => { activeCameraPointerId = null; });
+        crystalGroup.add(gem, beam, base, ring);
+        crystalGroup.position.set(x, 0, z);
+        scene.add(crystalGroup);
+
+        STATE.solidColliders.push({ type: 'circle', x, z, radius: 1.5, isPedestal: true });
+        crystalObjects.push({ mesh: crystalGroup, gem, question: q, pos: { x, z } });
       });
-    }
     }
 
     function setupControls() {
@@ -2299,37 +2285,41 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
           if (e.pointerId !== activeJoystickPointerId) return;
           activeJoystickPointerId = null;
           joyThumb.style.transform = 'translate(0px, 0px)';
-          joystickVec = { x: 0, z: 0 };
+          joystickVec.x = 0;
+          joystickVec.z = 0;
         };
         joyZone.addEventListener('pointerup', resetJoy);
         joyZone.addEventListener('pointercancel', resetJoy);
       }
 
-      // Smooth 360 Camera Drag & Raycast Click on 3D Crystals
+      // Smooth 360 Camera Drag & Raycast Click on 3D Crystals (Landscape Touch & Mouse)
       const domEl = renderer.domElement;
+      const hudLayer = document.getElementById('gameHud');
       let downX = 0, downY = 0;
-      domEl.addEventListener('pointerdown', (e) => {
+
+      const handleCamPointerDown = (e) => {
+        if (e.target.closest('button') || e.target.closest('#joystickZone')) return;
         if (activeCameraPointerId !== null) return;
         activeCameraPointerId = e.pointerId;
         lastPointerX = downX = e.clientX;
         lastPointerY = downY = e.clientY;
-        domEl.setPointerCapture(e.pointerId);
-      });
+        try { e.target.setPointerCapture(e.pointerId); } catch (_) {}
+      };
 
-      domEl.addEventListener('pointermove', (e) => {
+      const handleCamPointerMove = (e) => {
         if (e.pointerId !== activeCameraPointerId) return;
         const dx = e.clientX - lastPointerX;
         const dy = e.clientY - lastPointerY;
         lastPointerX = e.clientX;
         lastPointerY = e.clientY;
-        targetCameraAngle -= dx * 0.0065;
-        targetCameraPitch = Math.max(0.14, Math.min(1.05, targetCameraPitch + dy * 0.0045));
-      });
+        targetCameraAngle -= dx * 0.0075;
+        targetCameraPitch = Math.max(0.14, Math.min(1.08, targetCameraPitch + dy * 0.005));
+      };
 
-      domEl.addEventListener('pointerup', (e) => {
+      const handleCamPointerUp = (e) => {
         if (e.pointerId !== activeCameraPointerId) return;
         activeCameraPointerId = null;
-        if (Math.hypot(e.clientX - downX, e.clientY - downY) < 8) {
+        if (Math.hypot(e.clientX - downX, e.clientY - downY) < 9) {
           pointerNdc.x = (e.clientX / window.innerWidth) * 2 - 1;
           pointerNdc.y = -(e.clientY / window.innerHeight) * 2 + 1;
           raycaster.setFromCamera(pointerNdc, camera);
@@ -2342,9 +2332,15 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
             }
           }
         }
-      });
+      };
 
-      domEl.addEventListener('pointercancel', () => { activeCameraPointerId = null; });
+      [domEl, hudLayer].forEach(el => {
+        if (!el) return;
+        el.addEventListener('pointerdown', handleCamPointerDown);
+        el.addEventListener('pointermove', handleCamPointerMove);
+        el.addEventListener('pointerup', handleCamPointerUp);
+        el.addEventListener('pointercancel', () => { activeCameraPointerId = null; });
+      });
     }
 
     function triggerJump(ev) {

@@ -188,7 +188,7 @@
   </header>
 
   <!-- ================= NOTIFICATION TOAST ================= -->
-  <div id="toastNotification" class="fixed top-16 right-4 z-50 transform translate-y-[-150%] transition-transform duration-300 pointer-events-none">
+  <div id="toastNotification" class="fixed top-16 right-4 z-50 transform -translate-y-[250%] opacity-0 transition-all duration-300 pointer-events-none">
     <div class="glass-panel px-4 py-3 rounded-2xl flex items-center space-x-3 shadow-2xl border-l-4 border-game-green max-w-sm">
       <div id="toastIcon" class="w-8 h-8 rounded-full bg-game-green/20 flex items-center justify-center text-game-green">
         <i data-lucide="check" class="w-5 h-5"></i>
@@ -636,6 +636,9 @@
           <button onclick="setTeacherTab('bank')" id="tabBtn-bank" class="px-4 py-2 rounded-xl font-cartoon text-xs md:text-sm font-bold bg-game-blue text-white shadow transition flex items-center gap-2 whitespace-nowrap">
             <i data-lucide="layers" class="w-4 h-4"></i> Studio Soal & Impor Word/Excel
           </button>
+          <button onclick="setTeacherTab('siswa')" id="tabBtn-siswa" class="px-4 py-2 rounded-xl font-cartoon text-xs md:text-sm font-bold text-slate-300 hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+            <i data-lucide="users" class="w-4 h-4"></i> Anggota Siswa Kelas
+          </button>
           <button onclick="setTeacherTab('nilai')" id="tabBtn-nilai" class="px-4 py-2 rounded-xl font-cartoon text-xs md:text-sm font-bold text-slate-300 hover:text-white transition flex items-center gap-2 whitespace-nowrap">
             <i data-lucide="table" class="w-4 h-4"></i> Rekap Nilai & Sync Queue
           </button>
@@ -683,6 +686,57 @@
           </div>
         </div>
 
+        <!-- TAB CONTENT 1B: ANGGOTA SISWA SISWI KELAS -->
+        <div id="tabContent-siswa" class="p-6 space-y-6 hidden">
+          <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+            <div>
+              <h3 class="font-cartoon text-xl font-bold text-white">Daftar Anggota Siswa-Siswi Kelas (<span id="rosterClassLabel" class="text-game-yellow">JUARA2026</span>)</h3>
+              <p class="text-xs text-slate-300">Tambahkan daftar siswa-siswi kelas Anda di sini (bisa satuan atau tempel massal). Siswa yang bergabung lewat HP juga otomatis masuk ke daftar ini.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="openBulkStudentModal()" class="px-3.5 py-2 rounded-xl bg-game-purple hover:bg-purple-600 text-white font-cartoon text-xs font-bold shadow flex items-center gap-1.5">
+                <i data-lucide="users" class="w-4 h-4"></i> Tambah Massal (Tempel Daftar)
+              </button>
+              <button onclick="openConfirmResetModal('grades')" class="px-3.5 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/40 text-rose-200 font-cartoon text-xs font-bold flex items-center gap-1.5">
+                <i data-lucide="eraser" class="w-4 h-4"></i> Nol-kan Skor Semua Siswa
+              </button>
+            </div>
+          </div>
+
+          <!-- Form Tambah 1 Siswa Cepat -->
+          <form onsubmit="handleAddSingleStudent(event)" class="p-4 rounded-2xl bg-black/40 border border-white/15 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-300 mb-1">NO. ABSEN</label>
+              <input id="newStudentAbsen" type="number" min="1" max="99" required placeholder="Contoh: 05" class="w-full bg-black/50 border border-white/20 focus:border-game-yellow rounded-xl px-3 py-2 text-xs text-game-yellow font-cartoon font-bold outline-none">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] font-bold text-slate-300 mb-1">NAMA LENGKAP / PANGGILAN SISWA</label>
+              <input id="newStudentName" type="text" maxlength="40" required placeholder="Contoh: Nabila Putri" class="w-full bg-black/50 border border-white/20 focus:border-game-yellow rounded-xl px-3 py-2 text-xs text-white outline-none">
+            </div>
+            <button type="submit" class="w-full py-2 rounded-xl bg-game-green hover:bg-emerald-500 text-white font-cartoon text-xs font-bold shadow-game-btn flex items-center justify-center gap-1.5">
+              <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Siswa
+            </button>
+          </form>
+
+          <!-- Tabel Anggota Siswa -->
+          <div class="overflow-x-auto rounded-2xl border border-white/10">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-black/50 text-slate-200 font-cartoon uppercase text-[11px]">
+                <tr>
+                  <th class="p-3">No. Absen</th>
+                  <th class="p-3">Nama Siswa / Siswi</th>
+                  <th class="p-3">Status Bermain</th>
+                  <th class="p-3">Skor Saat Ini</th>
+                  <th class="p-3 text-center">Kelola</th>
+                </tr>
+              </thead>
+              <tbody id="teacherRosterTbody" class="divide-y divide-white/5">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- TAB CONTENT 2: REKAP NILAI OTOMATIS & RAPOR -->
         <div id="tabContent-nilai" class="p-6 space-y-4 hidden">
           <!-- Offline Queue Banner -->
@@ -721,6 +775,12 @@
               </button>
               <button onclick="openBatchCertificateModal()" class="px-3.5 py-2 rounded-xl bg-game-yellow text-game-navy font-cartoon text-xs font-bold shadow flex items-center gap-1.5 transition">
                 <i data-lucide="file-text" class="w-4 h-4"></i> Cetak Sertifikat PDF
+              </button>
+              <button onclick="openConfirmResetModal('grades')" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-cartoon text-xs font-bold shadow flex items-center gap-1.5 transition" title="Hapus seluruh rekap nilai untuk memulai sesi ujian baru">
+                <i data-lucide="trash-2" class="w-4 h-4"></i> Bersihkan Semua Nilai
+              </button>
+              <button onclick="openConfirmResetModal('all')" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-200 font-cartoon text-xs font-bold flex items-center gap-1.5 transition" title="Reset total aplikasi (soal & nilai) ke kondisi awal">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset Awal Total
               </button>
             </div>
           </div>
@@ -1241,6 +1301,46 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       <div class="flex gap-3 mt-5">
         <button type="button" onclick="closeExitConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 font-cartoon text-xs font-bold">Lanjut Main</button>
         <button type="button" onclick="executeFinishAndExitGame()" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-500 text-white font-cartoon text-xs font-bold shadow-game-btn">Ya, Selesai & Kirim Nilai</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Tambah Siswa Massal (Paste Daftar Kelas) -->
+  <div id="bulkStudentModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="relative w-full max-w-lg glass-panel rounded-3xl p-6 border-2 border-game-purple shadow-2xl">
+      <div class="flex justify-between items-center pb-3 border-b border-white/10">
+        <h3 class="font-cartoon text-lg font-bold text-white flex items-center gap-2">
+          <i data-lucide="users" class="w-5 h-5 text-game-purple"></i> Tambah Anggota Kelas Massal
+        </h3>
+        <button onclick="closeBulkStudentModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-300">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="mt-4 space-y-3 text-xs">
+        <p class="text-slate-300">Tempel daftar nama siswa (satu siswa per baris). Bisa diawali nomor absen atau nama saja:</p>
+        <textarea id="bulkStudentTextarea" rows="6" placeholder="01. Aditya Pratama&#10;02. Bella Safitri&#10;03. Candra Wijaya&#10;Dina Marlina"
+                  class="w-full bg-black/50 border border-white/20 focus:border-game-yellow rounded-2xl p-3 text-white font-sans text-xs outline-none"></textarea>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeBulkStudentModal()" class="px-4 py-2 rounded-xl bg-white/10 text-slate-300 font-cartoon font-bold">Batal</button>
+          <button type="button" onclick="processBulkStudents()" class="px-5 py-2 rounded-xl bg-game-green hover:bg-emerald-500 text-white font-cartoon font-bold shadow-game-btn">Simpan Semua Siswa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Konfirmasi Bersihkan Nilai / Reset Mulai Dari Awal -->
+  <div id="confirmResetModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="relative w-full max-w-md glass-panel rounded-3xl p-6 border-2 border-rose-500 shadow-2xl text-center">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-3 border border-rose-400/40">
+        <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+      </div>
+      <h3 id="confirmResetTitle" class="font-cartoon text-xl font-bold text-white">Bersihkan Data Nilai?</h3>
+      <p id="confirmResetDesc" class="text-xs text-slate-300 mt-2">
+        Seluruh catatan nilai & antrean sesi sebelumnya akan dibersihkan agar Anda bisa memulai sesi baru dari awal.
+      </p>
+      <div class="flex gap-3 mt-5">
+        <button type="button" onclick="closeConfirmResetModal()" class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 font-cartoon text-xs font-bold">Batal</button>
+        <button type="button" onclick="executeTeacherReset()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-cartoon text-xs font-bold shadow-game-btn">Ya, Bersihkan Sekarang</button>
       </div>
     </div>
   </div>
@@ -3246,7 +3346,7 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
 
     function setTeacherTab(tab) {
       STATE.teacherTab = tab;
-      ['bank', 'nilai', 'analisis', 'database'].forEach(t => {
+      ['bank', 'siswa', 'nilai', 'analisis', 'database'].forEach(t => {
         const btn = document.getElementById(`tabBtn-${t}`);
         const content = document.getElementById(`tabContent-${t}`);
         if (btn) {
@@ -3279,6 +3379,9 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       if (elTotalQ) elTotalQ.innerText = STATE.questions.length;
       if (elMast) elMast.innerText = masteryPct;
 
+      const rosterClassLbl = document.getElementById('rosterClassLabel');
+      if (rosterClassLbl) rosterClassLbl.innerText = STATE.classCode;
+
       // 1. Render Question Bank Cards
       const qList = document.getElementById('teacherQuestionsList');
       if (qList) {
@@ -3298,6 +3401,31 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
             </div>
           </div>
         `).join('');
+      }
+
+      // 1B. Render Anggota Siswa Kelas Table
+      const rosterTbody = document.getElementById('teacherRosterTbody');
+      if (rosterTbody) {
+        const byAbsen = [...STATE.gradebook].sort((a, b) => Number(a.absen) - Number(b.absen));
+        if (byAbsen.length === 0) {
+          rosterTbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Belum ada anggota siswa di kelas ini. Silakan tambahkan siswa di form atas atau bagikan Kode Kelas.</td></tr>`;
+        } else {
+          rosterTbody.innerHTML = byAbsen.map(s => `
+            <tr class="hover:bg-white/5 transition">
+              <td class="p-3 font-cartoon font-bold text-game-yellow">${s.absen}</td>
+              <td class="p-3 font-bold text-white">${s.name}</td>
+              <td class="p-3">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${s.completed > 0 ? 'bg-game-green/20 text-game-green' : 'bg-slate-700 text-slate-300'}">
+                  ${s.completed > 0 ? `Selesai ${s.completed}/${s.total} Misi` : 'Terdaftar (Belum Main)'}
+                </span>
+              </td>
+              <td class="p-3 font-cartoon font-bold text-game-yellow">${s.score}</td>
+              <td class="p-3 text-center">
+                <button onclick="removeStudentFromRoster('${s.id}')" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-[11px]">Hapus</button>
+              </td>
+            </tr>
+          `).join('');
+        }
       }
 
       // 2. Render Gradebook Table
@@ -3360,885 +3488,146 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
     }
 
     /* ====================================================================
-       11. MANUAL QUESTION MODAL & AI GENERATOR HELPERS
+       16. HELP, ROSTER MANAGEMENT, RESET & TOAST UTILITIES
        ==================================================================== */
-    let aiQuestionCount = 3;
+    let pendingResetScope = 'grades'; // 'grades' or 'all'
 
-    function openAddQuestionModal() {
-      document.getElementById('editQuestionId').value = '';
-      document.getElementById('modalQuestionFormTitle').innerText = 'Tambah Soal Baru';
-      document.getElementById('questionForm').reset();
-      renderQuestionTypeInputs();
-      document.getElementById('addQuestionModal').classList.remove('hidden');
-    }
+    function handleAddSingleStudent(e) {
+      e.preventDefault();
+      const absenRaw = document.getElementById('newStudentAbsen').value.trim();
+      const nameRaw = document.getElementById('newStudentName').value.trim();
+      if (!absenRaw || !nameRaw) return;
 
-    function closeAddQuestionModal() {
-      document.getElementById('addQuestionModal').classList.add('hidden');
-    }
+      const absen = String(absenRaw).padStart(2, '0');
+      const existingIdx = STATE.gradebook.findIndex(s => String(s.absen) === absen && s.name.toLowerCase() === nameRaw.toLowerCase());
+      const entry = {
+        id: `std_${Date.now()}`,
+        classCode: STATE.classCode,
+        absen,
+        name: nameRaw,
+        completed: 0,
+        total: STATE.questions.length,
+        accuracy: '0%',
+        time: '-',
+        score: 0,
+        assessmentType: 'harian',
+        syncStatus: 'synced'
+      };
 
-    function renderQuestionTypeInputs() {
-      const type = document.getElementById('qFormType').value;
-      const box = document.getElementById('dynamicTypeInputs');
-      if (!box) return;
-
-      if (type === 'pg') {
-        box.innerHTML = [0, 1, 2, 3].map(i => `
-          <div class="flex items-center gap-2">
-            <input type="radio" name="pgCorrectRadio" value="${i}" ${i === 0 ? 'checked' : ''}>
-            <span class="font-bold text-game-yellow w-4">${['A', 'B', 'C', 'D'][i]}.</span>
-            <input id="pgOpt_${i}" type="text" required placeholder="Opsi ${['A', 'B', 'C', 'D'][i]}" class="flex-1 bg-black/50 border border-white/15 rounded-lg px-2.5 py-1.5 text-white">
-          </div>
-        `).join('');
-      } else if (type === 'bs') {
-        box.innerHTML = `
-          <div class="flex gap-4">
-            <label class="flex items-center gap-2 text-white font-bold"><input type="radio" name="bsCorrectRadio" value="0" checked> Benar</label>
-            <label class="flex items-center gap-2 text-white font-bold"><input type="radio" name="bsCorrectRadio" value="1"> Salah</label>
-          </div>
-        `;
-      } else if (type === 'isian') {
-        box.innerHTML = `<input id="isianCorrectInput" type="text" required placeholder="Kata kunci jawaban benar..." class="w-full bg-black/50 border border-white/15 rounded-lg px-3 py-2 text-white">`;
-      } else if (type === 'jodoh') {
-        box.innerHTML = `
-          <div class="grid grid-cols-2 gap-2">
-            <input id="pairL_0" type="text" required placeholder="Pernyataan 1" class="bg-black/50 border border-white/15 rounded-lg px-2.5 py-1.5 text-white">
-            <input id="pairR_0" type="text" required placeholder="Pasangan 1" class="bg-black/50 border border-white/15 rounded-lg px-2.5 py-1.5 text-white">
-            <input id="pairL_1" type="text" required placeholder="Pernyataan 2" class="bg-black/50 border border-white/15 rounded-lg px-2.5 py-1.5 text-white">
-            <input id="pairR_1" type="text" required placeholder="Pasangan 2" class="bg-black/50 border border-white/15 rounded-lg px-2.5 py-1.5 text-white">
-          </div>
-        `;
-      } else if (type === 'urut') {
-        box.innerHTML = `<input id="urutInputCsv" type="text" required placeholder="Ketik urutan benar dipisah koma (Contoh: Tahap 1, Tahap 2, Tahap 3)" class="w-full bg-black/50 border border-white/15 rounded-lg px-3 py-2 text-white">`;
+      if (existingIdx !== -1) {
+        STATE.gradebook[existingIdx] = entry;
+      } else {
+        STATE.gradebook.push(entry);
       }
+
+      document.getElementById('newStudentAbsen').value = '';
+      document.getElementById('newStudentName').value = '';
+      persistStateToLocal();
+      renderTeacherDashboard();
+      showToast('Siswa Ditambahkan', `${nameRaw} (Absen ${absen}) terdaftar ke kelas ${STATE.classCode}.`);
     }
 
-    function openAiGeneratorModal() {
-      document.getElementById('aiGenModal').classList.remove('hidden');
+    function openBulkStudentModal() {
+      document.getElementById('bulkStudentTextarea').value = '';
+      document.getElementById('bulkStudentModal').classList.remove('hidden');
     }
 
-    function closeAiGeneratorModal() {
-      document.getElementById('aiGenModal').classList.add('hidden');
+    function closeBulkStudentModal() {
+      document.getElementById('bulkStudentModal').classList.add('hidden');
     }
 
-    function setAiCount(n) {
-      aiQuestionCount = n;
-      document.querySelectorAll('.ai-cnt-btn').forEach(b => {
-        b.className = b.innerText.startsWith(String(n))
-          ? 'ai-cnt-btn flex-1 py-1.5 rounded-xl bg-game-purple text-white font-cartoon font-bold'
-          : 'ai-cnt-btn flex-1 py-1.5 rounded-xl bg-white/10 text-slate-300 font-cartoon font-bold';
+    function processBulkStudents() {
+      const raw = document.getElementById('bulkStudentTextarea').value;
+      const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      if (lines.length === 0) return;
+
+      let added = 0;
+      lines.forEach((line, i) => {
+        const match = line.match(/^(\d+)[\.\-\)\s]+(.+)$/);
+        const absen = match ? String(match[1]).padStart(2, '0') : String(STATE.gradebook.length + i + 1).padStart(2, '0');
+        const name = match ? match[2].trim() : line;
+        if (!name) return;
+
+        STATE.gradebook.push({
+          id: `std_${Date.now()}_${i}`,
+          classCode: STATE.classCode,
+          absen,
+          name,
+          completed: 0,
+          total: STATE.questions.length,
+          accuracy: '0%',
+          time: '-',
+          score: 0,
+          assessmentType: 'harian',
+          syncStatus: 'synced'
+        });
+        added++;
       });
+
+      persistStateToLocal();
+      renderTeacherDashboard();
+      closeBulkStudentModal();
+      showToast('Daftar Siswa Masuk', `${added} anggota siswa-siswi berhasil ditambahkan ke kelas.`);
     }
 
-    function generateQuestionsWithAi() {
-      const subj = document.getElementById('aiSubject').value;
-      const topic = document.getElementById('aiTopic').value.trim() || subj;
-      const btn = document.getElementById('btnRunAi');
-      btn.disabled = true;
-      btn.innerText = 'Menyusun Soal AI...';
-
-      setTimeout(() => {
-        // High quality simulated curriculum bank
-        const templates = [
-          {
-            type: 'pg',
-            world: 'kota',
-            title: `[${subj}] Bagian sel manakah yang dijuluki "pembangkit tenaga" atau powerhouse of cell?`,
-            options: ['Ribosom', 'Mitokondria', 'Nukleus', 'Badan Golgi'],
-            correctAnswer: 1,
-            explanation: 'Mitokondria menghasilkan ATP melalui proses respirasi selular.',
-            weight: 20
-          },
-          {
-            type: 'bs',
-            world: 'nusantara',
-            title: `[${topic}] Sumpah Palapa diikrarkan oleh Patih Gajah Mada untuk menyatukan Nusantara.`,
-            options: ['Benar', 'Salah'],
-            correctAnswer: 0,
-            explanation: 'Sumpah Palapa dicatat dalam Kitab Pararaton pada masa Kerajaan Majapahit.',
-            weight: 20
-          },
-          {
-            type: 'isian',
-            world: 'laut',
-            title: `[${subj}] Satuan dasar SI untuk mengukur arus listrik adalah...`,
-            correctAnswer: 'ampere',
-            explanation: 'Ampere (A) adalah satuan pokok arus listrik dalam standar internasional.',
-            weight: 20
-          },
-          {
-            type: 'urut',
-            world: 'angkasa',
-            title: `[${topic}] Urutkan planet dari yang paling dekat dengan Matahari:`,
-            items: ['Merkurius', 'Venus', 'Bumi', 'Mars'],
-            correctOrder: [0, 1, 2, 3],
-            explanation: 'Susunan terdekat adalah Merkurius, Venus, Bumi, dan Mars.',
-            weight: 20
-          }
-        ];
-
-        for (let i = 0; i < aiQuestionCount; i++) {
-          const t = templates[i % templates.length];
-          STATE.questions.push({
-            ...t,
-            id: `ai_${Date.now()}_${i}`
-          });
-        }
-
-        btn.disabled = false;
-        btn.innerHTML = `<i data-lucide="cpu" class="w-4 h-4"></i> Hasilkan Soal Otomatis Sekarang`;
-        closeAiGeneratorModal();
-        persistStateToLocal();
-        pushQuestionsToCloud();
-        spawnQuestionCrystals();
-        renderTeacherDashboard();
-        showToast('AI Berhasil!', `${aiQuestionCount} Soal kurikulum baru berhasil ditambahkan`);
-        SoundFx.correct();
-      }, 900);
+    function removeStudentFromRoster(id) {
+      STATE.gradebook = STATE.gradebook.filter(s => s.id !== id);
+      persistStateToLocal();
+      renderTeacherDashboard();
+      showToast('Siswa Dihapus', 'Anggota siswa telah dihapus dari daftar kelas.');
     }
 
-    /* ====================================================================
-       13. DUAL-MODE WORD & EXCEL IMPORTER + EXPORT SOAL & KUNCI JAWABAN
-       ==================================================================== */
-    function openImportStudioModal() {
-      STATE.stagedImportQuestions = [];
-      document.getElementById('importPreviewSection').classList.add('hidden');
-      document.getElementById('docUploadInput').value = '';
-      setImportMode(STATE.importMode);
-      document.getElementById('importStudioModal').classList.remove('hidden');
+    function openConfirmResetModal(scope) {
+      pendingResetScope = scope;
+      const titleEl = document.getElementById('confirmResetTitle');
+      const descEl = document.getElementById('confirmResetDesc');
+      if (scope === 'all') {
+        titleEl.innerText = 'Reset Total Aplikasi ke Awal?';
+        descEl.innerText = 'Semua nilai siswa, antrean offline, dan perubahan soal lokal akan dikembalikan ke pengaturan awal untuk sesi baru.';
+      } else {
+        titleEl.innerText = 'Bersihkan Semua Nilai Siswa?';
+        descEl.innerText = 'Seluruh nilai & progres bermain siswa akan dibersihkan (0) agar siap untuk ronde/kelas baru.';
+      }
+      document.getElementById('confirmResetModal').classList.remove('hidden');
       lucide.createIcons();
     }
 
-    function closeImportStudioModal() {
-      document.getElementById('importStudioModal').classList.add('hidden');
+    function closeConfirmResetModal() {
+      document.getElementById('confirmResetModal').classList.add('hidden');
     }
 
-    function setImportMode(mode) {
-      STATE.importMode = mode;
-      const btnStd = document.getElementById('btnModeStandar');
-      const btnPnt = document.getElementById('btnModePintar');
-      if (mode === 'standar') {
-        btnStd.className = 'p-4 rounded-2xl bg-emerald-500/20 border-2 border-emerald-400 text-left transition';
-        btnPnt.className = 'p-4 rounded-2xl bg-black/40 border-2 border-white/15 text-left transition hover:border-purple-400/60';
+    function executeTeacherReset() {
+      if (pendingResetScope === 'all') {
+        localStorage.removeItem(STORAGE_KEYS.QUESTIONS);
+        localStorage.removeItem(STORAGE_KEYS.GRADEBOOK);
+        localStorage.removeItem(STORAGE_KEYS.SYNC_QUEUE);
+        STATE.gradebook = [];
+        STATE.pendingSyncQueue = [];
+        STATE.student.score = 0;
+        STATE.student.answeredList = [];
+        STATE.student.answeredDetails = {};
+        persistStateToLocal();
+        spawnQuestionCrystals();
+        updateNetworkStatusUI();
+        renderTeacherDashboard();
+        closeConfirmResetModal();
+        showToast('Reset Total Selesai', 'Aplikasi telah dibersihkan dan siap digunakan dari awal.');
       } else {
-        btnPnt.className = 'p-4 rounded-2xl bg-purple-500/20 border-2 border-purple-400 text-left transition';
-        btnStd.className = 'p-4 rounded-2xl bg-black/40 border-2 border-white/15 text-left transition hover:border-emerald-400/60';
+        STATE.gradebook = [];
+        STATE.pendingSyncQueue = [];
+        STATE.student.score = 0;
+        STATE.student.answeredList = [];
+        STATE.student.answeredDetails = {};
+        localStorage.removeItem(STORAGE_KEYS.SYNC_QUEUE);
+        persistStateToLocal();
+        spawnQuestionCrystals();
+        updateNetworkStatusUI();
+        renderTeacherDashboard();
+        closeConfirmResetModal();
+        showToast('Nilai Dibersihkan', 'Rekap nilai telah dikosongkan untuk sesi kelas berikutnya.');
       }
     }
 
-    function downloadExcelTemplate() {
-      if (typeof XLSX === 'undefined') {
-        alert('Library Excel sedang dimuat, silakan coba beberapa detik lagi.');
-        return;
-      }
-      const rows = [
-        {
-          Tipe: 'pg',
-          Alam: 'kota',
-          Pertanyaan: 'Ibukota negara Indonesia yang baru di Kalimantan Timur bernama...',
-          Opsi_A: 'Balikpapan',
-          Opsi_B: 'Nusantara',
-          Opsi_C: 'Samarinda',
-          Opsi_D: 'Banjarmasin',
-          Kunci: 'B',
-          Pembahasan: 'Ibu Kota Nusantara (IKN) terletak di sebagian wilayah Penajam Paser Utara dan Kutai Kartanegara.'
-        },
-        {
-          Tipe: 'bs',
-          Alam: 'laut',
-          Pertanyaan: 'Paus biru merupakan mamalia laut terbesar yang bernapas menggunakan paru-paru.',
-          Opsi_A: 'Benar',
-          Opsi_B: 'Salah',
-          Opsi_C: '',
-          Opsi_D: '',
-          Kunci: 'Benar',
-          Pembahasan: 'Paus adalah mamalia laut yang sesekali muncul ke permukaan untuk menghirup udara.'
-        },
-        {
-          Tipe: 'isian',
-          Alam: 'angkasa',
-          Pertanyaan: 'Planet terbesar dalam tata surya kita adalah...',
-          Opsi_A: '',
-          Opsi_B: '',
-          Opsi_C: '',
-          Opsi_D: '',
-          Kunci: 'Jupiter',
-          Pembahasan: 'Jupiter merupakan planet raksasa gas terbesar di tata surya.'
-        }
-      ];
-
-      const ws = XLSX.utils.json_to_sheet(rows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Template_Soal_3D');
-      XLSX.writeFile(wb, 'Template_Import_Soal_Petualangan3D.xlsx');
-      showToast('Template Excel Diunduh', 'Silakan isi soal pada Excel lalu unggah kembali.');
-    }
-
-    function downloadWordTemplate() {
-      const html = `
-        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-        <head><meta charset='utf-8'><title>Template Soal Word Petualangan 3D</title></head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-          <h2>TEMPLATE IMPOR SOAL MICROSOFT WORD - PETUALANGAN BELAJAR 3D</h2>
-          <p><i>Petunjuk: Tulis nomor soal diikuti titik. Beri tanda bintang (*) di depan opsi benar (untuk Mode Standar), atau kosongkan tanda bintang jika ingin menggunakan Mode Pintar (Asisten AI).</i></p>
-          <hr/>
-          <p>1. Planet terbesar dalam tata surya kita adalah...</p>
-          <p>A. Mars</p>
-          <p>*B. Jupiter</p>
-          <p>C. Venus</p>
-          <p>D. Merkurius</p>
-          <br/>
-          <p>2. Proses perubahan wujud benda dari cair menjadi gas disebut...</p>
-          <p>A. Membeku</p>
-          <p>B. Mencair</p>
-          <p>*C. Menguap</p>
-          <p>D. Menyublim</p>
-        </body></html>
-      `;
-      const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Template_Import_Soal_Petualangan3D.doc';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      showToast('Template Word Diunduh', 'Buka di Microsoft Word, isi soal Anda, lalu simpan sebagai .docx untuk diimpor.');
-    }
-
-    function loadSampleUnansweredImport() {
-      setImportMode('pintar');
-      STATE.stagedImportQuestions = [
-        {
-          id: `imp_${Date.now()}_1`,
-          type: 'pg',
-          world: 'kota',
-          title: 'Proses perubahan wujud benda dari cair menjadi gas disebut...',
-          options: ['Membeku', 'Mencair', 'Menguap', 'Menyublim'],
-          correctAnswer: null,
-          explanation: '',
-          weight: 20
-        },
-        {
-          id: `imp_${Date.now()}_2`,
-          type: 'pg',
-          world: 'nusantara',
-          title: 'Kerajaan Hindu tertua di Indonesia yang terletak di Kalimantan Timur adalah...',
-          options: ['Majapahit', 'Kutai', 'Tarumanegara', 'Sriwijaya'],
-          correctAnswer: null,
-          explanation: '',
-          weight: 20
-        },
-        {
-          id: `imp_${Date.now()}_3`,
-          type: 'bs',
-          world: 'angkasa',
-          title: 'Matahari merupakan pusat peredaran planet-planet di dalam tata surya.',
-          options: ['Benar', 'Salah'],
-          correctAnswer: null,
-          explanation: '',
-          weight: 20
-        }
-      ];
-      renderStagedImportPreview();
-      showToast('Naskah Tanpa Kunci Dimuat', 'Klik "Isi Kunci Otomatis (Asisten Pintar)" atau pilih jawaban langsung di bawah!');
-    }
-
-    async function handleWordExcelFileUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const ext = file.name.split('.').pop().toLowerCase();
-
-      try {
-        if (ext === 'xlsx' || ext === 'xls' || ext === 'csv') {
-          const data = await file.arrayBuffer();
-          const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
-          parseExcelRowsToStaged(rows);
-        } else if (ext === 'docx') {
-          const arrayBuffer = await file.arrayBuffer();
-          const result = await mammoth.extractRawText({ arrayBuffer });
-          parsePlainTextToStaged(result.value);
-        } else if (ext === 'txt') {
-          const text = await file.text();
-          parsePlainTextToStaged(text);
-        } else {
-          alert('Format file belum didukung. Gunakan .xlsx, .csv, atau .docx');
-        }
-      } catch (err) {
-        alert('Gagal membaca dokumen: ' + err.message);
-      }
-    }
-
-    function parseExcelRowsToStaged(rows) {
-      const parsed = [];
-      rows.forEach((r, idx) => {
-        const title = String(r.Pertanyaan || r.Soal || r.Question || '').trim();
-        if (!title) return;
-
-        const rawType = String(r.Tipe || 'pg').toLowerCase().trim();
-        const world = ['kota', 'nusantara', 'laut', 'angkasa'].includes(String(r.Alam || '').toLowerCase())
-          ? String(r.Alam).toLowerCase()
-          : 'kota';
-        const rawKey = String(r.Kunci || r.Jawaban || r.Answer || '').trim();
-        const explanation = String(r.Pembahasan || r.Penjelasan || '').trim();
-
-        if (rawType === 'bs' || rawType === 'benar/salah') {
-          let ans = null;
-          if (STATE.importMode === 'standar' && rawKey) {
-            ans = (rawKey.toLowerCase().startsWith('b') || rawKey === '0' || rawKey === 'true') ? 0 : 1;
-          }
-          parsed.push({
-            id: `imp_${Date.now()}_${idx}`,
-            type: 'bs',
-            world,
-            title,
-            options: ['Benar', 'Salah'],
-            correctAnswer: ans,
-            explanation,
-            weight: 20
-          });
-        } else if (rawType === 'isian') {
-          parsed.push({
-            id: `imp_${Date.now()}_${idx}`,
-            type: 'isian',
-            world,
-            title,
-            correctAnswer: (STATE.importMode === 'standar' && rawKey) ? rawKey.toLowerCase() : null,
-            explanation,
-            weight: 20
-          });
-        } else {
-          const opts = [
-            String(r.Opsi_A || r.A || 'Pilihan A').trim(),
-            String(r.Opsi_B || r.B || 'Pilihan B').trim(),
-            String(r.Opsi_C || r.C || 'Pilihan C').trim(),
-            String(r.Opsi_D || r.D || 'Pilihan D').trim()
-          ];
-          let ans = null;
-          if (STATE.importMode === 'standar' && rawKey) {
-            const upper = rawKey.toUpperCase();
-            if (['A', 'B', 'C', 'D'].includes(upper)) ans = ['A', 'B', 'C', 'D'].indexOf(upper);
-            else if (['0', '1', '2', '3'].includes(upper)) ans = parseInt(upper);
-            else {
-              const matchIdx = opts.findIndex(o => o.toLowerCase() === rawKey.toLowerCase());
-              if (matchIdx !== -1) ans = matchIdx;
-            }
-          }
-          parsed.push({
-            id: `imp_${Date.now()}_${idx}`,
-            type: 'pg',
-            world,
-            title,
-            options: opts,
-            correctAnswer: ans,
-            explanation,
-            weight: 20
-          });
-        }
-      });
-
-      if (parsed.length === 0) {
-        alert('Tidak ditemukan baris soal yang valid pada file Excel.');
-        return;
-      }
-
-      STATE.stagedImportQuestions = parsed;
-      renderStagedImportPreview();
-      showToast('Excel Terbaca!', `${parsed.length} butir soal berhasil dipindai ke pratinjau.`);
-    }
-
-    function parsePlainTextToStaged(rawText) {
-      const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-      const parsed = [];
-      let current = null;
-
-      lines.forEach(line => {
-        const qMatch = line.match(/^(\d+)[\.\)]\s*(.+)/);
-        const optMatch = line.match(/^(\*?)([A-Da-d])[\.\)]\s*(.+)/);
-        const keyMatch = line.match(/^(?:Kunci|Jawaban)\s*:\s*(.+)/i);
-
-        if (qMatch) {
-          if (current) parsed.push(current);
-          current = {
-            id: `doc_${Date.now()}_${parsed.length}`,
-            type: 'pg',
-            world: 'kota',
-            title: qMatch[2].trim(),
-            options: [],
-            correctAnswer: null,
-            explanation: '',
-            weight: 20
-          };
-        } else if (optMatch && current) {
-          const isStarred = optMatch[1] === '*';
-          const letterIdx = ['A', 'B', 'C', 'D'].indexOf(optMatch[2].toUpperCase());
-          current.options[letterIdx] = optMatch[3].trim();
-          if (STATE.importMode === 'standar' && isStarred) {
-            current.correctAnswer = letterIdx;
-          }
-        } else if (keyMatch && current && STATE.importMode === 'standar') {
-          const k = keyMatch[1].trim().toUpperCase();
-          if (['A', 'B', 'C', 'D'].includes(k)) current.correctAnswer = ['A', 'B', 'C', 'D'].indexOf(k);
-        }
-      });
-      if (current) parsed.push(current);
-
-      parsed.forEach(q => {
-        if (q.options.length === 0) {
-          q.type = 'isian';
-        } else {
-          for (let i = 0; i < 4; i++) if (!q.options[i]) q.options[i] = `Opsi ${['A', 'B', 'C', 'D'][i]}`;
-        }
-      });
-
-      if (parsed.length === 0) {
-        alert('Tidak terdeteksi nomor soal (contoh: "1. Pertanyaan...") di dalam dokumen Word.');
-        return;
-      }
-
-      STATE.stagedImportQuestions = parsed;
-      renderStagedImportPreview();
-      showToast('Word Terbaca!', `${parsed.length} butir soal berhasil dipindai dari dokumen.`);
-    }
-
-    function renderStagedImportPreview() {
-      const section = document.getElementById('importPreviewSection');
-      const list = document.getElementById('importPreviewList');
-      const badge = document.getElementById('importPreviewBadge');
-
-      section.classList.remove('hidden');
-      badge.innerText = `${STATE.stagedImportQuestions.length} Soal`;
-      list.innerHTML = '';
-
-      STATE.stagedImportQuestions.forEach((q, idx) => {
-        const hasKey = q.correctAnswer !== null && q.correctAnswer !== undefined && q.correctAnswer !== '';
-        const card = document.createElement('div');
-        card.className = `p-3.5 rounded-2xl border ${hasKey ? 'bg-black/40 border-emerald-400/40' : 'bg-purple-950/30 border-amber-400/60'}`;
-
-        let answerControlHtml = '';
-        if (q.type === 'pg' || q.type === 'bs') {
-          answerControlHtml = `
-            <div class="flex flex-wrap gap-1.5 mt-2">
-              ${q.options.map((opt, oIdx) => {
-                const isSelected = q.correctAnswer === oIdx;
-                const labelPrefix = q.type === 'pg' ? `${['A', 'B', 'C', 'D'][oIdx]}. ` : '';
-                return `
-                  <button type="button" onclick="setStagedQuestionKey(${idx}, ${oIdx})"
-                    class="px-2.5 py-1 rounded-xl text-[11px] font-bold border transition ${isSelected ? 'bg-game-green text-white border-white shadow' : 'bg-black/50 text-slate-300 border-white/15 hover:border-game-yellow'}">
-                    ${isSelected ? '✓ ' : ''}${labelPrefix}${opt}
-                  </button>
-                `;
-              }).join('')}
-            </div>
-          `;
-        } else if (q.type === 'isian') {
-          answerControlHtml = `
-            <div class="mt-2 flex items-center gap-2">
-              <span class="text-[11px] text-slate-300 font-bold">Kunci Jawaban:</span>
-              <input type="text" value="${q.correctAnswer || ''}" onchange="setStagedQuestionKey(${idx}, this.value.trim().toLowerCase())"
-                placeholder="Ketik kunci jawaban..." class="bg-black/60 border border-white/20 rounded-lg px-2.5 py-1 text-xs text-game-yellow font-bold outline-none">
-            </div>
-          `;
-        }
-
-        card.innerHTML = `
-          <div class="flex items-start justify-between gap-2">
-            <div class="font-cartoon text-xs md:text-sm font-bold text-white">#${idx + 1}. ${q.title}</div>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold whitespace-nowrap ${hasKey ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40' : 'bg-amber-500/20 text-amber-300 border border-amber-400/40'}">
-              ${hasKey ? '✓ Kunci Terisi' : '⚠️ Perlu Kunci Jawaban'}
-            </span>
-          </div>
-          ${answerControlHtml}
-          ${q.explanation ? `<div class="text-[10px] text-emerald-300/90 mt-1.5 italic">💡 ${q.explanation}</div>` : ''}
-        `;
-        list.appendChild(card);
-      });
-    }
-
-    function setStagedQuestionKey(qIdx, val) {
-      STATE.stagedImportQuestions[qIdx].correctAnswer = val;
-      renderStagedImportPreview();
-      SoundFx.playTone(523.25, 'sine', 0.08);
-    }
-
-    function autoFillMissingKeysWithSmartAssistant() {
-      const knowledgeHints = [
-        { keywords: ['menguap', 'cair menjadi gas'], matchOpt: 'menguap', exp: 'Penguapan adalah perubahan wujud zat dari cair menjadi gas akibat penyerapan kalor.' },
-        { keywords: ['kutai', 'hindu tertua'], matchOpt: 'kutai', exp: 'Kerajaan Kutai di Kalimantan Timur merupakan kerajaan Hindu tertua di Indonesia (abad ke-4 M).' },
-        { keywords: ['matahari', 'pusat'], matchOpt: 'benar', exp: 'Dalam sistem heliosentris, Matahari adalah bintang pusat tata surya.' },
-        { keywords: ['nusantara', 'ibukota'], matchOpt: 'nusantara', exp: 'Ibu Kota Nusantara (IKN) ditetapkan sebagai ibu kota negara baru di Kalimantan Timur.' },
-        { keywords: ['jupiter', 'terbesar'], matchOpt: 'jupiter', exp: 'Jupiter adalah planet dengan massa dan volume terbesar di tata surya.' }
-      ];
-
-      let filledCount = 0;
-      STATE.stagedImportQuestions.forEach(q => {
-        if (q.correctAnswer !== null && q.correctAnswer !== undefined && q.correctAnswer !== '') return;
-
-        const lowerTitle = q.title.toLowerCase();
-        const foundRule = knowledgeHints.find(h => h.keywords.some(kw => lowerTitle.includes(kw)));
-
-        if (q.type === 'pg' || q.type === 'bs') {
-          if (foundRule) {
-            const optIdx = q.options.findIndex(o => o.toLowerCase().includes(foundRule.matchOpt));
-            q.correctAnswer = optIdx !== -1 ? optIdx : 0;
-            q.explanation = foundRule.exp;
-          } else {
-            // Smart longest/most descriptive option heuristic fallback
-            let bestIdx = 0;
-            q.options.forEach((o, i) => {
-              if (o.length > (q.options[bestIdx] || '').length) bestIdx = i;
-            });
-            q.correctAnswer = bestIdx;
-            q.explanation = 'Kunci jawaban dideteksi oleh Asisten Pintar (dapat disesuaikan guru sebelum terbit).';
-          }
-          filledCount++;
-        } else if (q.type === 'isian') {
-          q.correctAnswer = foundRule ? foundRule.matchOpt : 'jawaban';
-          q.explanation = foundRule ? foundRule.exp : 'Kunci isian singkat terisi otomatis.';
-          filledCount++;
-        }
-      });
-
-      renderStagedImportPreview();
-      SoundFx.correct();
-      showToast('Asisten Pintar Selesai!', `${filledCount} kunci jawaban & pembahasan berhasil dilengkapi otomatis.`);
-    }
-
-    function commitImportedQuestions() {
-      if (STATE.stagedImportQuestions.length === 0) return;
-
-      const missing = STATE.stagedImportQuestions.filter(q => q.correctAnswer === null || q.correctAnswer === undefined || q.correctAnswer === '');
-      if (missing.length > 0) {
-        alert(`Masih ada ${missing.length} soal yang belum memiliki kunci jawaban. Silakan klik kunci jawaban atau tekan "Isi Kunci Otomatis (Asisten Pintar)".`);
-        return;
-      }
-
-      STATE.questions.push(...STATE.stagedImportQuestions);
-      persistStateToLocal();
-      pushQuestionsToCloud();
-      spawnQuestionCrystals();
-      renderTeacherDashboard();
-      closeImportStudioModal();
-      SoundFx.victory();
-      showToast('Soal Terbit ke 3D!', `${STATE.stagedImportQuestions.length} soal impor otomatis dikirim ke semua HP murid!`);
-    }
-
-    /* ====================================================================
-       14. EXPORT BANK SOAL & KUNCI JAWABAN (EXCEL .XLSX & WORD .DOC)
-       ==================================================================== */
-    function buildExportRowsFromQuestions(questionList) {
-      return questionList.map((q, idx) => {
-        let keyLabel = '';
-        if (q.type === 'pg') {
-          const letter = ['A', 'B', 'C', 'D'][q.correctAnswer] || 'A';
-          const text = (q.options && q.options[q.correctAnswer]) ? q.options[q.correctAnswer] : '';
-          keyLabel = `${letter} (${text})`;
-        } else if (q.type === 'bs') {
-          keyLabel = q.correctAnswer === 0 ? 'Benar' : 'Salah';
-        } else if (q.type === 'isian') {
-          keyLabel = String(q.correctAnswer || '');
-        } else if (q.type === 'jodoh') {
-          keyLabel = (q.pairs || []).map(p => `${p.left} = ${p.right}`).join('; ');
-        } else if (q.type === 'urut') {
-          keyLabel = (q.items || []).join(' -> ');
-        }
-
-        return {
-          No: idx + 1,
-          Tipe: q.type.toUpperCase(),
-          Alam_3D: q.world || 'kota',
-          Pertanyaan: q.title,
-          Opsi_A: q.options?.[0] || '',
-          Opsi_B: q.options?.[1] || '',
-          Opsi_C: q.options?.[2] || '',
-          Opsi_D: q.options?.[3] || '',
-          Kunci_Jawaban: keyLabel,
-          Pembahasan: q.explanation || ''
-        };
-      });
-    }
-
-    function exportQuestionsToExcel() {
-      if (typeof XLSX === 'undefined') {
-        alert('Library Excel sedang dimuat.');
-        return;
-      }
-      const rows = buildExportRowsFromQuestions(STATE.questions);
-      const ws = XLSX.utils.json_to_sheet(rows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Bank_Soal_dan_Kunci');
-      XLSX.writeFile(wb, `Soal_dan_Kunci_Kelas_${STATE.classCode}.xlsx`);
-      showToast('Ekspor Excel Sukses', 'Bank soal lengkap dengan kunci jawaban diunduh (.xlsx)');
-    }
-
-    function exportStagedQuestionsToExcel() {
-      if (typeof XLSX === 'undefined' || STATE.stagedImportQuestions.length === 0) return;
-      const rows = buildExportRowsFromQuestions(STATE.stagedImportQuestions);
-      const ws = XLSX.utils.json_to_sheet(rows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Hasil_Kunci_Pintar');
-      XLSX.writeFile(wb, `Hasil_Kunci_Jawaban_${STATE.classCode}.xlsx`);
-      showToast('Unduh Berhasil', 'Hasil soal & kunci jawaban berhasil disimpan ke Excel (.xlsx)');
-    }
-
-    function exportQuestionsToWordDoc() {
-      let html = `
-        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-        <head><meta charset='utf-8'><title>Naskah Soal & Kunci Jawaban</title></head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.5;">
-          <h2>NASKAH SOAL & KUNCI JAWABAN - PETUALANGAN BELAJAR 3D</h2>
-          <p><b>Kode Kelas:</b> ${STATE.classCode} | <b>Jumlah Soal:</b> ${STATE.questions.length} Butir</p>
-          <hr/>
-      `;
-
-      STATE.questions.forEach((q, idx) => {
-        html += `<p><b>${idx + 1}. ${q.title}</b></p>`;
-        if (q.type === 'pg' && q.options) {
-          html += `<ul>`;
-          q.options.forEach((opt, oIdx) => {
-            const isCorrect = q.correctAnswer === oIdx;
-            html += `<li>${['A', 'B', 'C', 'D'][oIdx]}. ${opt} ${isCorrect ? '<b>[KUNCI JAWABAN]</b>' : ''}</li>`;
-          });
-          html += `</ul>`;
-        } else if (q.type === 'bs') {
-          html += `<p><i>Kunci Jawaban:</i> <b>${q.correctAnswer === 0 ? 'Benar' : 'Salah'}</b></p>`;
-        } else if (q.type === 'isian') {
-          html += `<p><i>Kunci Jawaban:</i> <b>${q.correctAnswer}</b></p>`;
-        }
-        if (q.explanation) {
-          html += `<p style="color:#0f5132;"><i>Pembahasan: ${q.explanation}</i></p>`;
-        }
-      });
-
-      html += `</body></html>`;
-      const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Naskah_Soal_dan_Kunci_${STATE.classCode}.doc`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      showToast('Ekspor Word Sukses', 'Dokumen soal & kunci jawaban siap dibuka di Microsoft Word.');
-    }
-
-    function downloadGradesExcelXlsx() {
-      if (typeof XLSX === 'undefined') return;
-      const rows = STATE.gradebook.map((s, idx) => ({
-        Peringkat: idx + 1,
-        No_Absen: s.absen,
-        Nama_Siswa: s.name,
-        Nilai_Akhir: s.score,
-        Akurasi: s.accuracy,
-        Pos_Selesai: `${s.completed}/${s.total}`,
-        Status_Sync: s.syncStatus === 'pending_sync' ? 'Pending Offline' : 'Synced'
-      }));
-      const ws = XLSX.utils.json_to_sheet(rows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Rekap_Nilai_Rapor');
-      XLSX.writeFile(wb, `Rekap_Nilai_Rapor_${STATE.classCode}.xlsx`);
-      showToast('Unduh Excel Sukses', 'Rekap nilai rapor siswa berhasil diunduh (.xlsx)');
-    }
-
-    /* ====================================================================
-       15. SUPABASE CLOUD CONFIGURATION HANDLERS
-       ==================================================================== */
-    function saveSupabaseConfig() {
-      const rawUrl = document.getElementById('inputSupabaseUrl').value.trim();
-      const url = rawUrl.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
-      const key = document.getElementById('inputSupabaseKey').value.trim();
-      document.getElementById('inputSupabaseUrl').value = url;
-      STATE.supabaseConfig = { url, key };
-      localStorage.setItem(STORAGE_KEYS.SUPABASE, JSON.stringify(STATE.supabaseConfig));
-      const badge = document.getElementById('supabaseConnBadge');
-      if (url && key) {
-        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-game-green/20 text-game-green border border-game-green/40';
-        badge.innerText = '✓ Terhubung ke Cloud Supabase';
-        pushQuestionsToCloud();
-        flushSyncQueue(false);
-        fetchGradesFromCloud();
-        showToast('Supabase Tersimpan', 'Bank soal & nilai murid aktif tersinkronisasi ke Cloud!');
-      } else {
-        showToast('Lengkapi Data', 'Masukkan URL dan Anon Key Supabase Anda.');
-      }
-    }
-
-    function clearSupabaseConfig() {
-      STATE.supabaseConfig = { url: '', key: '' };
-      localStorage.removeItem(STORAGE_KEYS.SUPABASE);
-      document.getElementById('inputSupabaseUrl').value = '';
-      document.getElementById('inputSupabaseKey').value = '';
-      const badge = document.getElementById('supabaseConnBadge');
-      badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-400/40';
-      badge.innerText = 'Mode Penyimpanan Lokal + Antrean Otomatis Aktif';
-      showToast('Reset Berhasil', 'Kembali ke mode penyimpanan lokal.');
-    }
-
-    function copySupabaseSql() {
-      const sqlText = document.getElementById('supabaseSqlCode').innerText;
-      const ta = document.createElement('textarea');
-      ta.value = sqlText;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      ta.remove();
-      showToast('SQL Disalin', 'Silakan tempel di SQL Editor dashboard Supabase Anda.');
-    }
-
-    /* ====================================================================
-       16. PROJECTOR TV PODIUM JUARA 1, 2, 3
-       ==================================================================== */
-    function regenerateClassCode() {
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-      let code = '';
-      for (let i = 0; i < 6; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      STATE.classCode = code;
-      document.getElementById('teacherClassCodeDisplay').innerText = code;
-      showToast('Kode Baru', `Kode kelas berhasil diganti menjadi ${code}`);
-    }
-
-    function shareToWhatsApp() {
-      const text = encodeURIComponent(
-        `Halo Anak-anak! Ayo belajar sambil main game 3D Roblox Edukasi!\n` +
-        `🌐 Buka game di HP / Laptop (Gratis, tanpa akun)\n` +
-        `🔑 Masukkan Kode Kelas: *${STATE.classCode}*\n` +
-        `Kalian bisa jalan-jalan di Kota Ilmu, Candi Nusantara, dan raih podium juara!`
-      );
-      window.open(`https://wa.me/?text=${text}`, '_blank');
-    }
-
-    function exportQuestionsJson() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(STATE.questions, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `Bank_Soal_3D_${STATE.classCode}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-      showToast('Ekspor Berhasil', 'File bank soal JSON tersimpan');
-    }
-
-    function handleImportFile(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        try {
-          const parsed = JSON.parse(evt.target.result);
-          if (Array.isArray(parsed)) {
-            STATE.questions = parsed;
-            spawnQuestionCrystals();
-            renderTeacherDashboard();
-            showToast('Impor Sukses', `${parsed.length} Soal berhasil dimuat ke dalam game`);
-          } else {
-            alert('Format file JSON tidak sesuai struktur array soal.');
-          }
-        } catch (err) {
-          alert('Gagal membaca file JSON: ' + err.message);
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function downloadExcelCsv() {
-      let csvContent = "data:text/csv;charset=utf-8,";
-      csvContent += "No,No Absen,Nama Siswa,Skor Akhir,Akurasi,Status Pos,Waktu Tempuh\n";
-
-      STATE.gradebook.forEach((s, idx) => {
-        csvContent += `${idx + 1},${s.absen},"${s.name}",${s.score},${s.accuracy},${s.completed}/${s.total},${s.time}\n`;
-      });
-
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `Rekap_Nilai_Kelas_${STATE.classCode}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      showToast('Unduh Nilai', 'File CSV nilai siap dibuka di Microsoft Excel');
-    }
-
-    /* ====================================================================
-       14. PROJECTOR TV PODIUM JUARA 1, 2, 3
-       ==================================================================== */
-    function openPodiumProjector() {
-      const sorted = [...STATE.gradebook].sort((a, b) => b.score - a.score);
-      document.getElementById('projCode').innerText = STATE.classCode;
-
-      if (sorted[0]) {
-        document.getElementById('podium1Name').innerText = sorted[0].name;
-        document.getElementById('podium1Score').innerText = `Skor: ${sorted[0].score} • Juara 1`;
-      }
-      if (sorted[1]) {
-        document.getElementById('podium2Name').innerText = sorted[1].name;
-        document.getElementById('podium2Score').innerText = `Skor: ${sorted[1].score}`;
-      }
-      if (sorted[2]) {
-        document.getElementById('podium3Name').innerText = sorted[2].name;
-        document.getElementById('podium3Score').innerText = `Skor: ${sorted[2].score}`;
-      }
-
-      document.getElementById('projectorPodiumModal').classList.remove('hidden');
-      triggerPodiumConfetti();
-    }
-
-    function closePodiumProjector() {
-      document.getElementById('projectorPodiumModal').classList.add('hidden');
-    }
-
-    function triggerPodiumConfetti() {
-      SoundFx.victory();
-      confetti({
-        particleCount: 120,
-        spread: 80,
-        origin: { y: 0.5 }
-      });
-      setTimeout(() => {
-        confetti({
-          particleCount: 80,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 }
-        });
-        confetti({
-          particleCount: 80,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 }
-        });
-      }, 300);
-    }
-
-    /* ====================================================================
-       15. DIGITAL CERTIFICATE (PIAGAM JUARA)
-       ==================================================================== */
-    function openCertificateForStudent(name, score) {
-      document.getElementById('certStudentName').innerText = name.toUpperCase();
-      document.getElementById('certCode').innerText = STATE.classCode;
-      document.getElementById('certDetails').innerText = `Atas prestasi luar biasa dalam menyelesaikan Petualangan Belajar 3D dengan Nilai Akhir: ${score} poin.`;
-      document.getElementById('certificateModal').classList.remove('hidden');
-      SoundFx.playTone(659.25, 'triangle', 0.2);
-    }
-
-    function openBatchCertificateModal() {
-      openCertificateForStudent(STATE.gradebook[0]?.name || 'Siswa Terbaik', 100);
-    }
-
-    function closeCertificateModal() {
-      document.getElementById('certificateModal').classList.add('hidden');
-    }
-
-    function printCertificate() {
-      window.print();
-    }
-
-    /* ====================================================================
-       16. HELP & TOAST UTILITIES
-       ==================================================================== */
     function openHelpModal() {
       document.getElementById('helpModal').classList.remove('hidden');
     }
@@ -4247,17 +3636,20 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       document.getElementById('helpModal').classList.add('hidden');
     }
 
+    let toastHideTimer = null;
     function showToast(title, msg) {
       const toast = document.getElementById('toastNotification');
       document.getElementById('toastTitle').innerText = title;
       document.getElementById('toastMessage').innerText = msg;
-      toast.classList.remove('translate-y-[-150%]');
-      toast.classList.add('translate-y-0');
 
-      setTimeout(() => {
-        toast.classList.add('translate-y-[-150%]');
-        toast.classList.remove('translate-y-0');
-      }, 3000);
+      if (toastHideTimer) clearTimeout(toastHideTimer);
+      toast.classList.remove('-translate-y-[250%]', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      toastHideTimer = setTimeout(() => {
+        toast.classList.add('-translate-y-[250%]', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2800);
     }
 
     /* ====================================================================

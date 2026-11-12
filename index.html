@@ -1628,8 +1628,8 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
     }
 
     function checkCollisionAt(nx, nz) {
-      const playerR = 0.78;
-      if (Math.abs(nx) > 175 || Math.abs(nz) > 175) return true;
+      const playerR = 0.95;
+      if (Math.abs(nx) > 215 || Math.abs(nz) > 215) return true;
       for (let i = 0; i < STATE.solidColliders.length; i++) {
         const c = STATE.solidColliders[i];
         if (c.type === 'circle') {
@@ -1644,6 +1644,34 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         }
       }
       return false;
+    }
+
+    function pushOutOfColliders() {
+      const playerR = 0.95;
+      for (let i = 0; i < STATE.solidColliders.length; i++) {
+        const c = STATE.solidColliders[i];
+        if (c.type === 'circle') {
+          const dx = playerPos.x - c.x;
+          const dz = playerPos.z - c.z;
+          const dist = Math.hypot(dx, dz);
+          const minD = playerR + c.radius;
+          if (dist < minD) {
+            const ang = dist > 0.001 ? Math.atan2(dz, dx) : 0;
+            playerPos.x = c.x + Math.cos(ang) * (minD + 0.02);
+            playerPos.z = c.z + Math.sin(ang) * (minD + 0.02);
+          }
+        } else if (c.type === 'box') {
+          const overlapX = (c.halfW + playerR) - Math.abs(playerPos.x - c.x);
+          const overlapZ = (c.halfD + playerR) - Math.abs(playerPos.z - c.z);
+          if (overlapX > 0 && overlapZ > 0) {
+            if (overlapX < overlapZ) {
+              playerPos.x += playerPos.x >= c.x ? overlapX + 0.02 : -(overlapX + 0.02);
+            } else {
+              playerPos.z += playerPos.z >= c.z ? overlapZ + 0.02 : -(overlapZ + 0.02);
+            }
+          }
+        }
+      }
     }
 
     function getGroundElevationAt(px, pz, currentY) {
@@ -1693,7 +1721,7 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
       group.position.set(x, 0, z);
       scene.add(group);
       worldMeshes.push(group);
-      registerBoxCollider(x, z, 3.05, 3.05);
+      registerBoxCollider(x, z, 3.1, 3.1);
     }
 
     function buildCitySkyscraper(x, z, width, depth, height, wallColor) {
@@ -1728,55 +1756,7 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
       group.position.set(x, 0, z);
       scene.add(group);
       worldMeshes.push(group);
-      registerBoxCollider(x, z, width / 2 + 0.2, depth / 2 + 0.2);
-    }
-        }
-      }
-      return false;
-    }
-
-    function getGroundElevationAt(px, pz, currentY) {
-      let highest = 0;
-      for (let i = 0; i < STATE.climbableBoxes.length; i++) {
-        const b = STATE.climbableBoxes[i];
-        if (Math.abs(px - b.x) <= b.halfW + 0.35 && Math.abs(pz - b.z) <= b.halfD + 0.35) {
-          if (currentY + 0.85 >= b.topY && b.topY > highest) {
-            highest = b.topY;
-          }
-        }
-      }
-      return highest;
-    }
-
-    function clearOldWorld() {
-      worldMeshes.forEach(m => scene.remove(m));
-      worldMeshes = [];
-      animatedCars = [];
-      animatedCreatures = [];
-      STATE.solidColliders = [];
-      STATE.climbableBoxes = [];
-    }
-
-    function buildCartoonHouse(x, z, wallColor, roofColor) {
-      const group = new THREE.Group();
-      const body = new THREE.Mesh(new THREE.BoxGeometry(5.5, 3.6, 5.5), new THREE.MeshLambertMaterial({ color: wallColor }));
-      body.position.y = 1.8;
-      body.castShadow = true;
-      body.receiveShadow = true;
-
-      const roof = new THREE.Mesh(new THREE.ConeGeometry(4.4, 2.6, 4), new THREE.MeshLambertMaterial({ color: roofColor }));
-      roof.position.y = 4.9;
-      roof.rotation.y = Math.PI / 4;
-      roof.castShadow = true;
-
-      const door = new THREE.Mesh(new THREE.BoxGeometry(1.1, 2.0, 0.2), new THREE.MeshLambertMaterial({ color: 0x451a03 }));
-      door.position.set(0, 1.0, 2.8);
-
-      group.add(body, roof, door);
-      group.position.set(x, 0, z);
-      scene.add(group);
-      worldMeshes.push(group);
-      registerBoxCollider(x, z, 2.85, 2.85);
+      registerBoxCollider(x, z, width / 2 + 0.25, depth / 2 + 0.25);
     }
 
     function buildCartoonCar(orbitRadius, yPos, initialAngle, carColor) {
@@ -1877,10 +1857,10 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
       if (worldType === 'kota') {
         scene.background = new THREE.Color(0x38bdf8);
         scene.fog.color.set(0x7dd3fc);
-        scene.fog.density = 0.0045;
+        scene.fog.density = 0.0038;
 
         const ground = new THREE.Mesh(
-          new THREE.PlaneGeometry(420, 420),
+          new THREE.PlaneGeometry(480, 480),
           new THREE.MeshLambertMaterial({ color: 0x166534 })
         );
         ground.rotation.x = -Math.PI / 2;
@@ -1929,7 +1909,7 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         worldMeshes.push(roadMark);
 
         const avenueX = new THREE.Mesh(
-          new THREE.PlaneGeometry(360, 9.5),
+          new THREE.PlaneGeometry(440, 10.5),
           new THREE.MeshLambertMaterial({ color: 0x1e293b })
         );
         avenueX.rotation.x = -Math.PI / 2;
@@ -1938,7 +1918,7 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         worldMeshes.push(avenueX);
 
         const avenueZ = new THREE.Mesh(
-          new THREE.PlaneGeometry(9.5, 360),
+          new THREE.PlaneGeometry(10.5, 440),
           new THREE.MeshLambertMaterial({ color: 0x1e293b })
         );
         avenueZ.rotation.x = -Math.PI / 2;
@@ -1946,7 +1926,7 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         scene.add(avenueZ);
         worldMeshes.push(avenueZ);
 
-        // City Skyscrapers & Commercial Towers
+        // City Skyscrapers, School & Commercial Towers
         const towerCoords = [
           [-58, -58, 11, 11, 24, 0x3b82f6],
           [58, -58, 12, 10, 28, 0x6366f1],
@@ -1954,10 +1934,14 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
           [64, 24, 11, 11, 22, 0x8b5cf6],
           [-64, 84, 12, 12, 26, 0x2563eb],
           [64, 84, 11, 11, 21, 0x0284c7],
-          [-108, -28, 12, 12, 30, 0x475569],
-          [108, -28, 12, 12, 26, 0x334155],
-          [-108, 34, 11, 11, 24, 0x1d4ed8],
-          [108, 34, 11, 11, 28, 0x4f46e5]
+          [-112, -28, 12, 12, 30, 0x475569],
+          [112, -28, 12, 12, 26, 0x334155],
+          [-112, 34, 11, 11, 24, 0x1d4ed8],
+          [112, 34, 11, 11, 28, 0x4f46e5],
+          [-126, -96, 13, 13, 32, 0x0f766e],
+          [126, -96, 13, 13, 28, 0x1e40af],
+          [-126, 108, 13, 13, 26, 0x6d28d9],
+          [126, 108, 13, 13, 30, 0x0369a1]
         ];
         towerCoords.forEach(([bx, bz, bw, bd, bh, bc]) => buildCitySkyscraper(bx, bz, bw, bd, bh, bc));
 
@@ -1976,17 +1960,19 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
           [-44, 106, 0xfef3c7, 0xea580c],
           [44, 106, 0xdcfce7, 0x16a34a],
           [-102, -74, 0xfce7f3, 0xdb2777],
-          [102, -74, 0xe0f2fe, 0x0284c7]
+          [102, -74, 0xe0f2fe, 0x0284c7],
+          [-84, 126, 0xfef3c7, 0xd97706],
+          [84, 126, 0xdcfce7, 0x15803d]
         ];
         houseCoords.forEach(([hx, hz, wc, rc]) => buildCartoonHouse(hx, hz, wc, rc));
 
         // Park Trees & Street Lamps
-        for (let i = 0; i < 64; i++) {
-          const ang = (i / 64) * Math.PI * 2 + 0.08;
-          const dist = i % 3 === 0 ? 43 : (i % 3 === 1 ? 74 : 118);
+        for (let i = 0; i < 84; i++) {
+          const ang = (i / 84) * Math.PI * 2 + 0.08;
+          const dist = i % 4 === 0 ? 43 : (i % 4 === 1 ? 74 : (i % 4 === 2 ? 118 : 154));
           const tx = Math.cos(ang) * dist;
           const tz = Math.sin(ang) * dist;
-          if (Math.abs(tz - 54) < 9 || Math.abs(tz) < 8 || Math.abs(tx) < 8) continue;
+          if (Math.abs(tz - 54) < 9 || Math.abs(tz) < 9 || Math.abs(tx) < 9) continue;
           const tree = new THREE.Group();
           const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.46, 3.0, 8), new THREE.MeshLambertMaterial({ color: 0x78350f }));
           trunk.position.y = 1.5;
@@ -2000,13 +1986,19 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
           tree.position.set(tx, 0, tz);
           scene.add(tree);
           worldMeshes.push(tree);
-          registerCircleCollider(tx, tz, 0.65);
+          registerCircleCollider(tx, tz, 0.72);
 
-          if (i % 4 === 0) {
+          if (i % 7 === 0) {
             const lamp = new THREE.Group();
-            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 4.4, 8), new THREE.MeshLambertMaterial({ color: 0x0f172a }));
+            const pole = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.12, 0.16, 4.4, 8),
+              new THREE.MeshLambertMaterial({ color: 0x0f172a })
+            );
             pole.position.y = 2.2;
-            const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.34, 8, 8), new THREE.MeshBasicMaterial({ color: 0xfef08a }));
+            const bulb = new THREE.Mesh(
+              new THREE.SphereGeometry(0.32, 8, 8),
+              new THREE.MeshBasicMaterial({ color: 0xfef08a })
+            );
             bulb.position.y = 4.5;
             lamp.add(pole, bulb);
             const lx = Math.cos(ang) * 29.2;
@@ -2339,7 +2331,7 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         const gemColor = !isAnswered ? 0xFFD027 : (isRight ? 0x00D664 : 0xFF4757);
         const gemEmissive = !isAnswered ? 0x785900 : (isRight ? 0x006630 : 0x661420);
 
-        const gemGeo = new THREE.OctahedronGeometry(1.55, 0);
+        const gemGeo = new THREE.OctahedronGeometry(1.65, 0);
         const gemMat = new THREE.MeshLambertMaterial({
           color: gemColor,
           emissive: gemEmissive,
@@ -2350,15 +2342,15 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         gem.castShadow = true;
         gem.userData = { questionId: q.id };
 
-        const beamGeo = new THREE.CylinderGeometry(0.28, 0.85, 28, 12, 1, true);
+        const beamGeo = new THREE.CylinderGeometry(0.35, 1.05, 42, 12, 1, true);
         const beamMat = new THREE.MeshBasicMaterial({
           color: gemColor,
           transparent: true,
-          opacity: 0.24,
+          opacity: 0.28,
           side: THREE.DoubleSide
         });
         const beam = new THREE.Mesh(beamGeo, beamMat);
-        beam.position.y = 14;
+        beam.position.y = 21;
         beam.userData = { questionId: q.id };
 
         const base = new THREE.Mesh(
@@ -2564,14 +2556,15 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
           const vz = (-cosCam * normF - sinCam * normS) * speed;
 
           // Sub-stepped collision check so character never tunnels through walls/obstacles
-          const subSteps = 3;
+          const subSteps = 6;
           const stepVx = vx / subSteps;
           const stepVz = vz / subSteps;
           for (let s = 0; s < subSteps; s++) {
-            const nextX = Math.max(-174, Math.min(174, playerPos.x + stepVx));
-            const nextZ = Math.max(-174, Math.min(174, playerPos.z + stepVz));
+            const nextX = Math.max(-214, Math.min(214, playerPos.x + stepVx));
+            const nextZ = Math.max(-214, Math.min(214, playerPos.z + stepVz));
             if (!checkCollisionAt(nextX, playerPos.z)) playerPos.x = nextX;
             if (!checkCollisionAt(playerPos.x, nextZ)) playerPos.z = nextZ;
+            pushOutOfColliders();
           }
 
           avatarGroup.rotation.y = Math.atan2(vx, vz);
@@ -2659,10 +2652,10 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
     function updateRadarMarkers() {
       const layer = document.getElementById('radarMarkersLayer');
       if (!layer) return;
-      const radarRange = 135;
+      const radarRange = 140;
 
-      // Camera forward vector on XZ plane is (-sin(cameraAngle), -cos(cameraAngle))
-      // Camera right vector on XZ plane is (cos(cameraAngle), -sin(cameraAngle))
+      // Camera forward vector on XZ plane: (-sin(cameraAngle), -cos(cameraAngle))
+      // Camera right vector on XZ plane: (cos(cameraAngle), -sin(cameraAngle))
       const sinCam = Math.sin(cameraAngle);
       const cosCam = Math.cos(cameraAngle);
 
@@ -2671,19 +2664,24 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         const dx = c.pos.x - playerPos.x;
         const dz = c.pos.z - playerPos.z;
 
-        const rightDist = (dx * cosCam - dz * sinCam) / radarRange;
-        const forwardDist = (-dx * sinCam - dz * cosCam) / radarRange;
+        const rightNorm = (dx * cosCam - dz * sinCam) / radarRange;
+        const forwardNorm = (-dx * sinCam - dz * cosCam) / radarRange;
 
-        const distRatio = Math.hypot(rightDist, forwardDist);
-        const clamped = Math.min(0.86, distRatio);
-        const ang = Math.atan2(-forwardDist, rightDist);
+        const distRatio = Math.hypot(rightNorm, forwardNorm);
+        let nx = rightNorm;
+        let ny = forwardNorm;
+        if (distRatio > 1) {
+          nx = rightNorm / distRatio;
+          ny = forwardNorm / distRatio;
+        }
 
-        const px = 50 + Math.cos(ang) * clamped * 44;
-        const py = 50 + Math.sin(ang) * clamped * 44;
+        // Map directly onto radar circle (center = 50%, 50%; top = forward/DEPAN)
+        const px = 50 + nx * 42;
+        const py = 50 - ny * 42;
 
         const detail = STATE.student.answeredDetails[c.question.id];
         const dotColor = !detail ? 'bg-game-yellow' : (detail.isCorrect ? 'bg-game-green' : 'bg-game-coral');
-        html += `<span style="left:${px}%;top:${py}%" class="absolute -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full ${dotColor} ring-1 ring-slate-950 shadow"></span>`;
+        html += `<span style="left:${px.toFixed(1)}%;top:${py.toFixed(1)}%" class="absolute -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full ${dotColor} ring-1 ring-slate-950 shadow"></span>`;
       });
       layer.innerHTML = html;
     }

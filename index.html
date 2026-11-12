@@ -3492,6 +3492,13 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
           let rawText = '';
           if (ext === 'docx' && window.mammoth) {
             const buf = await file.arrayBuffer();
+            const htmlRes = await mammoth.convertToHtml({ arrayBuffer: buf });
+            const tableParsed = parseWordHtmlTablesToStaged(htmlRes.value);
+            if (tableParsed.length > 0) {
+              STATE.stagedImportQuestions = tableParsed;
+              renderStagedPreview();
+              return;
+            }
             const res = await mammoth.extractRawText({ arrayBuffer: buf });
             rawText = res.value;
           } else {
@@ -3502,6 +3509,125 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
       } catch (err) {
         showToast('Gagal Membaca File', 'Pastikan format file Excel/Word tidak rusak.');
       }
+    }
+
+    function extractPromptOptionsAndAnswer(questionCellText, answerCellText) {
+      // Split inline or newline options like "a. ... b. ... c. ... d. ..."
+      const normalized = String(questionCellText || '')
+        .replace(/^\d+[\.\)]\s*/, '')
+        .replace(/\s+([a-dA-D][\.\)])\s+/g, '\n$1 ')
+        .replace(/([^\s\n])([a-dA-D][\.\)]\s+)/g, '$1\n$2');
+
+      const lines = normalized.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const promptLines = [];
+      const opts = [];
+
+      lines.forEach(line => {
+        const optMatch = line.match(/^([a-dA-D])[\.\)]\s*(.+)$/);
+        if (optMatch) {
+          opts.push(optMatch[2].trim());
+        } else if (opts.length === 0) {
+          promptLines.push(line);
+        }
+      });
+
+      const prompt = promptLines.join(' ').trim();
+      const rawAns = STATE.importMode === 'pintar' ? '' : String(answerCellText || '').trim();
+
+      if (opts.length >= 2) {
+        let ansIdx = -1;
+        if (rawAns) {
+          const letterMatch = rawAns.match(/^([a-dA-D])(?:[\.\)\s\-:]|$)/);
+          if (letterMatch) {
+            ansIdx = ['A', 'B', 'C', 'D'].indexOf(letterMatch[1].toUpperCase());
+          }
+          if (ansIdx === -1) {
+            const cleanAnsText = rawAns.replace(/^[a-dA-D][\.\)]\s*/, '').toLowerCase();
+            ansIdx = opts.findIndex(o => o.toLowerCase() === cleanAnsText || o.toLowerCase().includes(cleanAnsText));
+          }
+        }
+        return {
+          type: 'pg',
+          world: 'kota',
+          prompt,
+          options: opts,
+          answer: ansIdx !== -1 ? ansIdx : 0,
+          missingKey: ansIdx === -1,
+          explanation: rawAns ? `Kunci jawaban: ${rawAns}` : ''
+        };
+      }
+
+      const upperAns = rawAns.toUpperCase();
+      if (upperAns === 'BENAR' || upperAns === 'SALAH') {
+        return {
+          type: 'bs',
+          world: 'nusantara',
+          prompt,
+          answer: upperAns === 'BENAR',
+          missingKey: false,
+          explanation: ''
+        };
+      }
+
+      return {
+        type: 'isian',
+        world: 'kota',
+        prompt,
+        answer: rawAns || 'jawaban',
+        missingKey: !rawAns,
+        explanation: ''
+      };
+    }
+
+    function parseWordHtmlTablesToStaged(htmlString) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlString, 'text/html');
+      const rows = Array.from(doc.querySelectorAll('table tr'));
+      if (rows.length === 0) return [];
+
+      const parsed = [];
+      rows.forEach((tr, idx) => {
+        const cells = Array.from(tr.querySelectorAll('td, th'));
+        if (cells.length === 0) return;
+
+        // Preserve paragraph/line breaks inside table cells
+        const getCellText = (cell) => {
+          const cloned = cell.cloneNode(true);
+          cloned.querySelectorAll('p, br, li, div').forEach(el => {
+            el.insertAdjacentText('beforebegin', '\n');
+          });
+          return cloned.textContent.trim();
+        };
+
+        const col1 = getCellText(cells[0]);
+        const col2 = cells[1] ? getCellText(cells[1]) : '';
+
+        // Skip table header rows like "Soal Pilihan Ganda | Kunci Jawaban"
+        const headerCheck = col1.toLowerCase();
+        if (
+          idx === 0 &&
+          (headerCheck.includes('soal pilihan') || headerCheck.includes('pertanyaan') || headerCheck === 'no' || headerCheck === 'soal')
+        ) {
+          return;
+        }
+        if (!col1) return;
+
+        // Handle 3-column tables (No | Soal | Kunci) as well as 2-column tables (Soal | Kunci)
+        const soalText = (cells.length >= 3 && /^\d+[\.\)]?$/.test(col1)) ? col2 : col1;
+        const kunciText = (cells.length >= 3 && /^\d+[\.\)]?$/.test(col1))
+          ? (cells[2] ? getCellText(cells[2]) : '')
+          : col2;
+
+        const item = extractPromptOptionsAndAnswer(soalText, kunciText);
+        if (item.prompt) {
+          parsed.push({
+            id: `imp_wt_${Date.now()}_${idx}`,
+            ...item
+          });
+        }
+      });
+
+      return parsed;
     }
 
     function parseExcelRowsToStaged(rows) {
@@ -3556,40 +3682,25 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
 
     function parseWordTextToStaged(text) {
       const blocks = text.split(/\n\s*\d+[\.\)]\s+/).map(b => b.trim()).filter(Boolean);
-      const parsed = blocks.map((blk, idx) => {
+      const parsed = [];
+      blocks.forEach((blk, idx) => {
+        if (idx === 0 && /^soal pilihan ganda/i.test(blk)) return;
         const lines = blk.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-        const prompt = lines[0] || `Soal #${idx + 1}`;
-        const opts = [];
-        let keyLetter = '';
-        lines.slice(1).forEach(line => {
-          const optMatch = line.match(/^([A-D])[\.\)]\s*(.+)$/i);
-          const keyMatch = line.match(/^kunci\s*[:\-]\s*(.+)$/i);
-          if (optMatch) opts.push(optMatch[2].trim());
-          else if (keyMatch) keyLetter = keyMatch[1].trim().toUpperCase();
+        let keyText = '';
+        const contentLines = [];
+        lines.forEach(line => {
+          const keyMatch = line.match(/^(?:kunci(?:\s*jawaban)?|jawaban)\s*[:\-]\s*(.+)$/i);
+          if (keyMatch) keyText = keyMatch[1].trim();
+          else contentLines.push(line);
         });
 
-        if (opts.length >= 2) {
-          const kIdx = STATE.importMode === 'pintar' ? -1 : ['A', 'B', 'C', 'D'].indexOf(keyLetter);
-          return {
+        const item = extractPromptOptionsAndAnswer(contentLines.join('\n'), keyText);
+        if (item.prompt) {
+          parsed.push({
             id: `imp_w_${Date.now()}_${idx}`,
-            type: 'pg',
-            world: 'kota',
-            prompt,
-            options: opts,
-            answer: kIdx !== -1 ? kIdx : 0,
-            missingKey: kIdx === -1,
-            explanation: ''
-          };
+            ...item
+          });
         }
-        return {
-          id: `imp_w_${Date.now()}_${idx}`,
-          type: 'bs',
-          world: 'nusantara',
-          prompt,
-          answer: keyLetter === 'SALAH' ? false : true,
-          missingKey: !keyLetter || STATE.importMode === 'pintar',
-          explanation: ''
-        };
       });
       STATE.stagedImportQuestions = parsed;
       renderStagedPreview();

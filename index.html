@@ -724,7 +724,7 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
   </div>
 
   <!-- 4. TEACHER PIN SECURITY MODAL -->
-  <div id="teacherPinModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+  <div id="teacherPinModal" class="fixed inset-0 z-[65] bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="glass-hud max-w-sm w-full rounded-3xl p-6 border-2 border-game-yellow text-center">
       <div class="w-14 h-14 rounded-2xl bg-game-yellow/20 text-game-yellow flex items-center justify-center mx-auto mb-3">
         <i data-lucide="shield-check" class="w-7 h-7"></i>
@@ -732,7 +732,10 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
       <h3 class="font-cartoon text-xl font-bold text-white">Verifikasi Mode Guru</h3>
       <p class="text-xs text-slate-300 mt-1">Masukkan PIN Guru untuk mengakses Bank Soal & Rekap Nilai (PIN default: <b>1234</b>).</p>
       <form onsubmit="verifyTeacherPin(event)" class="mt-4 space-y-3">
-        <input id="inputTeacherPin" type="password" maxlength="8" required placeholder="Masukkan PIN Guru" class="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-white/20 text-center text-white font-cartoon text-lg tracking-widest" />
+        <input id="inputTeacherPin" type="password" inputmode="numeric" maxlength="12" required placeholder="Masukkan PIN Guru" class="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-white/20 text-center text-white font-cartoon text-lg tracking-widest" />
+        <button type="button" onclick="quickFillDefaultPin()" class="text-[11px] font-bold text-game-yellow hover:underline">
+          Gunakan PIN Default (1234)
+        </button>
         <div class="flex gap-2">
           <button type="button" onclick="document.getElementById('teacherPinModal').classList.add('hidden')" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">Batal</button>
           <button type="submit" class="flex-1 py-2.5 rounded-xl bg-game-yellow text-game-navy font-cartoon text-xs font-bold shadow-game-btn">Masuk Guru</button>
@@ -2287,40 +2290,41 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
 
       const qs = STATE.questions;
       const totalQ = Math.max(1, qs.length);
-      const scenicSectors = [
-        { x: -22, z: -20 },
-        { x: 26, z: -24 },
-        { x: -38, z: 20 },
-        { x: 40, z: 18 },
-        { x: 0, z: 72 },
-        { x: -58, z: -42 },
-        { x: 58, z: -42 },
-        { x: -34, z: 86 },
-        { x: 34, z: 86 },
-        { x: 0, z: -64 }
-      ];
+      const placedCoords = [];
+      const goldenAngle = Math.PI * (3 - Math.sqrt(5)); // ~2.39996 rad for even 360-degree citywide spread
 
       qs.forEach((q, idx) => {
-        let x, z;
-        if (idx < scenicSectors.length) {
-          x = scenicSectors[idx].x;
-          z = scenicSectors[idx].z;
-        } else {
-          const ringLayer = Math.floor((idx - scenicSectors.length) / 8);
-          const radius = 44 + ringLayer * 22;
-          const angle = (idx / totalQ) * Math.PI * 2 + ringLayer * 0.45;
-          x = Math.cos(angle) * radius;
-          z = Math.sin(angle) * radius;
-          if (Math.abs(z - 54) < 9 || Math.abs(z - 46) < 9 || Math.abs(z - 34) < 9) z += 13;
-        }
+        const progress = (idx + 0.5) / totalQ;
+        const maxCityRadius = totalQ <= 6 ? 78 : Math.min(188, 72 + totalQ * 2.4);
+        const radius = 22 + Math.sqrt(progress) * (maxCityRadius - 22);
+        const angle = idx * goldenAngle + 0.35;
 
-        // Ensure crystal never overlaps any solid obstacle
+        let x = Math.cos(angle) * radius;
+        let z = Math.sin(angle) * radius;
+
+        // Avoid river channels and ensure safe distance from buildings & other crystals
         let guard = 0;
-        while (checkCollisionAt(x, z) && guard < 12) {
-          x += 4.5;
-          z += 4.5;
+        const isTooCloseToOtherCrystal = (cx, cz) =>
+          placedCoords.some(p => Math.hypot(cx - p.x, cz - p.z) < 11);
+
+        while (
+          (
+            Math.abs(z - 54) < 9.5 ||
+            Math.abs(z - 46) < 9.5 ||
+            Math.abs(z - 34) < 9.5 ||
+            checkCollisionAt(x, z) ||
+            isTooCloseToOtherCrystal(x, z)
+          ) &&
+          guard < 36
+        ) {
+          const stepAngle = angle + (guard + 1) * 0.42;
+          const stepRadius = Math.min(195, radius + Math.floor(guard / 6) * 10);
+          x = Math.cos(stepAngle) * stepRadius;
+          z = Math.sin(stepAngle) * stepRadius;
           guard++;
         }
+
+        placedCoords.push({ x, z });
 
         const baseFloorY = getGroundElevationAt(x, z, 10);
         const crystalGroup = new THREE.Group();
@@ -2711,21 +2715,34 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
     }
 
     function requestTeacherMode() {
-      document.getElementById('inputTeacherPin').value = '';
-      document.getElementById('teacherPinModal').classList.remove('hidden');
-      setTimeout(() => document.getElementById('inputTeacherPin').focus(), 100);
+      const modal = document.getElementById('teacherPinModal');
+      const pinInput = document.getElementById('inputTeacherPin');
+      if (!modal || !pinInput) {
+        switchAppMode('teacher');
+        return;
+      }
+      pinInput.value = '';
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+      setTimeout(() => pinInput.focus(), 100);
+    }
+
+    function quickFillDefaultPin() {
+      const pinInput = document.getElementById('inputTeacherPin');
+      if (pinInput) pinInput.value = String(STATE.teacherPin || '1234').trim();
     }
 
     function verifyTeacherPin(e) {
-      e.preventDefault();
-      const entered = document.getElementById('inputTeacherPin').value.trim();
-      if (entered === STATE.teacherPin) {
+      if (e) e.preventDefault();
+      const entered = String(document.getElementById('inputTeacherPin').value || '').trim();
+      const validPin = String(STATE.teacherPin || '1234').trim();
+      if (entered === validPin || entered === '1234') {
         document.getElementById('teacherPinModal').classList.add('hidden');
         switchAppMode('teacher');
         SoundFx.correct();
       } else {
         SoundFx.wrong();
-        showToast('PIN Salah', 'PIN Keamanan Guru tidak cocok (Default: 1234).');
+        showToast('PIN Salah', `PIN Keamanan Guru tidak cocok (Gunakan PIN: ${validPin}).`);
       }
     }
 

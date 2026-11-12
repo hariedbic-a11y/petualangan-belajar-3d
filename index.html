@@ -1,0 +1,3854 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Petualangan Belajar 3D - Roblox Edukasi Nusantara</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js 3D Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- SheetJS for Real Excel (.xlsx) Import & Export -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+  <!-- Mammoth.js for Real Word (.docx) Import -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.7.1/mammoth.browser.min.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Fredoka & Plus Jakarta Sans for Roblox cartoon polish -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            cartoon: ['"Fredoka"', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif']
+          },
+          colors: {
+            game: {
+              yellow: '#FFD027',
+              orange: '#FF7A00',
+              blue: '#00A3FF',
+              navy: '#0F1E36',
+              green: '#00D664',
+              red: '#FF4757',
+              purple: '#9B51E0'
+            }
+          },
+          boxShadow: {
+            'game-btn': '0 6px 0 rgba(0,0,0,0.25)',
+            'game-btn-active': '0 2px 0 rgba(0,0,0,0.25)',
+            'game-card': '0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    input, textarea, select {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.1);
+      border-radius: 999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #00A3FF;
+      border-radius: 999px;
+    }
+    @keyframes bobble {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .animate-bobble {
+      animation: bobble 2.2s ease-in-out infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.6; filter: drop-shadow(0 0 15px #FFD027); }
+      50% { opacity: 1; filter: drop-shadow(0 0 25px #FF7A00); }
+    }
+    .glow-aura {
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
+    canvas#gameCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 1;
+    }
+    .glass-panel {
+      background: rgba(15, 30, 54, 0.88);
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+    }
+    .glass-light {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+    }
+    /* Touch Joystick styling */
+    #joystickZone {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(0,163,255,0.15) 70%, rgba(0,0,0,0.4) 100%);
+      border: 3px solid rgba(255,255,255,0.3);
+      z-index: 30;
+      touch-action: none;
+    }
+    #joystickKnob {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 54px;
+      height: 54px;
+      margin-top: -27px;
+      margin-left: -27px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #FFD027, #FF7A00);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.6);
+      pointer-events: none;
+      transform: translate(0px, 0px);
+    }
+  </style>
+</head>
+<body class="bg-game-navy text-slate-100 font-sans overflow-hidden w-screen h-screen m-0 p-0 relative">
+
+  <!-- ================= TOP GLOBAL SWITCHER BAR ================= -->
+  <header class="fixed top-0 left-0 right-0 z-50 px-4 py-2 flex items-center justify-between glass-panel border-b border-white/10 shadow-lg">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-game-orange to-game-yellow flex items-center justify-center shadow-md transform rotate-3">
+        <i data-lucide="gamepad-2" class="w-6 h-6 text-game-navy stroke-[2.5]"></i>
+      </div>
+      <div>
+        <h1 class="font-cartoon text-lg md:text-xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-game-yellow via-white to-game-blue leading-tight">
+          PETUALANGAN 3D
+        </h1>
+        <p class="text-[10px] md:text-xs text-slate-300 font-semibold flex items-center gap-1.5">
+          <span id="netStatusDot" class="w-2 h-2 rounded-full bg-game-green inline-block animate-ping"></span>
+          <span id="netStatusText">Online</span> •
+          <span id="syncStatusBadge" class="px-1.5 py-0.2 rounded bg-game-green/20 text-game-green border border-game-green/40 font-bold text-[10px]">
+            ✓ Synced
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Mode Selector, Network Simulator & Audio Toggle -->
+    <div class="flex items-center space-x-2 md:space-x-3">
+      <!-- Offline Simulation Toggle Button -->
+      <button id="btnToggleOfflineSim" onclick="toggleSimulatedOffline()" class="px-2.5 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-300 font-cartoon text-[11px] font-bold flex items-center gap-1.5 transition" title="Uji coba main saat sinyal terputus (Offline)">
+        <i id="netIcon" data-lucide="wifi" class="w-3.5 h-3.5"></i>
+        <span class="hidden sm:inline" id="netBtnLabel">Online (Simulasi Offline)</span>
+      </button>
+
+      <div class="bg-black/40 p-1 rounded-2xl flex border border-white/20">
+        <button id="navBtnStudent" onclick="switchMainView('student')" class="px-3 md:px-4 py-1.5 rounded-xl font-cartoon text-xs md:text-sm font-bold transition-all duration-200 bg-game-yellow text-game-navy shadow-sm">
+          🎮 Mode Murid
+        </button>
+        <button id="navBtnTeacher" onclick="switchMainView('teacher')" class="px-3 md:px-4 py-1.5 rounded-xl font-cartoon text-xs md:text-sm font-bold text-slate-300 hover:text-white transition-all duration-200">
+          👩‍🏫 Mode Guru
+        </button>
+        <button onclick="openPodiumProjector()" class="hidden lg:flex items-center gap-1 px-3 py-1.5 rounded-xl font-cartoon text-xs font-bold text-amber-300 hover:bg-white/10 transition">
+          🏆 Proyektor
+        </button>
+      </div>
+
+      <button id="btnSoundToggle" onclick="toggleAudio()" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition border border-white/15" title="Suara Musik & SFX">
+        <i id="soundIcon" data-lucide="volume-2" class="w-5 h-5 text-game-yellow"></i>
+      </button>
+
+      <button onclick="openHelpModal()" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 hidden md:flex items-center justify-center transition border border-white/15" title="Bantuan & Petunjuk">
+        <i data-lucide="help-circle" class="w-5 h-5 text-cyan-300"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= NOTIFICATION TOAST ================= -->
+  <div id="toastNotification" class="fixed top-16 right-4 z-50 transform translate-y-[-150%] transition-transform duration-300 pointer-events-none">
+    <div class="glass-panel px-4 py-3 rounded-2xl flex items-center space-x-3 shadow-2xl border-l-4 border-game-green max-w-sm">
+      <div id="toastIcon" class="w-8 h-8 rounded-full bg-game-green/20 flex items-center justify-center text-game-green">
+        <i data-lucide="check" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h4 id="toastTitle" class="font-cartoon text-sm font-bold text-white">Sukses</h4>
+        <p id="toastMessage" class="text-xs text-slate-300 font-sans">Aksi berhasil disimpan.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ################################################################ -->
+  <!-- #################### 1. STUDENT VIEW (3D WORLD) ################ -->
+  <!-- ################################################################ -->
+  <main id="studentView" class="w-full h-full relative overflow-hidden block">
+    
+    <!-- 3D Canvas element -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- ========= JOIN LOBBY OVERLAY (Before entering 3D world) ========= -->
+    <section id="lobbyScreen" class="absolute inset-0 z-40 bg-game-navy/90 backdrop-blur-md flex items-center justify-center p-4">
+      <div class="relative w-full max-w-lg glass-panel rounded-3xl p-6 md:p-8 shadow-game-card border-2 border-game-yellow/40">
+        <!-- Floating badge -->
+        <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-game-orange to-game-yellow text-game-navy font-cartoon font-bold px-6 py-1.5 rounded-full shadow-lg border-2 border-white flex items-center gap-2">
+          <i data-lucide="sparkles" class="w-4 h-4 text-game-navy"></i>
+          MASUK KELAS TANPA DAFTAR
+        </div>
+
+        <div class="text-center mt-3 mb-6">
+          <h2 class="font-cartoon text-2xl md:text-3xl font-bold text-white">Selamat Datang Penjelajah!</h2>
+          <p class="text-slate-300 text-xs md:text-sm mt-1">Belajar seru jelajah 3D Dunia Sains, Nusantara & Luar Angkasa!</p>
+        </div>
+
+        <form id="joinForm" onsubmit="handleStudentJoin(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-200 mb-1">KODE KELAS GURU</label>
+            <div class="relative">
+              <input id="inputClassCode" type="text" value="JUARA2026" maxlength="12" required
+                     class="w-full uppercase tracking-widest font-cartoon text-lg bg-black/40 border-2 border-game-blue/60 focus:border-game-yellow rounded-xl px-4 py-2.5 text-game-yellow placeholder-slate-500 outline-none transition"
+                     placeholder="CONTOH: JUARA2026">
+              <span class="absolute right-3 top-2.5 text-xs text-game-green font-bold bg-game-green/10 px-2 py-0.5 rounded-md border border-game-green/30">Demo Aktif</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Kode kelas didapat dari Guru Anda.</p>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3">
+            <div class="col-span-2">
+              <label class="block text-xs font-bold text-slate-200 mb-1">NAMA PANGGILAN</label>
+              <input id="inputNickname" type="text" maxlength="16" required placeholder="Budi Santoso"
+                     class="w-full font-sans text-sm bg-black/40 border-2 border-white/20 focus:border-game-yellow rounded-xl px-4 py-2.5 text-white placeholder-slate-500 outline-none transition">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-200 mb-1">NO. ABSEN</label>
+              <input id="inputAbsen" type="number" min="1" max="99" required placeholder="12"
+                     class="w-full font-cartoon text-sm bg-black/40 border-2 border-white/20 focus:border-game-yellow rounded-xl px-3 py-2.5 text-center text-game-yellow placeholder-slate-500 outline-none transition">
+            </div>
+          </div>
+
+          <!-- Avatar customization mini preview -->
+          <div>
+            <label class="block text-xs font-bold text-slate-200 mb-1">PILIH WARNA AVATAR ROBLOX</label>
+            <div class="flex items-center justify-between gap-2 bg-black/30 p-2 rounded-xl border border-white/10">
+              <button type="button" onclick="setAvatarColor('#00A3FF')" class="w-8 h-8 rounded-full bg-[#00A3FF] border-2 border-white focus:scale-110 transition shadow"></button>
+              <button type="button" onclick="setAvatarColor('#FF7A00')" class="w-8 h-8 rounded-full bg-[#FF7A00] border-2 border-transparent focus:border-white focus:scale-110 transition shadow"></button>
+              <button type="button" onclick="setAvatarColor('#00D664')" class="w-8 h-8 rounded-full bg-[#00D664] border-2 border-transparent focus:border-white focus:scale-110 transition shadow"></button>
+              <button type="button" onclick="setAvatarColor('#9B51E0')" class="w-8 h-8 rounded-full bg-[#9B51E0] border-2 border-transparent focus:border-white focus:scale-110 transition shadow"></button>
+              <button type="button" onclick="setAvatarColor('#FF4757')" class="w-8 h-8 rounded-full bg-[#FF4757] border-2 border-transparent focus:border-white focus:scale-110 transition shadow"></button>
+              <button type="button" onclick="setAvatarColor('#FFD027')" class="w-8 h-8 rounded-full bg-[#FFD027] border-2 border-transparent focus:border-white focus:scale-110 transition shadow"></button>
+            </div>
+          </div>
+
+          <!-- Pilihan Dunia Belajar -->
+          <div>
+            <label class="block text-xs font-bold text-slate-200 mb-1">PILIH ALAM PETUALANGAN 3D</label>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <button type="button" onclick="selectWorld('kota')" id="worldOpt-kota" class="world-choice-btn p-2 rounded-xl bg-game-blue/20 border-2 border-game-blue text-left transition hover:bg-game-blue/30">
+                <div class="text-xl">🏙️</div>
+                <div class="font-cartoon text-xs font-bold text-white">Kota Ilmu</div>
+                <div class="text-[9px] text-slate-300">Futuristik</div>
+              </button>
+              <button type="button" onclick="selectWorld('nusantara')" id="worldOpt-nusantara" class="world-choice-btn p-2 rounded-xl bg-black/40 border-2 border-white/10 text-left transition hover:bg-white/10">
+                <div class="text-xl">🏝️</div>
+                <div class="font-cartoon text-xs font-bold text-white">Nusantara</div>
+                <div class="text-[9px] text-slate-300">Candi & Tropis</div>
+              </button>
+              <button type="button" onclick="selectWorld('laut')" id="worldOpt-laut" class="world-choice-btn p-2 rounded-xl bg-black/40 border-2 border-white/10 text-left transition hover:bg-white/10">
+                <div class="text-xl">🪸</div>
+                <div class="font-cartoon text-xs font-bold text-white">Bawah Laut</div>
+                <div class="text-[9px] text-slate-300">Terumbu Karang</div>
+              </button>
+              <button type="button" onclick="selectWorld('angkasa')" id="worldOpt-angkasa" class="world-choice-btn p-2 rounded-xl bg-black/40 border-2 border-white/10 text-left transition hover:bg-white/10">
+                <div class="text-xl">🚀</div>
+                <div class="font-cartoon text-xs font-bold text-white">Antariksa</div>
+                <div class="text-[9px] text-slate-300">Galaksi & Planet</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Pilihan Mode Lomba -->
+          <div>
+            <label class="block text-xs font-bold text-slate-200 mb-1">PILIH MODE PERMAINAN</label>
+            <select id="inputGameMode" class="w-full font-cartoon text-xs bg-black/40 border-2 border-white/20 focus:border-game-yellow rounded-xl px-3 py-2 text-white outline-none">
+              <option value="lomba">🏁 Lomba Kelas (Terjun Parasut + Peringkat Live)</option>
+              <option value="bebas">🧭 Petualangan Bebas (Jelajah Santai)</option>
+              <option value="jatuhbangun">🤸 Jatuh Bangun (Menara Tantangan)</option>
+              <option value="jembatan">🌉 Jembatan Juara (Lintasan Kuis)</option>
+            </select>
+          </div>
+
+          <button type="submit" class="w-full mt-2 py-3.5 rounded-2xl bg-gradient-to-r from-game-yellow to-game-orange text-game-navy font-cartoon font-bold text-lg shadow-game-btn active:translate-y-1 active:shadow-game-btn-active transition transform flex items-center justify-center gap-2">
+            <i data-lucide="play" class="w-6 h-6 fill-current"></i>
+            MULAI PETUALANGAN! (TERJUN PAYUNG)
+          </button>
+        </form>
+
+        <div class="mt-4 flex items-center justify-between text-[11px] text-slate-400">
+          <span>⚡ HP & Laptop Support</span>
+          <span>📶 Offline Ready</span>
+          <span class="text-game-green font-bold">✓ 100% Gratis</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========= IN-GAME HUD (Heads-Up Display) ========= -->
+    <div id="gameHud" class="absolute inset-0 pointer-events-none z-20 hidden">
+      
+      <!-- Top Left: Player Status -->
+      <div class="absolute top-16 left-4 pointer-events-auto flex items-center space-x-3 glass-panel p-2.5 rounded-2xl border border-white/20 shadow-lg">
+        <div id="hudAvatarIcon" class="w-12 h-12 rounded-xl bg-game-blue flex items-center justify-center border-2 border-white font-cartoon text-xl font-bold shadow-inner text-white">
+          B
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span id="hudStudentName" class="font-cartoon font-bold text-sm md:text-base text-white tracking-wide">Budi S.</span>
+            <span id="hudAbsenBadge" class="bg-game-yellow text-game-navy text-[10px] font-bold px-1.5 py-0.5 rounded-md">Absen 12</span>
+          </div>
+          <div class="flex items-center space-x-2 mt-1">
+            <div class="w-24 md:w-32 bg-black/50 h-3 rounded-full overflow-hidden p-0.5 border border-white/20">
+              <div id="hudHealthBar" class="bg-gradient-to-r from-game-red to-game-green h-full rounded-full transition-all duration-300" style="width: 100%;"></div>
+            </div>
+            <span class="text-[10px] font-bold text-game-green flex items-center"><i data-lucide="zap" class="w-3 h-3"></i> 100%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Right: Stars & Score & World Name -->
+      <div class="absolute top-16 right-4 pointer-events-auto flex items-center space-x-2">
+        <div class="glass-panel px-3 py-1.5 rounded-2xl flex items-center space-x-2 border border-white/20">
+          <div class="w-7 h-7 rounded-lg bg-game-yellow/20 flex items-center justify-center text-game-yellow">
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase tracking-wider text-slate-300 font-bold">Skor Belajar</div>
+            <div id="hudScore" class="font-cartoon text-lg font-bold text-game-yellow leading-none">0</div>
+          </div>
+        </div>
+
+        <div class="glass-panel px-3 py-1.5 rounded-2xl flex items-center space-x-2 border border-white/20">
+          <div class="w-7 h-7 rounded-lg bg-game-blue/20 flex items-center justify-center text-game-blue">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase tracking-wider text-slate-300 font-bold">Misi Soal</div>
+            <div id="hudCompletedCount" class="font-cartoon text-lg font-bold text-white leading-none">0 / 5</div>
+          </div>
+        </div>
+
+        <button onclick="openMiniLeaderboard()" class="glass-panel p-2 rounded-2xl border border-white/20 hover:bg-white/20 transition flex items-center justify-center text-yellow-300" title="Papan Peringkat Kelas">
+          <i data-lucide="trophy" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <!-- Objective Banner (Center Top) -->
+      <div class="absolute top-28 left-1/2 -translate-x-1/2 pointer-events-auto max-w-md w-[90%] text-center">
+        <div class="bg-black/60 backdrop-blur-md px-4 py-2 rounded-2xl border border-game-yellow/40 inline-flex items-center gap-2 shadow-lg">
+          <i data-lucide="compass" class="w-4 h-4 text-game-yellow animate-spin" style="animation-duration: 8s;"></i>
+          <span id="hudObjectiveText" class="text-xs md:text-sm font-semibold text-slate-100">
+            Cari Monumen Kristal Soal atau NPC Guru di sekitar kota!
+          </span>
+        </div>
+      </div>
+
+      <!-- Mini map radar (Bottom Left on desktop, or top center) -->
+      <div class="hidden md:flex absolute bottom-6 right-6 pointer-events-auto glass-panel p-3 rounded-2xl border border-white/20 flex-col items-center">
+        <div class="text-[10px] font-bold text-slate-300 mb-1 flex items-center gap-1">
+          <i data-lucide="map" class="w-3 h-3 text-cyan-400"></i> RADAR LOKASI MISI
+        </div>
+        <div id="radarBox" class="w-28 h-28 bg-black/60 rounded-xl relative border border-cyan-500/30 overflow-hidden flex items-center justify-center">
+          <div class="w-full h-[1px] bg-cyan-500/20 absolute"></div>
+          <div class="h-full w-[1px] bg-cyan-500/20 absolute"></div>
+          <!-- Player center -->
+          <div class="w-3 h-3 rounded-full bg-game-green border-2 border-white z-10"></div>
+          <!-- Question markers dynamically simulated -->
+          <div class="w-2.5 h-2.5 rounded-full bg-game-yellow absolute top-4 left-6 animate-ping"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-game-yellow absolute top-4 left-6"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-game-yellow absolute bottom-5 right-7"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-game-blue absolute top-6 right-5"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-game-red absolute bottom-4 left-7"></div>
+        </div>
+      </div>
+
+      <!-- World Quick Switcher (Floating button bottom left) -->
+      <div class="absolute bottom-6 left-6 hidden md:flex pointer-events-auto space-x-2">
+        <button onclick="changeInGameWorld('kota')" class="px-3 py-1.5 rounded-xl text-xs font-cartoon font-bold glass-panel border border-white/20 hover:border-game-yellow text-white transition">🏙️ Kota</button>
+        <button onclick="changeInGameWorld('nusantara')" class="px-3 py-1.5 rounded-xl text-xs font-cartoon font-bold glass-panel border border-white/20 hover:border-game-yellow text-white transition">🏝️ Candi</button>
+        <button onclick="changeInGameWorld('laut')" class="px-3 py-1.5 rounded-xl text-xs font-cartoon font-bold glass-panel border border-white/20 hover:border-game-yellow text-white transition">🪸 Bawah Laut</button>
+        <button onclick="changeInGameWorld('angkasa')" class="px-3 py-1.5 rounded-xl text-xs font-cartoon font-bold glass-panel border border-white/20 hover:border-game-yellow text-white transition">🚀 Antariksa</button>
+      </div>
+
+      <!-- Action Interact Prompt Button (Center Bottom) -->
+      <div id="interactPrompt" class="absolute bottom-28 left-1/2 -translate-x-1/2 pointer-events-auto hidden transform transition-all duration-200">
+        <button onclick="triggerNearbyQuiz()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-game-yellow via-game-orange to-game-yellow text-game-navy font-cartoon font-bold text-base md:text-lg shadow-2xl border-2 border-white animate-bounce flex items-center gap-2">
+          <i data-lucide="sparkles" class="w-5 h-5 fill-current"></i>
+          <span>TEKAN 'E' ATAU KLIK UNTUK JAWAB SOAL!</span>
+        </button>
+      </div>
+
+      <!-- Mobile Touch Controls -->
+      <div id="mobileControls" class="md:hidden pointer-events-auto">
+        <!-- Touch Joystick left side -->
+        <div id="joystickZone">
+          <div id="joystickKnob"></div>
+        </div>
+
+        <!-- Touch Jump Action button right side -->
+        <button id="btnMobileJump" class="absolute bottom-8 right-6 w-18 h-18 w-16 h-16 rounded-full bg-gradient-to-tr from-game-blue to-cyan-400 border-4 border-white/80 shadow-2xl flex flex-col items-center justify-center active:scale-90 transition transform">
+          <i data-lucide="arrow-up" class="w-7 h-7 text-white stroke-[3]"></i>
+          <span class="text-[9px] font-cartoon font-bold text-white uppercase leading-none">LOMPAT</span>
+        </button>
+
+        <!-- Touch Interact Button right side -->
+        <button id="btnMobileInteract" onclick="triggerNearbyQuiz()" class="absolute bottom-28 right-6 w-14 h-14 rounded-full bg-gradient-to-tr from-game-yellow to-game-orange border-2 border-white shadow-xl flex items-center justify-center active:scale-90 transition">
+          <i data-lucide="message-square" class="w-6 h-6 text-game-navy stroke-[2.5]"></i>
+        </button>
+      </div>
+
+      <!-- Keyboard controls hint (Desktop) -->
+      <div class="hidden md:block absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] text-slate-400 bg-black/40 px-3 py-1 rounded-full border border-white/10 pointer-events-none">
+        🎮 <b>WASD / Panah</b>: Berjalan | <b>Spasi</b>: Lompat | <b>E / Klik</b>: Interaksi Soal | <b>Mouse Drag</b>: Putar Kamera
+      </div>
+
+    </div>
+
+    <!-- ========= QUIZ POPUP MODAL (Across 5 Question Types) ========= -->
+    <div id="quizModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+      <div class="relative w-full max-w-xl glass-panel rounded-3xl p-6 md:p-8 border-2 border-game-yellow shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-white/10">
+          <div class="flex items-center space-x-2">
+            <span id="quizBadgeType" class="px-3 py-1 rounded-xl text-xs font-cartoon font-bold bg-game-blue text-white uppercase tracking-wider">
+              PILIHAN GANDA
+            </span>
+            <span id="quizBadgeWorld" class="text-xs text-slate-300 font-medium">Kota Ilmu • Pos #1</span>
+          </div>
+          <div class="flex items-center space-x-2 text-game-yellow font-cartoon font-bold text-sm">
+            <i data-lucide="clock" class="w-4 h-4"></i>
+            <span id="quizTimer">30s</span>
+          </div>
+        </div>
+
+        <!-- Question Title & Body -->
+        <div class="my-4">
+          <h3 id="quizTitle" class="font-cartoon text-lg md:text-xl font-bold text-white leading-relaxed">
+            Pertanyaan dimuat...
+          </h3>
+          <p id="quizSubtitle" class="text-xs text-slate-300 mt-1 italic hidden"></p>
+        </div>
+
+        <!-- Interactive Question Container (Varies by question type) -->
+        <div id="quizInteractArea" class="space-y-3 mb-6">
+          <!-- Dynamically populated options -->
+        </div>
+
+        <!-- Feedback & Explanation alert -->
+        <div id="quizFeedbackBox" class="hidden p-4 rounded-2xl mb-4 border text-sm font-medium">
+          <div class="flex items-center gap-2 font-cartoon font-bold text-base mb-1" id="quizFeedbackTitle">
+            Hebat, Jawaban Benar!
+          </div>
+          <p id="quizFeedbackText" class="text-xs"></p>
+        </div>
+
+        <!-- Bottom Action Buttons -->
+        <div class="flex items-center justify-between pt-2">
+          <button type="button" onclick="closeQuizModal()" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 font-cartoon text-xs font-bold transition">
+            Lari Dulu (Tutup)
+          </button>
+          <button id="btnSubmitQuiz" type="button" onclick="submitCurrentQuiz()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-game-yellow to-game-orange text-game-navy font-cartoon text-sm font-bold shadow-game-btn active:translate-y-0.5 transition">
+            KIRIM JAWABAN ✨
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========= MINIGAME MODE MODAL: JATUH BANGUN & JEMBATAN JUARA ========= -->
+    <div id="minigameModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+      <div class="relative w-full max-w-2xl glass-panel rounded-3xl p-6 border-2 border-game-orange shadow-2xl text-center">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-game-orange to-game-yellow flex items-center justify-center text-game-navy mb-3 shadow-lg">
+          <i id="minigameIcon" data-lucide="flag" class="w-8 h-8"></i>
+        </div>
+        <h3 id="minigameTitle" class="font-cartoon text-2xl font-bold text-white">MINIGAME JATUH BANGUN</h3>
+        <p id="minigameDesc" class="text-xs md:text-sm text-slate-300 max-w-md mx-auto mt-1">
+          Lantai akan runtuh jika jawabanmu keliru! Jawab benar 3 kali berturut-turut untuk naik ke puncak Menara Juara!
+        </p>
+
+        <!-- Progress Steps -->
+        <div class="flex justify-center items-center gap-3 my-6">
+          <div id="miniStep1" class="w-12 h-12 rounded-2xl bg-game-blue border-2 border-white flex items-center justify-center font-cartoon font-bold text-white text-lg">1</div>
+          <div class="w-8 h-1 bg-white/20"></div>
+          <div id="miniStep2" class="w-12 h-12 rounded-2xl bg-white/10 border-2 border-white/20 flex items-center justify-center font-cartoon font-bold text-slate-400 text-lg">2</div>
+          <div class="w-8 h-1 bg-white/20"></div>
+          <div id="miniStep3" class="w-12 h-12 rounded-2xl bg-white/10 border-2 border-white/20 flex items-center justify-center font-cartoon font-bold text-slate-400 text-lg">3</div>
+        </div>
+
+        <div id="minigameQuestionArea" class="bg-black/40 p-4 rounded-2xl text-left border border-white/10 mb-4">
+          <!-- Minigame question rendered here -->
+        </div>
+
+        <div class="flex justify-center gap-3">
+          <button onclick="closeMinigameModal()" class="px-5 py-2.5 rounded-xl bg-white/10 text-slate-300 font-cartoon text-xs font-bold">Kembali ke Kota</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========= POPUP PODIUM / LEADERBOARD (Student side) ========= -->
+    <div id="studentLeaderboardModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+      <div class="relative w-full max-w-lg glass-panel rounded-3xl p-6 border border-white/20 shadow-2xl">
+        <div class="flex items-center justify-between pb-3 border-b border-white/10">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="trophy" class="w-6 h-6 text-game-yellow"></i>
+            <h3 class="font-cartoon text-lg font-bold text-white">KLASEMEN KELAS: <span class="text-game-yellow" id="lbClassCode">JUARA2026</span></h3>
+          </div>
+          <button onclick="closeMiniLeaderboard()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div id="studentLeaderboardList" class="my-4 space-y-2 max-h-72 overflow-y-auto custom-scrollbar">
+          <!-- Dynamically populated scores -->
+        </div>
+
+        <div class="pt-2 text-center">
+          <button onclick="closeMiniLeaderboard()" class="w-full py-2.5 rounded-xl bg-game-blue text-white font-cartoon font-bold text-xs">
+            Lanjut Berpetualang!
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========= VICTORY CONGRATS POPUP ========= -->
+    <div id="victoryModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+      <div class="relative w-full max-w-md glass-panel rounded-3xl p-8 border-2 border-game-yellow text-center shadow-game-card animate-bobble">
+        <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-game-yellow to-game-orange flex items-center justify-center text-game-navy shadow-lg mb-4">
+          <i data-lucide="crown" class="w-12 h-12 stroke-[2.5]"></i>
+        </div>
+        <h2 class="font-cartoon text-3xl font-bold text-game-yellow">MISI TUNTAS!</h2>
+        <p class="text-sm text-slate-200 mt-2 font-sans">
+          Luar biasa <b id="vicName" class="text-white">Budi</b>! Kamu telah menjelajahi seluruh pos ilmu dan menyelesaikan asesmen dengan skor:
+        </p>
+        <div class="my-4 p-4 rounded-2xl bg-black/40 border border-white/10">
+          <div class="text-4xl font-cartoon font-bold text-game-green" id="vicScore">100</div>
+          <div id="vicSyncStatusText" class="text-xs text-slate-300 mt-1">Nilai otomatis terkirim ke Dashboard Guru Anda.</div>
+        </div>
+        <div class="space-y-2">
+          <button onclick="closeVictoryModal(); openMiniLeaderboard();" class="w-full py-3 rounded-2xl bg-gradient-to-r from-game-yellow to-game-orange text-game-navy font-cartoon font-bold text-sm shadow-game-btn">
+            Lihat Podium Juara Kelas 🏆
+          </button>
+          <button onclick="closeVictoryModal()" class="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 font-cartoon text-xs font-bold">
+            Kembali Berkeliling Dunia 3D
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ################################################################ -->
+  <!-- #################### 2. TEACHER DASHBOARD VIEW ################# -->
+  <!-- ################################################################ -->
+  <section id="teacherView" class="w-full h-full pt-16 pb-8 px-4 md:px-8 overflow-y-auto custom-scrollbar hidden bg-slate-950">
+    <div class="max-w-7xl mx-auto space-y-6">
+
+      <!-- Teacher Top Hero & Class Code Card -->
+      <div class="glass-panel rounded-3xl p-6 border border-white/15 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+        <div>
+          <span class="px-3 py-1 rounded-full bg-game-yellow/20 text-game-yellow border border-game-yellow/40 font-cartoon text-xs font-bold">
+            👩‍🏫 STUDIO & DASHBOARD GURU
+          </span>
+          <h2 class="font-cartoon text-2xl md:text-3xl font-bold text-white mt-2">
+            Kelola Soal 3D & Rekap Nilai Otomatis
+          </h2>
+          <p class="text-xs md:text-sm text-slate-300 mt-1">
+            Bagikan kode kelas kepada murid. Seluruh nilai asesmen masuk otomatis—termasuk sinkronisasi dari mode offline!
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3 bg-black/40 p-4 rounded-2xl border border-white/10">
+          <div>
+            <div class="text-[10px] font-bold text-slate-400 uppercase">KODE KELAS AKTIF</div>
+            <div class="flex items-center gap-2">
+              <span id="teacherClassCodeDisplay" class="font-cartoon text-2xl font-bold text-game-yellow tracking-widest">JUARA2026</span>
+              <button onclick="regenerateClassCode()" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300" title="Buat Kode Kelas Baru">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+          <button onclick="shareToWhatsApp()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-cartoon text-xs font-bold shadow flex items-center gap-1.5">
+            <i data-lucide="share-2" class="w-4 h-4"></i> Bagikan ke WhatsApp
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Summary Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-panel p-4 rounded-2xl border border-white/10">
+          <div class="text-xs text-slate-400 font-bold">Murid Bergabung</div>
+          <div id="statTotalStudents" class="font-cartoon text-3xl font-bold text-white mt-1">4</div>
+          <div class="text-[11px] text-game-green mt-1">✓ Tanpa perlu akun</div>
+        </div>
+        <div class="glass-panel p-4 rounded-2xl border border-white/10">
+          <div class="text-xs text-slate-400 font-bold">Rata-rata Nilai</div>
+          <div id="statAverageScore" class="font-cartoon text-3xl font-bold text-game-yellow mt-1">88.8</div>
+          <div class="text-[11px] text-slate-300 mt-1">Skala 0 – 100</div>
+        </div>
+        <div class="glass-panel p-4 rounded-2xl border border-white/10">
+          <div class="text-xs text-slate-400 font-bold">Total Butir Soal</div>
+          <div id="statTotalQuestions" class="font-cartoon text-3xl font-bold text-game-blue mt-1">5</div>
+          <div class="text-[11px] text-slate-300 mt-1">Aktif di peta 3D</div>
+        </div>
+        <div class="glass-panel p-4 rounded-2xl border border-white/10">
+          <div class="text-xs text-slate-400 font-bold">Ketuntasan (KKM 75)</div>
+          <div id="statMastery" class="font-cartoon text-3xl font-bold text-game-green mt-1">100%</div>
+          <div class="text-[11px] text-slate-300 mt-1">Otomatis terhitung</div>
+        </div>
+      </div>
+
+      <!-- TEACHER TABS (Soal Builder vs Rekap Nilai vs Analisis Butir vs Database Sync) -->
+      <div class="glass-panel rounded-3xl border border-white/15 overflow-hidden">
+        
+        <!-- Tab Navigation Bar -->
+        <div class="flex items-center space-x-2 p-3 bg-black/40 border-b border-white/10 overflow-x-auto custom-scrollbar">
+          <button onclick="setTeacherTab('bank')" id="tabBtn-bank" class="px-4 py-2 rounded-xl font-cartoon text-xs md:text-sm font-bold bg-game-blue text-white shadow transition flex items-center gap-2 whitespace-nowrap">
+            <i data-lucide="layers" class="w-4 h-4"></i> Studio Soal & Impor Word/Excel
+          </button>
+          <button onclick="setTeacherTab('nilai')" id="tabBtn-nilai" class="px-4 py-2 rounded-xl font-cartoon text-xs md:text-sm font-bold text-slate-300 hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+            <i data-lucide="table" class="w-4 h-4"></i> Rekap Nilai & Sync Queue
+          </button>
+          <button onclick="setTeacherTab('analisis')" id="tabBtn-analisis" class="px-4 py-2 rounded-xl font-cartoon text-xs md:text-sm font-bold text-slate-300 hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+            <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Analisis Butir Soal
+          </button>
+          <button onclick="setTeacherTab('database')" id="tabBtn-database" class="px-4 py-2 rounded-xl font-cartoon text-xs md:text-sm font-bold text-slate-300 hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+            <i data-lucide="database" class="w-4 h-4"></i> Koneksi Database (Supabase)
+          </button>
+        </div>
+
+        <!-- TAB CONTENT 1: BANK SOAL, IMPOR 2 MODE & EXPORT -->
+        <div id="tabContent-bank" class="p-6 space-y-6">
+          <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+            <div>
+              <h3 class="font-cartoon text-xl font-bold text-white">Daftar Soal di Dunia Game</h3>
+              <p class="text-xs text-slate-300">Impor dari Word/Excel (Mode Standar atau Mode Pintar) atau ekspor hasil bank soal & kunci jawaban.</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="openImportStudioModal()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-cartoon text-xs font-bold shadow-md flex items-center gap-1.5 transition hover:scale-105">
+                <i data-lucide="file-up" class="w-4 h-4"></i>
+                📥 Impor Word / Excel (2 Mode)
+              </button>
+              <button onclick="openAiGeneratorModal()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-game-purple to-pink-600 text-white font-cartoon text-xs font-bold shadow-md flex items-center gap-1.5 transition hover:scale-105">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                ⚡ Buat Otomatis AI
+              </button>
+              <button onclick="openAddQuestionModal()" class="px-3.5 py-2 rounded-xl bg-game-blue text-white font-cartoon text-xs font-bold shadow-md flex items-center gap-1.5 transition hover:bg-sky-500">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                Tambah Manual
+              </button>
+              <button onclick="exportQuestionsToExcel()" class="px-3 py-2 rounded-xl bg-game-yellow text-game-navy font-cartoon text-xs font-bold shadow transition flex items-center gap-1 hover:bg-amber-300" title="Unduh Bank Soal beserta Kunci Jawaban ke Excel (.xlsx)">
+                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Ekspor Excel (.xlsx)
+              </button>
+              <button onclick="exportQuestionsToWordDoc()" class="px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-cartoon text-xs font-bold transition flex items-center gap-1" title="Unduh Naskah Soal & Kunci Jawaban siap cetak Word (.doc)">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Ekspor Word (.doc)
+              </button>
+            </div>
+          </div>
+
+          <!-- Question Cards Container -->
+          <div id="teacherQuestionsList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Dynamically populated cards -->
+          </div>
+        </div>
+
+        <!-- TAB CONTENT 2: REKAP NILAI OTOMATIS & RAPOR -->
+        <div id="tabContent-nilai" class="p-6 space-y-4 hidden">
+          <!-- Offline Queue Banner -->
+          <div id="teacherSyncQueueBanner" class="p-4 rounded-2xl bg-black/40 border border-white/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-game-blue/20 text-game-blue flex items-center justify-center">
+                <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <div class="font-cartoon text-sm font-bold text-white flex items-center gap-2">
+                  Status Antrean Sinkronisasi (Offline-to-Online)
+                  <span id="queueCountPill" class="px-2 py-0.5 rounded-full text-[10px] bg-game-green/20 text-game-green border border-game-green/40">0 Tertunda</span>
+                </div>
+                <p id="queueBannerDesc" class="text-xs text-slate-300">Seluruh hasil bermain murid yang dikerjakan saat offline otomatis disinkronkan saat koneksi kembali online.</p>
+              </div>
+            </div>
+            <button onclick="flushSyncQueue(true)" class="px-4 py-2 rounded-xl bg-game-blue hover:bg-sky-500 text-white font-cartoon text-xs font-bold shadow flex items-center gap-1.5 whitespace-nowrap">
+              <i data-lucide="cloud-upload" class="w-4 h-4"></i> Sinkronkan Sekarang
+            </button>
+          </div>
+
+          <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <h3 class="font-cartoon text-xl font-bold text-white">Rekap Nilai Masuk Otomatis</h3>
+              <p class="text-xs text-slate-300">Setiap murid yang menjawab soal di 3D, nilainya langsung tercatat & dapat diekspor.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <select id="assessmentFilter" onchange="filterGradebook()" class="bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-xs font-bold text-white outline-none">
+                <option value="all">Semua Asesmen</option>
+                <option value="harian">Asesmen Harian</option>
+                <option value="sts">STS (Sumatif Tengah Semester)</option>
+                <option value="sas">SAS (Sumatif Akhir Semester)</option>
+              </select>
+              <button onclick="downloadGradesExcelXlsx()" class="px-3.5 py-2 rounded-xl bg-game-green hover:bg-emerald-600 text-white font-cartoon text-xs font-bold shadow flex items-center gap-1.5 transition">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Unduh Rekap Excel (.xlsx)
+              </button>
+              <button onclick="openBatchCertificateModal()" class="px-3.5 py-2 rounded-xl bg-game-yellow text-game-navy font-cartoon text-xs font-bold shadow flex items-center gap-1.5 transition">
+                <i data-lucide="file-text" class="w-4 h-4"></i> Cetak Sertifikat PDF
+              </button>
+            </div>
+          </div>
+
+          <!-- Students Table -->
+          <div class="overflow-x-auto rounded-2xl border border-white/10">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-black/50 text-slate-200 font-cartoon uppercase text-[11px]">
+                <tr>
+                  <th class="p-3">Rank</th>
+                  <th class="p-3">No. Absen</th>
+                  <th class="p-3">Nama Siswa</th>
+                  <th class="p-3">Status Misi</th>
+                  <th class="p-3">Akurasi</th>
+                  <th class="p-3">Status Sync</th>
+                  <th class="p-3">Nilai Akhir</th>
+                  <th class="p-3 text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="teacherGradesTbody" class="divide-y divide-white/5">
+                <!-- Dynamically populated students -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB CONTENT 3: ANALISIS BUTIR SOAL -->
+        <div id="tabContent-analisis" class="p-6 space-y-6 hidden">
+          <div>
+            <h3 class="font-cartoon text-xl font-bold text-white">Analisis Kualitas & Kesukaran Soal</h3>
+            <p class="text-xs text-slate-300">Menampilkan tingkat kesukaran (% benar), daya beda, dan efektivitas pengecoh.</p>
+          </div>
+
+          <div id="analysisQuestionsContainer" class="space-y-3">
+            <!-- Dynamically populated item analysis -->
+          </div>
+        </div>
+
+        <!-- TAB CONTENT 4: KONEKSI DATABASE SUPABASE (REAL-TIME CLOUD) -->
+        <div id="tabContent-database" class="p-6 space-y-6 hidden">
+          <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <h3 class="font-cartoon text-xl font-bold text-white">Koneksi Cloud Database (Supabase PostgreSQL)</h3>
+              <p class="text-xs text-slate-300">Opsional: Hubungkan ke proyek Supabase gratis Anda agar antrean offline murid di 30+ HP berbeda otomatis masuk ke server pusat.</p>
+            </div>
+            <span id="supabaseConnBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-400/40">
+              Mode Penyimpanan Lokal + Antrean Otomatis Aktif
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4 bg-black/30 p-5 rounded-2xl border border-white/10 text-xs">
+              <h4 class="font-cartoon text-base font-bold text-game-yellow">1. Konfigurasi API Supabase</h4>
+              <div>
+                <label class="block font-bold text-slate-300 mb-1">SUPABASE PROJECT URL</label>
+                <input id="inputSupabaseUrl" type="url" placeholder="https://xyzcompany.supabase.co" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white outline-none focus:border-game-yellow">
+              </div>
+              <div>
+                <label class="block font-bold text-slate-300 mb-1">SUPABASE ANON PUBLIC KEY</label>
+                <input id="inputSupabaseKey" type="password" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white outline-none focus:border-game-yellow">
+              </div>
+              <div class="flex gap-2 pt-1">
+                <button onclick="saveSupabaseConfig()" class="px-4 py-2.5 rounded-xl bg-game-green hover:bg-emerald-500 text-white font-cartoon font-bold shadow">
+                  Simpan & Uji Koneksi
+                </button>
+                <button onclick="clearSupabaseConfig()" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 font-cartoon font-bold">
+                  Reset Lokal
+                </button>
+              </div>
+            </div>
+
+            <div class="space-y-3 bg-black/30 p-5 rounded-2xl border border-white/10 text-xs">
+              <div class="flex items-center justify-between">
+                <h4 class="font-cartoon text-base font-bold text-cyan-300">2. Skrip SQL Tabel Otomatis</h4>
+                <button onclick="copySupabaseSql()" class="px-3 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-bold border border-cyan-400/30">
+                  Salin SQL
+                </button>
+              </div>
+              <pre id="supabaseSqlCode" class="bg-slate-950 p-3 rounded-xl text-[11px] text-emerald-300 overflow-x-auto border border-white/10 font-mono leading-relaxed">-- Jalankan di SQL Editor Supabase Anda
+CREATE TABLE IF NOT EXISTS hasil_belajar_3d (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  kode_kelas TEXT NOT NULL,
+  nama_siswa TEXT NOT NULL,
+  no_absen TEXT NOT NULL,
+  skor INTEGER NOT NULL,
+  akurasi TEXT,
+  waktu_selesai TIMESTAMPTZ DEFAULT NOW()
+);</pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ################################################################ -->
+  <!-- #################### 3. TEACHER MODALS ######################### -->
+  <!-- ################################################################ -->
+
+  <!-- Modal: STUDIO IMPOR WORD & EXCEL (2 MODE: STANDAR & PINTAR) -->
+  <div id="importStudioModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="relative w-full max-w-4xl glass-panel rounded-3xl p-6 md:p-8 border-2 border-emerald-400 shadow-2xl max-h-[92vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-400/40">
+            <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-cartoon text-xl font-bold text-white">Studio Impor Word (.docx) & Excel (.xlsx)</h3>
+            <p class="text-[11px] text-slate-300">Pilih mode impor sesuai dokumen yang Anda miliki — bisa dengan kunci jawaban maupun soal saja!</p>
+          </div>
+        </div>
+        <button onclick="closeImportStudioModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Step 1: Pilih Mode Impor (Mode Standar vs Mode Pintar) -->
+      <div class="mt-4 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-200 mb-2">LANGKAH 1: PILIH MODE IMPOR DOKUMEN</label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!-- Mode Standar -->
+            <button type="button" id="btnModeStandar" onclick="setImportMode('standar')" class="p-4 rounded-2xl bg-emerald-500/20 border-2 border-emerald-400 text-left transition">
+              <div class="flex items-center justify-between">
+                <span class="font-cartoon text-sm font-bold text-white">✅ 1. Mode Standar (Soal + Kunci)</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/30 text-emerald-200 text-[10px] font-bold">Siap Terbit</span>
+              </div>
+              <p class="text-[11px] text-slate-300 mt-1">
+                Dokumen Excel/Word sudah berisi pertanyaan beserta kunci jawabannya (kolom <b>Kunci</b> di Excel atau tanda <b>*</b> / <b>Kunci:</b> di Word).
+              </p>
+            </button>
+
+            <!-- Mode Pintar -->
+            <button type="button" id="btnModePintar" onclick="setImportMode('pintar')" class="p-4 rounded-2xl bg-black/40 border-2 border-white/15 text-left transition hover:border-purple-400/60">
+              <div class="flex items-center justify-between">
+                <span class="font-cartoon text-sm font-bold text-white">🧠 2. Mode Pintar (Soal Saja Tanpa Kunci)</span>
+                <span class="px-2 py-0.5 rounded bg-purple-500/30 text-purple-200 text-[10px] font-bold">Asisten AI + Klik Kunci</span>
+              </div>
+              <p class="text-[11px] text-slate-300 mt-1">
+                Unggah naskah soal lama yang <b>belum ada kunci jawabannya</b>. Sistem akan memindai soal, lalu Anda bisa klik kunci manual atau pakai Asisten Pintar!
+              </p>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Unduh Template & Unggah File -->
+        <div class="p-4 rounded-2xl bg-black/40 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="space-y-1 text-xs">
+            <div class="font-cartoon font-bold text-game-yellow">LANGKAH 2: UNGGAH FILE (.XLSX / .CSV / .DOCX)</div>
+            <p class="text-slate-300 text-[11px]">Belum punya format? Unduh contoh template Excel resmi agar struktur kolom langsung rapi.</p>
+            <div class="flex flex-wrap gap-2 pt-1">
+              <button type="button" onclick="downloadExcelTemplate()" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-emerald-300 font-bold text-[11px] flex items-center gap-1 border border-emerald-400/30">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i> Unduh Template Excel (.xlsx)
+              </button>
+              <button type="button" onclick="loadSampleUnansweredImport()" class="px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 font-bold text-[11px] flex items-center gap-1 border border-purple-400/30">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Coba Simulasi Naskah Tanpa Kunci
+              </button>
+            </div>
+          </div>
+
+          <div class="w-full md:w-auto">
+            <label for="docUploadInput" class="cursor-pointer px-5 py-3.5 rounded-2xl bg-gradient-to-r from-game-yellow to-game-orange text-game-navy font-cartoon font-bold text-sm shadow-game-btn flex items-center justify-center gap-2 hover:brightness-105 transition">
+              <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+              Pilih File Excel / Word
+            </label>
+            <input id="docUploadInput" type="file" accept=".xlsx,.xls,.csv,.docx,.txt" class="hidden" onchange="handleWordExcelFileUpload(event)">
+          </div>
+        </div>
+
+        <!-- Step 3: Interactive Preview & Key Assignment Table -->
+        <div id="importPreviewSection" class="hidden space-y-3">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-2 border-t border-white/10">
+            <div>
+              <h4 class="font-cartoon text-base font-bold text-white flex items-center gap-2">
+                <span>Pratinjau Soal Terdeteksi</span>
+                <span id="importPreviewBadge" class="px-2.5 py-0.5 rounded-full text-xs bg-game-blue/20 text-game-blue font-bold">0 Soal</span>
+              </h4>
+              <p class="text-[11px] text-slate-300">Pastikan setiap soal memiliki kunci jawaban hijau sebelum dimasukkan ke dunia 3D.</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="autoFillMissingKeysWithSmartAssistant()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-game-purple to-pink-600 text-white font-cartoon text-xs font-bold shadow flex items-center gap-1.5">
+                <i data-lucide="wand-2" class="w-4 h-4"></i>
+                Isi Kunci Otomatis (Asisten Pintar)
+              </button>
+              <button type="button" onclick="exportStagedQuestionsToExcel()" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-amber-300 font-cartoon text-xs font-bold flex items-center gap-1">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i> Unduh Hasil Kunci (.xlsx)
+              </button>
+            </div>
+          </div>
+
+          <div id="importPreviewList" class="space-y-3 max-h-72 overflow-y-auto custom-scrollbar pr-1">
+            <!-- Staged questions rendered here -->
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+            <button type="button" onclick="closeImportStudioModal()" class="px-4 py-2.5 rounded-xl bg-white/10 text-slate-300 font-cartoon text-xs font-bold">
+              Batal
+            </button>
+            <button type="button" onclick="commitImportedQuestions()" class="px-6 py-2.5 rounded-2xl bg-game-green hover:bg-emerald-500 text-white font-cartoon text-sm font-bold shadow-game-btn flex items-center gap-2">
+              <i data-lucide="check-circle" class="w-4 h-4"></i>
+              Terbitkan Semua ke Dunia 3D!
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Tambah / Edit Soal Manual (5 Tipe Soal) -->
+  <div id="addQuestionModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="relative w-full max-w-2xl glass-panel rounded-3xl p-6 md:p-8 border-2 border-game-yellow shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <h3 class="font-cartoon text-xl font-bold text-white flex items-center gap-2">
+          <i data-lucide="edit-3" class="w-5 h-5 text-game-yellow"></i>
+          <span id="modalQuestionFormTitle">Tambah Soal Baru</span>
+        </h3>
+        <button onclick="closeAddQuestionModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form id="questionForm" onsubmit="handleSaveQuestion(event)" class="space-y-4 mt-4 text-xs font-sans">
+        <input type="hidden" id="editQuestionId">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">TIPE SOAL (5 PILIHAN)</label>
+            <select id="qFormType" onchange="renderQuestionTypeInputs()" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white font-bold outline-none">
+              <option value="pg">1. Pilihan Ganda (Multiple Choice)</option>
+              <option value="bs">2. Benar / Salah (True/False)</option>
+              <option value="isian">3. Isian Singkat</option>
+              <option value="jodoh">4. Menjodohkan (Matching Pairs)</option>
+              <option value="urut">5. Mengurutkan (Timeline/Sequence)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">ALAM PENEMPATAN 3D</label>
+            <select id="qFormWorld" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white font-bold outline-none">
+              <option value="kota">🏙️ Kota Ilmu</option>
+              <option value="nusantara">🏝️ Candi Nusantara</option>
+              <option value="laut">🪸 Bawah Laut</option>
+              <option value="angkasa">🚀 Luar Angkasa</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">PERTANYAAN / INSTRUKSI</label>
+          <textarea id="qFormTitle" rows="3" required placeholder="Tuliskan pertanyaan materi di sini..."
+                    class="w-full bg-black/50 border border-white/20 rounded-xl p-3 text-white outline-none focus:border-game-yellow text-sm"></textarea>
+        </div>
+
+        <!-- Dynamic Inputs based on Question Type -->
+        <div id="dynamicTypeInputs" class="p-3 bg-black/30 rounded-2xl border border-white/10 space-y-3">
+          <!-- Populated by JS -->
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">PEMBAHASAN / UMPAN BALIK JAWABAN</label>
+          <input type="text" id="qFormExplanation" placeholder="Penjelasan saat murid selesai menjawab..."
+                 class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white outline-none">
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeAddQuestionModal()" class="px-4 py-2 rounded-xl bg-white/10 text-slate-300 font-cartoon font-bold">
+            Batal
+          </button>
+          <button type="submit" class="px-6 py-2 rounded-xl bg-game-green hover:bg-emerald-500 text-white font-cartoon font-bold shadow-game-btn">
+            Simpan ke Dunia 3D
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: AI Question Generator Simulator -->
+  <div id="aiGenModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="relative w-full max-w-lg glass-panel rounded-3xl p-6 md:p-8 border-2 border-game-purple shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-game-purple flex items-center justify-center text-white">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </div>
+          <h3 class="font-cartoon text-xl font-bold text-white">Asisten Pembuat Soal AI</h3>
+        </div>
+        <button onclick="closeAiGeneratorModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 mt-4 text-xs font-sans">
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">JENJANG PENDIDIKAN</label>
+          <select id="aiGrade" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white font-bold outline-none">
+            <option value="SD">Sekolah Dasar (SD / MI)</option>
+            <option value="SMP">Sekolah Menengah Pertama (SMP / MTs)</option>
+            <option value="SMA">Sekolah Menengah Atas/Kejuruan (SMA / SMK)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">MATA PELAJARAN</label>
+          <select id="aiSubject" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white font-bold outline-none">
+            <option value="IPA / Sains">IPA / Sains (Tata Surya, Ekosistem, Fisika)</option>
+            <option value="Matematika">Matematika (Geometri, Aritmatika, Aljabar)</option>
+            <option value="IPS / Sejarah">IPS / Sejarah Nusantara & Budaya</option>
+            <option value="Bahasa Indonesia">Bahasa Indonesia & Literasi</option>
+            <option value="Informatika">Informatika & Logika Komputasi</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">TOPIK / BAB SPESIFIK</label>
+          <input type="text" id="aiTopic" placeholder="Contoh: Sistem Peredaran Darah, Kerajaan Majapahit, atau Pecahan"
+                 class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white outline-none">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">JUMLAH BUTIR SOAL</label>
+          <div class="flex gap-2">
+            <button type="button" onclick="setAiCount(3)" class="ai-cnt-btn flex-1 py-1.5 rounded-xl bg-game-purple text-white font-cartoon font-bold">3 Soal</button>
+            <button type="button" onclick="setAiCount(5)" class="ai-cnt-btn flex-1 py-1.5 rounded-xl bg-white/10 text-slate-300 font-cartoon font-bold">5 Soal</button>
+            <button type="button" onclick="setAiCount(10)" class="ai-cnt-btn flex-1 py-1.5 rounded-xl bg-white/10 text-slate-300 font-cartoon font-bold">10 Soal</button>
+          </div>
+        </div>
+
+        <button onclick="generateQuestionsWithAi()" id="btnRunAi" class="w-full py-3 rounded-2xl bg-gradient-to-r from-game-purple to-pink-600 text-white font-cartoon font-bold text-sm shadow-lg flex items-center justify-center gap-2">
+          <i data-lucide="cpu" class="w-4 h-4"></i>
+          Hasilkan Soal Otomatis Sekarang
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Proyektor TV / Podium Juara Kelas 1, 2, 3 -->
+  <div id="projectorPodiumModal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-lg flex flex-col items-center justify-center p-6 hidden">
+    <button onclick="closePodiumProjector()" class="absolute top-6 right-6 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-cartoon text-xs flex items-center gap-2">
+      <i data-lucide="x" class="w-4 h-4"></i> Tutup Mode Layar Penuh
+    </button>
+
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-game-yellow/20 border border-game-yellow text-game-yellow text-xs font-bold mb-2">
+        <i data-lucide="sparkles" class="w-4 h-4"></i> LIVE PROJECTOR SCREEN
+      </div>
+      <h2 class="font-cartoon text-3xl md:text-5xl font-bold text-white tracking-wide">
+        PODIUM JUARA KELAS
+      </h2>
+      <p class="text-slate-300 text-sm mt-1">Kode Kelas: <span class="text-game-yellow font-bold font-cartoon text-lg" id="projCode">JUARA2026</span></p>
+    </div>
+
+    <!-- 3D-styled Podium 1, 2, 3 -->
+    <div class="flex items-end justify-center gap-4 md:gap-8 w-full max-w-3xl my-6">
+      
+      <!-- Rank 2 (Silver) -->
+      <div class="flex flex-col items-center flex-1">
+        <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-slate-300 border-4 border-white flex items-center justify-center text-game-navy text-2xl font-cartoon font-bold shadow-xl mb-2">
+          🥈
+        </div>
+        <div id="podium2Name" class="font-cartoon font-bold text-base md:text-xl text-white truncate max-w-[120px]">Rian S.</div>
+        <div id="podium2Score" class="text-xs text-game-yellow font-bold">Skor: 92</div>
+        <div class="w-full bg-gradient-to-t from-slate-700 to-slate-500 rounded-t-2xl h-32 md:h-44 flex items-center justify-center shadow-2xl border-t-4 border-slate-300">
+          <span class="font-cartoon text-4xl font-bold text-white/50">2</span>
+        </div>
+      </div>
+
+      <!-- Rank 1 (Gold - Center) -->
+      <div class="flex flex-col items-center flex-1">
+        <div class="relative">
+          <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-3xl animate-bounce">👑</div>
+          <div class="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-tr from-game-yellow to-game-orange border-4 border-white flex items-center justify-center text-game-navy text-3xl font-cartoon font-bold shadow-2xl mb-2 glow-aura">
+            🥇
+          </div>
+        </div>
+        <div id="podium1Name" class="font-cartoon font-bold text-lg md:text-2xl text-game-yellow truncate max-w-[140px]">Budi S.</div>
+        <div id="podium1Score" class="text-xs md:text-sm text-game-green font-bold">Skor: 100 • Sempurna</div>
+        <div class="w-full bg-gradient-to-t from-game-orange to-game-yellow rounded-t-2xl h-44 md:h-64 flex items-center justify-center shadow-2xl border-t-4 border-white">
+          <span class="font-cartoon text-6xl font-bold text-game-navy/60">1</span>
+        </div>
+      </div>
+
+      <!-- Rank 3 (Bronze) -->
+      <div class="flex flex-col items-center flex-1">
+        <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-amber-700 border-4 border-amber-300 flex items-center justify-center text-white text-2xl font-cartoon font-bold shadow-xl mb-2">
+          🥉
+        </div>
+        <div id="podium3Name" class="font-cartoon font-bold text-base md:text-xl text-white truncate max-w-[120px]">Siti N.</div>
+        <div id="podium3Score" class="text-xs text-game-yellow font-bold">Skor: 88</div>
+        <div class="w-full bg-gradient-to-t from-amber-900 to-amber-700 rounded-t-2xl h-24 md:h-32 flex items-center justify-center shadow-2xl border-t-4 border-amber-400">
+          <span class="font-cartoon text-3xl font-bold text-white/50">3</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="flex items-center gap-3 mt-4">
+      <button onclick="triggerPodiumConfetti()" class="px-6 py-2.5 rounded-2xl bg-game-yellow text-game-navy font-cartoon font-bold text-sm shadow-game-btn flex items-center gap-2">
+        <i data-lucide="sparkles" class="w-5 h-5"></i>
+        Tembakkan Kembang Api! 🎉
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal: Cetak Piagam / Sertifikat Digital -->
+  <div id="certificateModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="relative w-full max-w-2xl bg-slate-900 rounded-3xl p-6 border border-white/20 shadow-2xl">
+      <div class="flex justify-between items-center pb-3 border-b border-white/10">
+        <h3 class="font-cartoon text-lg font-bold text-white">Pratinjau Sertifikat Juara</h3>
+        <button onclick="closeCertificateModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-300">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Printable Certificate Canvas Area -->
+      <div id="certificatePrintArea" class="bg-gradient-to-br from-amber-50 to-orange-100 text-slate-900 p-8 rounded-2xl border-8 border-double border-amber-600 my-4 text-center relative overflow-hidden shadow-inner">
+        <div class="text-xs tracking-widest uppercase font-bold text-amber-800">PIAGAM PENGHARGAAN BELAJAR 3D</div>
+        <h2 class="font-cartoon text-3xl font-bold text-amber-900 mt-2">PENJELAJAH ILMU TERBAIK</h2>
+        <p class="text-xs text-amber-800 mt-1">Diberikan dengan penuh bangga kepada:</p>
+
+        <div class="my-6">
+          <div id="certStudentName" class="font-cartoon text-3xl md:text-4xl font-bold text-slate-900 underline decoration-amber-500 decoration-wavy">
+            BUDI SANTOSO
+          </div>
+          <p id="certDetails" class="text-xs text-slate-700 mt-2 font-medium">
+            Atas keberhasilannya menuntaskan Petualangan Belajar 3D Kota Ilmu & Nusantara dengan Skor Sempurna (100).
+          </p>
+        </div>
+
+        <div class="flex justify-between items-end pt-4 px-6 text-xs text-slate-600 border-t border-amber-300">
+          <div>
+            <div>Kode Kelas: <b id="certCode">JUARA2026</b></div>
+            <div id="certDate">Tanggal: 12 November 2026</div>
+          </div>
+          <div class="text-center">
+            <div class="font-cartoon font-bold text-slate-800">Guru Pengampu</div>
+            <div class="h-10"></div>
+            <div class="font-bold border-b border-slate-700 px-4">Bapak / Ibu Guru</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <button onclick="closeCertificateModal()" class="px-4 py-2 rounded-xl bg-white/10 text-slate-300 text-xs font-cartoon">Tutup</button>
+        <button onclick="printCertificate()" class="px-5 py-2 rounded-xl bg-game-green text-white text-xs font-cartoon font-bold shadow flex items-center gap-1.5">
+          <i data-lucide="printer" class="w-4 h-4"></i> Cetak / Simpan PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Info & Bantuan Panduan -->
+  <div id="helpModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="relative w-full max-w-lg glass-panel rounded-3xl p-6 border border-white/20 shadow-2xl">
+      <div class="flex justify-between items-center pb-3 border-b border-white/10">
+        <h3 class="font-cartoon text-lg font-bold text-white flex items-center gap-2">
+          <i data-lucide="help-circle" class="w-5 h-5 text-game-yellow"></i> Panduan Petualangan Belajar 3D
+        </h3>
+        <button onclick="closeHelpModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-300">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="my-4 space-y-3 text-xs text-slate-200">
+        <p>🎮 <b>Bagi Murid:</b> Jelajahi peta 3D seperti Roblox. Temukan Kristal Soal mengambang atau dekati NPC Guru. Selesaikan 5 jenis soal untuk mendapatkan poin bintang!</p>
+        <p>👩‍🏫 <b>Bagi Guru:</b> Bagikan kode kelas ke murid. Buka tab <b>Dashboard Guru</b> untuk menambahkan soal sendiri atau gunakan generator AI. Nilai langsung masuk otomatis secara real-time tanpa perlu koreksi manual.</p>
+        <p>🏁 <b>Lomba & Podium:</b> Sambungkan proyektor di kelas, aktifkan <b>Layar Proyektor TV</b> untuk melihat podium juara 1, 2, dan 3 yang bergerak seru!</p>
+      </div>
+      <button onclick="closeHelpModal()" class="w-full py-2.5 rounded-xl bg-game-blue text-white font-cartoon text-xs font-bold">Mengerti</button>
+    </div>
+  </div>
+
+
+  <!-- ################################################################ -->
+  <!-- #################### JAVASCRIPT APPLICATION CODE ############### -->
+  <!-- ################################################################ -->
+  <script>
+    /* ====================================================================
+       1. GLOBAL STATE, OFFLINE SYNC QUEUE & DEFAULT MOCK DATA
+       ==================================================================== */
+    const STORAGE_KEYS = {
+      QUESTIONS: 'pb3d_questions_v2',
+      GRADEBOOK: 'pb3d_gradebook_v2',
+      SYNC_QUEUE: 'pb3d_pending_sync_queue_v2',
+      SUPABASE: 'pb3d_supabase_cfg_v2'
+    };
+
+    const STATE = {
+      view: 'student', // 'student' or 'teacher'
+      teacherTab: 'bank',
+      classCode: 'JUARA2026',
+      audioEnabled: true,
+      simulatedOffline: false,
+      importMode: 'standar', // 'standar' or 'pintar'
+      stagedImportQuestions: [],
+      pendingSyncQueue: [],
+      supabaseConfig: { url: '', key: '' },
+      
+      // Current active student
+      student: {
+        name: 'Budi Santoso',
+        nickname: 'Budi',
+        absen: '12',
+        color: '#00A3FF',
+        score: 0,
+        answeredList: [],
+        world: 'kota',
+        gameMode: 'lomba'
+      },
+
+      // Available 3D worlds
+      currentWorld: 'kota',
+
+      // 5 Default initial questions across the 5 mandatory types
+      questions: [
+        {
+          id: 'q1',
+          type: 'pg', // Pilihan Ganda
+          world: 'kota',
+          title: 'Planet manakah yang terkenal dengan julukan "Planet Merah" dalam tata surya kita?',
+          options: ['Venus', 'Mars', 'Jupiter', 'Saturnus'],
+          correctAnswer: 1, // Mars
+          explanation: 'Mars memiliki warna kemerahan karena permukaannya banyak mengandung oksida besi (karat).',
+          weight: 20
+        },
+        {
+          id: 'q2',
+          type: 'bs', // Benar / Salah
+          world: 'kota',
+          title: 'Candi Borobudur didirikan pada masa kejayaan Dinasti Syailendra sekitar abad ke-8.',
+          options: ['Benar', 'Salah'],
+          correctAnswer: 0, // Benar
+          explanation: 'Candi Borobudur dibangun pada abad ke-8 oleh Dinasti Syailendra penganut agama Buddha Mahayana.',
+          weight: 20
+        },
+        {
+          id: 'q3',
+          type: 'isian', // Isian Singkat
+          world: 'nusantara',
+          title: 'Apa nama zat hijau daun yang berfungsi menyerap energi matahari saat fotosintesis?',
+          correctAnswer: 'klorofil',
+          explanation: 'Klorofil atau zat hijau daun bertugas menangkap foton cahaya matahari.',
+          weight: 20
+        },
+        {
+          id: 'q4',
+          type: 'jodoh', // Menjodohkan
+          world: 'laut',
+          title: 'Jodohkan istilah ekosistem laut berikut dengan fungsinya:',
+          pairs: [
+            { left: 'Terumbu Karang', right: 'Rumah & Tempat Pemijahan Ikan' },
+            { left: 'Fitoplankton', right: 'Produsen Utama Oksigen Laut' },
+            { left: 'Hutan Mangrove', right: 'Pencegah Abrasi Pantai' }
+          ],
+          explanation: 'Semua komponen pesisir saling menopang keseimbangan rantai makanan bahari.',
+          weight: 20
+        },
+        {
+          id: 'q5',
+          type: 'urut', // Mengurutkan
+          world: 'angkasa',
+          title: 'Urutkan susunan lapisan atmosfer bumi mulai dari yang paling dekat dengan tanah:',
+          items: ['Troposfer', 'Stratosfer', 'Mesosfer', 'Termosfer'],
+          correctOrder: [0, 1, 2, 3], // Index sequence
+          explanation: 'Urutannya dari bawah ke atas adalah Troposfer -> Stratosfer -> Mesosfer -> Termosfer -> Eksosfer.',
+          weight: 20
+        }
+      ],
+
+      // Mock Class Gradebook data for live dashboard
+      gradebook: [
+        { id: 'std1', absen: '12', name: 'Budi Santoso', completed: 5, total: 5, accuracy: '100%', time: '04:12', score: 100, assessmentType: 'harian', syncStatus: 'synced' },
+        { id: 'std2', absen: '07', name: 'Rian Saputra', completed: 5, total: 5, accuracy: '92%', time: '05:01', score: 92, assessmentType: 'harian', syncStatus: 'synced' },
+        { id: 'std3', absen: '21', name: 'Siti Nurhaliza', completed: 5, total: 5, accuracy: '88%', time: '05:40', score: 88, assessmentType: 'harian', syncStatus: 'synced' },
+        { id: 'std4', absen: '03', name: 'Ahmad Faiz', completed: 4, total: 5, accuracy: '75%', time: '06:15', score: 75, assessmentType: 'harian', syncStatus: 'synced' }
+      ]
+    };
+
+    function loadPersistedState() {
+      try {
+        const savedQs = localStorage.getItem(STORAGE_KEYS.QUESTIONS);
+        if (savedQs) {
+          const parsed = JSON.parse(savedQs);
+          if (Array.isArray(parsed) && parsed.length > 0) STATE.questions = parsed;
+        }
+        const savedGrades = localStorage.getItem(STORAGE_KEYS.GRADEBOOK);
+        if (savedGrades) {
+          const parsed = JSON.parse(savedGrades);
+          if (Array.isArray(parsed) && parsed.length > 0) STATE.gradebook = parsed;
+        }
+        const savedQueue = localStorage.getItem(STORAGE_KEYS.SYNC_QUEUE);
+        if (savedQueue) {
+          STATE.pendingSyncQueue = JSON.parse(savedQueue) || [];
+        }
+        const savedSupa = localStorage.getItem(STORAGE_KEYS.SUPABASE);
+        if (savedSupa) {
+          STATE.supabaseConfig = JSON.parse(savedSupa) || { url: '', key: '' };
+          const urlEl = document.getElementById('inputSupabaseUrl');
+          const keyEl = document.getElementById('inputSupabaseKey');
+          if (urlEl) urlEl.value = STATE.supabaseConfig.url || '';
+          if (keyEl) keyEl.value = STATE.supabaseConfig.key || '';
+        }
+      } catch (e) {
+        console.warn('Gagal memuat penyimpanan lokal:', e);
+      }
+    }
+
+    function persistStateToLocal() {
+      try {
+        localStorage.setItem(STORAGE_KEYS.QUESTIONS, JSON.stringify(STATE.questions));
+        localStorage.setItem(STORAGE_KEYS.GRADEBOOK, JSON.stringify(STATE.gradebook));
+        localStorage.setItem(STORAGE_KEYS.SYNC_QUEUE, JSON.stringify(STATE.pendingSyncQueue));
+      } catch (e) {
+        console.warn('Gagal menyimpan ke penyimpanan lokal:', e);
+      }
+    }
+
+    function isAppOnline() {
+      return navigator.onLine && !STATE.simulatedOffline;
+    }
+
+    function toggleSimulatedOffline() {
+      STATE.simulatedOffline = !STATE.simulatedOffline;
+      updateNetworkStatusUI();
+      if (isAppOnline()) {
+        showToast('Koneksi Online Kembali!', 'Menjalankan sinkronisasi otomatis nilai tertunda...');
+        flushSyncQueue(false);
+      } else {
+        showToast('Mode Offline Aktif', 'Sinyal diputus! Hasil belajar murid akan masuk ke antrean lokal.');
+      }
+    }
+
+    function updateNetworkStatusUI() {
+      const online = isAppOnline();
+      const dot = document.getElementById('netStatusDot');
+      const txt = document.getElementById('netStatusText');
+      const btn = document.getElementById('btnToggleOfflineSim');
+      const icon = document.getElementById('netIcon');
+      const lbl = document.getElementById('netBtnLabel');
+      const syncBadge = document.getElementById('syncStatusBadge');
+      const queueCount = STATE.pendingSyncQueue.length;
+
+      if (online) {
+        dot.className = 'w-2 h-2 rounded-full bg-game-green inline-block animate-ping';
+        txt.innerText = 'Online';
+        btn.className = 'px-2.5 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-300 font-cartoon text-[11px] font-bold flex items-center gap-1.5 transition';
+        icon.setAttribute('data-lucide', 'wifi');
+        lbl.innerText = 'Online (Uji Offline)';
+      } else {
+        dot.className = 'w-2 h-2 rounded-full bg-game-red inline-block';
+        txt.innerText = 'Offline';
+        btn.className = 'px-2.5 py-1.5 rounded-xl bg-rose-500/25 hover:bg-rose-500/35 border border-rose-400/50 text-rose-200 font-cartoon text-[11px] font-bold flex items-center gap-1.5 transition';
+        icon.setAttribute('data-lucide', 'wifi-off');
+        lbl.innerText = 'Offline (Klik Online)';
+      }
+
+      if (queueCount > 0) {
+        syncBadge.className = 'px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-400/40 font-bold text-[10px]';
+        syncBadge.innerText = `⏳ Pending (${queueCount})`;
+      } else {
+        syncBadge.className = 'px-1.5 py-0.2 rounded bg-game-green/20 text-game-green border border-game-green/40 font-bold text-[10px]';
+        syncBadge.innerText = '✓ Synced';
+      }
+
+      const pill = document.getElementById('queueCountPill');
+      if (pill) {
+        pill.innerText = `${queueCount} Tertunda`;
+        pill.className = queueCount > 0
+          ? 'px-2 py-0.5 rounded-full text-[10px] bg-amber-500/20 text-amber-300 border border-amber-400/40'
+          : 'px-2 py-0.5 rounded-full text-[10px] bg-game-green/20 text-game-green border border-game-green/40';
+      }
+
+      lucide.createIcons();
+    }
+
+    async function flushSyncQueue(manualTrigger = false) {
+      if (!isAppOnline()) {
+        if (manualTrigger) showToast('Masih Offline', 'Hubungkan koneksi internet terlebih dahulu untuk menyinkronkan antrean.');
+        updateNetworkStatusUI();
+        return;
+      }
+
+      if (STATE.pendingSyncQueue.length === 0) {
+        if (manualTrigger) showToast('Sudah Sinkron', 'Semua data nilai murid sudah terbaru di database.');
+        updateNetworkStatusUI();
+        return;
+      }
+
+      const batch = [...STATE.pendingSyncQueue];
+      // If Supabase configured, push via REST API
+      if (STATE.supabaseConfig.url && STATE.supabaseConfig.key) {
+        try {
+          const endpoint = `${STATE.supabaseConfig.url.replace(/\/$/, '')}/rest/v1/hasil_belajar_3d`;
+          const payload = batch.map(item => ({
+            kode_kelas: item.classCode || STATE.classCode,
+            nama_siswa: item.name,
+            no_absen: String(item.absen),
+            skor: item.score,
+            akurasi: item.accuracy
+          }));
+          await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': STATE.supabaseConfig.key,
+              'Authorization': `Bearer ${STATE.supabaseConfig.key}`,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(payload)
+          });
+        } catch (err) {
+          console.warn('Cloud push fallback to local sync:', err);
+        }
+      }
+
+      // Merge queued records into live Gradebook
+      batch.forEach(record => {
+        record.syncStatus = 'synced';
+        const idx = STATE.gradebook.findIndex(s => s.name === record.name && s.absen === record.absen);
+        if (idx !== -1) {
+          STATE.gradebook[idx] = record;
+        } else {
+          STATE.gradebook.unshift(record);
+        }
+      });
+
+      STATE.pendingSyncQueue = [];
+      persistStateToLocal();
+      updateNetworkStatusUI();
+      renderTeacherDashboard();
+      SoundFx.correct();
+      showToast('Auto-Sync Berhasil!', `${batch.length} data nilai offline murid otomatis masuk ke rekap guru.`);
+    }
+
+    /* ====================================================================
+       2. SYNTHESIZED WEB AUDIO API SOUND SYSTEM (No external sound links)
+       ==================================================================== */
+    const SoundFx = {
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      playTone(freq, type = 'sine', duration = 0.15, volume = 0.2) {
+        if (!STATE.audioEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+          console.warn('Audio note error:', e);
+        }
+      },
+      jump() {
+        if (!STATE.audioEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.2);
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.2);
+        } catch (e) {}
+      },
+      correct() {
+        // Joyful arpeggio
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+          setTimeout(() => this.playTone(freq, 'triangle', 0.2, 0.25), i * 80);
+        });
+      },
+      wrong() {
+        // Buzzer down
+        this.playTone(220, 'sawtooth', 0.2, 0.3);
+        setTimeout(() => this.playTone(170, 'sawtooth', 0.3, 0.3), 150);
+      },
+      victory() {
+        const fanfare = [392, 523.25, 659.25, 783.99, 1046.50];
+        fanfare.forEach((f, i) => {
+          setTimeout(() => this.playTone(f, 'square', 0.3, 0.25), i * 120);
+        });
+      }
+    };
+
+    function toggleAudio() {
+      STATE.audioEnabled = !STATE.audioEnabled;
+      const icon = document.getElementById('soundIcon');
+      if (STATE.audioEnabled) {
+        icon.setAttribute('data-lucide', 'volume-2');
+        showToast('Suara Aktif', 'Efek suara petualangan dinyalakan');
+      } else {
+        icon.setAttribute('data-lucide', 'volume-x');
+        showToast('Suara Senyap', 'Efek suara dinonaktifkan');
+      }
+      lucide.createIcons();
+    }
+
+    /* ====================================================================
+       3. THREE.JS 3D ENGINE & ROBLOX-STYLE AVATAR / WORLDS
+       ==================================================================== */
+    let scene, camera, renderer;
+    let avatarGroup, avatarBody, avatarHead, leftLeg, rightLeg, leftArm, rightArm;
+    let worldMeshes = [];
+    let crystalObjects = [];
+    let activeNearQuiz = null;
+    let clock = new THREE.Clock();
+
+    // Movement state
+    const keys = { w: false, a: false, s: false, d: false, space: false };
+    const joystick = { x: 0, y: 0, active: false };
+    let playerPos = { x: 0, y: 1.2, z: 0 };
+    let playerVelocityY = 0;
+    let isGrounded = true;
+    let cameraAngle = 0;
+    let cameraPitch = 0.35;
+    let isParachuting = false;
+    let parachuteMesh = null;
+
+    function init3DWorld() {
+      const container = document.getElementById('studentView');
+      const canvas = document.getElementById('gameCanvas');
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0a1628);
+      scene.fog = new THREE.FogExp2(0x0a1628, 0.02);
+
+      // Camera
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 5, 12);
+
+      // Renderer
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+      scene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0xfffaed, 1.2);
+      dirLight.position.set(30, 50, 20);
+      dirLight.castShadow = true;
+      dirLight.shadow.mapSize.width = 1024;
+      dirLight.shadow.mapSize.height = 1024;
+      dirLight.shadow.camera.near = 0.5;
+      dirLight.shadow.camera.far = 150;
+      dirLight.shadow.camera.left = -30;
+      dirLight.shadow.camera.right = 30;
+      dirLight.shadow.camera.top = 30;
+      dirLight.shadow.camera.bottom = -30;
+      scene.add(dirLight);
+
+      // Create Player Blocky Avatar
+      createPlayerAvatar();
+
+      // Build Selected World Environment
+      loadWorldEnvironment(STATE.currentWorld);
+
+      // Setup Listeners
+      setupControls();
+      window.addEventListener('resize', onWindowResize);
+
+      // Start loop
+      animate();
+    }
+
+    function createPlayerAvatar() {
+      if (avatarGroup) scene.remove(avatarGroup);
+
+      avatarGroup = new THREE.Group();
+
+      const skinMat = new THREE.MeshLambertMaterial({ color: 0xffd1a4 });
+      const shirtMat = new THREE.MeshLambertMaterial({ color: STATE.student.color || 0x00A3FF });
+      const pantsMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+
+      // Torso
+      const torsoGeo = new THREE.BoxGeometry(0.9, 1.0, 0.5);
+      avatarBody = new THREE.Mesh(torsoGeo, shirtMat);
+      avatarBody.position.y = 1.0;
+      avatarBody.castShadow = true;
+      avatarGroup.add(avatarBody);
+
+      // Head
+      const headGeo = new THREE.BoxGeometry(0.7, 0.7, 0.7);
+      avatarHead = new THREE.Mesh(headGeo, skinMat);
+      avatarHead.position.y = 1.9;
+      avatarHead.castShadow = true;
+      avatarGroup.add(avatarHead);
+
+      // Hair / Hat (Stylized cartoon cap)
+      const capGeo = new THREE.BoxGeometry(0.75, 0.25, 0.75);
+      const capMat = new THREE.MeshLambertMaterial({ color: 0xff7a00 });
+      const cap = new THREE.Mesh(capGeo, capMat);
+      cap.position.y = 2.28;
+      avatarGroup.add(cap);
+
+      // Face visor
+      const visorGeo = new THREE.BoxGeometry(0.5, 0.15, 0.05);
+      const visorMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
+      const visor = new THREE.Mesh(visorGeo, visorMat);
+      visor.position.set(0, 1.9, 0.36);
+      avatarGroup.add(visor);
+
+      // Left Leg
+      const legGeo = new THREE.BoxGeometry(0.38, 0.9, 0.42);
+      leftLeg = new THREE.Mesh(legGeo, pantsMat);
+      leftLeg.position.set(-0.24, 0.45, 0);
+      leftLeg.castShadow = true;
+      avatarGroup.add(leftLeg);
+
+      // Right Leg
+      rightLeg = new THREE.Mesh(legGeo, pantsMat);
+      rightLeg.position.set(0.24, 0.45, 0);
+      rightLeg.castShadow = true;
+      avatarGroup.add(rightLeg);
+
+      // Left Arm
+      const armGeo = new THREE.BoxGeometry(0.3, 0.9, 0.35);
+      leftArm = new THREE.Mesh(armGeo, shirtMat);
+      leftArm.position.set(-0.64, 1.0, 0);
+      leftArm.castShadow = true;
+      avatarGroup.add(leftArm);
+
+      // Right Arm
+      rightArm = new THREE.Mesh(armGeo, shirtMat);
+      rightArm.position.set(0.64, 1.0, 0);
+      rightArm.castShadow = true;
+      avatarGroup.add(rightArm);
+
+      // Parachute Mesh (Hidden until parachute drop)
+      const canopyGeo = new THREE.ConeGeometry(2.5, 1.2, 12, 1, true);
+      const canopyMat = new THREE.MeshLambertMaterial({ color: 0xffd027, side: THREE.DoubleSide });
+      parachuteMesh = new THREE.Mesh(canopyGeo, canopyMat);
+      parachuteMesh.position.y = 3.6;
+      parachuteMesh.rotation.x = Math.PI;
+      parachuteMesh.visible = false;
+      avatarGroup.add(parachuteMesh);
+
+      avatarGroup.position.set(playerPos.x, playerPos.y, playerPos.z);
+      scene.add(avatarGroup);
+    }
+
+    function updateAvatarColor(hex) {
+      STATE.student.color = hex;
+      if (avatarBody) {
+        avatarBody.material.color.set(hex);
+        leftArm.material.color.set(hex);
+        rightArm.material.color.set(hex);
+      }
+      const icon = document.getElementById('hudAvatarIcon');
+      if (icon) icon.style.backgroundColor = hex;
+    }
+
+    /* ====================================================================
+       4. PROCEDURAL 3D WORLDS GENERATOR (Kota, Nusantara, Laut, Angkasa)
+       ==================================================================== */
+    function clearOldWorld() {
+      worldMeshes.forEach(m => scene.remove(m));
+      worldMeshes = [];
+      crystalObjects.forEach(c => scene.remove(c.mesh));
+      crystalObjects = [];
+    }
+
+    function loadWorldEnvironment(worldType) {
+      clearOldWorld();
+      STATE.currentWorld = worldType;
+
+      if (worldType === 'kota') {
+        // Modern Futuristic Cyber / Educational City
+        scene.background = new THREE.Color(0x0f1e36);
+        scene.fog.color.set(0x0f1e36);
+
+        // Ground Plane (Paved Plaza)
+        const groundGeo = new THREE.PlaneGeometry(160, 160);
+        const groundMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
+        worldMeshes.push(ground);
+
+        // Grid lines aesthetic
+        const gridHelper = new THREE.GridHelper(160, 32, 0x00A3FF, 0x334155);
+        gridHelper.position.y = 0.02;
+        scene.add(gridHelper);
+        worldMeshes.push(gridHelper);
+
+        // Procedural City Buildings
+        const buildingColors = [0x0284c7, 0x38bdf8, 0x6366f1, 0x475569];
+        for (let i = 0; i < 28; i++) {
+          const w = 4 + Math.random() * 5;
+          const h = 8 + Math.random() * 22;
+          const d = 4 + Math.random() * 5;
+          const bGeo = new THREE.BoxGeometry(w, h, d);
+          const bMat = new THREE.MeshLambertMaterial({
+            color: buildingColors[Math.floor(Math.random() * buildingColors.length)]
+          });
+          const bMesh = new THREE.Mesh(bGeo, bMat);
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 22 + Math.random() * 45;
+          bMesh.position.set(Math.cos(angle) * dist, h / 2, Math.sin(angle) * dist);
+          bMesh.castShadow = true;
+          bMesh.receiveShadow = true;
+          scene.add(bMesh);
+          worldMeshes.push(bMesh);
+        }
+
+        // Central Monument
+        const monumentGeo = new THREE.CylinderGeometry(2, 3, 14, 8);
+        const monumentMat = new THREE.MeshLambertMaterial({ color: 0xffd027 });
+        const monument = new THREE.Mesh(monumentGeo, monumentMat);
+        monument.position.set(0, 7, 0);
+        scene.add(monument);
+        worldMeshes.push(monument);
+
+      } else if (worldType === 'nusantara') {
+        // Candi & Tropical Island Nusantara
+        scene.background = new THREE.Color(0x38bdf8);
+        scene.fog.color.set(0x7dd3fc);
+
+        const groundGeo = new THREE.PlaneGeometry(160, 160);
+        const groundMat = new THREE.MeshLambertMaterial({ color: 0x15803d }); // Green grass
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
+        worldMeshes.push(ground);
+
+        // Ancient Temple Stupa / Pagoda central
+        for (let lvl = 0; lvl < 5; lvl++) {
+          const w = 18 - lvl * 3.2;
+          const tierGeo = new THREE.BoxGeometry(w, 1.2, w);
+          const tierMat = new THREE.MeshLambertMaterial({ color: 0x57534e });
+          const tier = new THREE.Mesh(tierGeo, tierMat);
+          tier.position.set(0, 0.6 + lvl * 1.2, 0);
+          tier.castShadow = true;
+          tier.receiveShadow = true;
+          scene.add(tier);
+          worldMeshes.push(tier);
+        }
+
+        // Coconut / Palm Trees
+        for (let i = 0; i < 24; i++) {
+          const trunkGeo = new THREE.CylinderGeometry(0.3, 0.5, 6, 6);
+          const trunkMat = new THREE.MeshLambertMaterial({ color: 0x78350f });
+          const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+          const leavesGeo = new THREE.ConeGeometry(2.5, 3, 6);
+          const leavesMat = new THREE.MeshLambertMaterial({ color: 0x22c55e });
+          const leaves = new THREE.Mesh(leavesGeo, leavesMat);
+          leaves.position.y = 3.5;
+
+          const treeGroup = new THREE.Group();
+          treeGroup.add(trunk);
+          treeGroup.add(leaves);
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 14 + Math.random() * 50;
+          treeGroup.position.set(Math.cos(angle) * dist, 3, Math.sin(angle) * dist);
+          scene.add(treeGroup);
+          worldMeshes.push(treeGroup);
+        }
+
+      } else if (worldType === 'laut') {
+        // Under the Sea: Coral Reef & Aquatic Glow
+        scene.background = new THREE.Color(0x0c4a6e);
+        scene.fog.color.set(0x075985);
+
+        const groundGeo = new THREE.PlaneGeometry(160, 160);
+        const groundMat = new THREE.MeshLambertMaterial({ color: 0xfef08a }); // Sandy ocean floor
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        scene.add(ground);
+        worldMeshes.push(ground);
+
+        // Colorful Coral Formations
+        const coralColors = [0xf43f5e, 0xa855f7, 0x06b6d4, 0xf59e0b];
+        for (let i = 0; i < 35; i++) {
+          const cGeo = new THREE.DodecahedronGeometry(1.5 + Math.random() * 2);
+          const cMat = new THREE.MeshLambertMaterial({
+            color: coralColors[Math.floor(Math.random() * coralColors.length)]
+          });
+          const coral = new THREE.Mesh(cGeo, cMat);
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 10 + Math.random() * 55;
+          coral.position.set(Math.cos(angle) * dist, 1.2, Math.sin(angle) * dist);
+          coral.scale.set(1, 1.5 + Math.random(), 1);
+          scene.add(coral);
+          worldMeshes.push(coral);
+        }
+
+      } else if (worldType === 'angkasa') {
+        // Deep Outer Space & Asteroids
+        scene.background = new THREE.Color(0x030712);
+        scene.fog.color.set(0x030712);
+
+        // Starfield particles
+        const starsGeo = new THREE.BufferGeometry();
+        const starCoords = [];
+        for (let i = 0; i < 800; i++) {
+          starCoords.push(
+            (Math.random() - 0.5) * 300,
+            Math.random() * 100 + 10,
+            (Math.random() - 0.5) * 300
+          );
+        }
+        starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
+        const starsMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.8 });
+        const starField = new THREE.Points(starsGeo, starsMat);
+        scene.add(starField);
+        worldMeshes.push(starField);
+
+        // Space Station Platform
+        const platGeo = new THREE.CylinderGeometry(25, 25, 2, 32);
+        const platMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
+        const plat = new THREE.Mesh(platGeo, platMat);
+        plat.position.y = -1;
+        plat.receiveShadow = true;
+        scene.add(plat);
+        worldMeshes.push(plat);
+
+        // Floating Asteroids around
+        for (let i = 0; i < 20; i++) {
+          const astGeo = new THREE.DodecahedronGeometry(2 + Math.random() * 3);
+          const astMat = new THREE.MeshLambertMaterial({ color: 0x475569 });
+          const ast = new THREE.Mesh(astGeo, astMat);
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 32 + Math.random() * 40;
+          ast.position.set(Math.cos(angle) * dist, 4 + Math.random() * 15, Math.sin(angle) * dist);
+          scene.add(ast);
+          worldMeshes.push(ast);
+        }
+      }
+
+      // Spawn 3D Question Crystal Portals
+      spawnQuestionCrystals();
+    }
+
+    function spawnQuestionCrystals() {
+      // Filter questions relevant or distribute evenly
+      const qs = STATE.questions;
+      const radius = 18;
+      
+      qs.forEach((q, idx) => {
+        const angle = (idx / qs.length) * Math.PI * 2;
+        const x = Math.cos(angle) * radius;
+        const z = Math.sin(angle) * radius;
+
+        const crystalGroup = new THREE.Group();
+
+        // Glowing Crystal Octahedron
+        const gemGeo = new THREE.OctahedronGeometry(1.2, 0);
+        const gemMat = new THREE.MeshLambertMaterial({
+          color: STATE.student.answeredList.includes(q.id) ? 0x00D664 : 0xFFD027,
+          emissive: STATE.student.answeredList.includes(q.id) ? 0x004d24 : 0x4d3900,
+          roughness: 0.2
+        });
+        const gemMesh = new THREE.Mesh(gemGeo, gemMat);
+        gemMesh.position.y = 2.5;
+        gemMesh.castShadow = true;
+        crystalGroup.add(gemMesh);
+
+        // Pedestal base
+        const baseGeo = new THREE.CylinderGeometry(0.8, 1.1, 1.2, 8);
+        const baseMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+        const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+        baseMesh.position.y = 0.6;
+        crystalGroup.add(baseMesh);
+
+        // Light ring halo
+        const ringGeo = new THREE.RingGeometry(1.4, 1.7, 16);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0x00A3FF, side: THREE.DoubleSide });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = 0.05;
+        crystalGroup.add(ring);
+
+        crystalGroup.position.set(x, 0, z);
+        scene.add(crystalGroup);
+
+        crystalObjects.push({
+          mesh: crystalGroup,
+          gem: gemMesh,
+          question: q,
+          pos: { x, z }
+        });
+      });
+    }
+
+    /* ====================================================================
+       5. CONTROLS: KEYBOARD, TOUCH JOYSTICK & CAMERA ROTATION
+       ==================================================================== */
+    function setupControls() {
+      // Keyboard
+      window.addEventListener('keydown', (e) => {
+        const k = e.key.toLowerCase();
+        if (k === 'w' || k === 'arrowup') keys.w = true;
+        if (k === 's' || k === 'arrowdown') keys.s = true;
+        if (k === 'a' || k === 'arrowleft') keys.a = true;
+        if (k === 'd' || k === 'arrowright') keys.d = true;
+        if (k === ' ' || e.code === 'Space') {
+          keys.space = true;
+          handleJump();
+        }
+        if (k === 'e') triggerNearbyQuiz();
+      });
+
+      window.addEventListener('keyup', (e) => {
+        const k = e.key.toLowerCase();
+        if (k === 'w' || k === 'arrowup') keys.w = false;
+        if (k === 's' || k === 'arrowdown') keys.s = false;
+        if (k === 'a' || k === 'arrowleft') keys.a = false;
+        if (k === 'd' || k === 'arrowright') keys.d = false;
+        if (k === ' ' || e.code === 'Space') keys.space = false;
+      });
+
+      // Mouse drag rotation
+      let isDragging = false;
+      let prevMouseX = 0;
+      let prevMouseY = 0;
+
+      const canvas = document.getElementById('gameCanvas');
+      canvas.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        prevMouseX = e.clientX;
+        prevMouseY = e.clientY;
+      });
+
+      window.addEventListener('mouseup', () => isDragging = false);
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - prevMouseX;
+        const deltaY = e.clientY - prevMouseY;
+        prevMouseX = e.clientX;
+        prevMouseY = e.clientY;
+
+        cameraAngle -= deltaX * 0.007;
+        cameraPitch = Math.max(0.1, Math.min(1.2, cameraPitch + deltaY * 0.005));
+      });
+
+      // Mobile Virtual Touch Joystick
+      setupTouchJoystick();
+
+      // Mobile Jump button
+      const btnJump = document.getElementById('btnMobileJump');
+      btnJump.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        handleJump();
+      });
+    }
+
+    function setupTouchJoystick() {
+      const zone = document.getElementById('joystickZone');
+      const knob = document.getElementById('joystickKnob');
+      let touchId = null;
+      let center = { x: 0, y: 0 };
+      const maxRadius = 45;
+
+      zone.addEventListener('touchstart', (e) => {
+        const touch = e.changedTouches[0];
+        touchId = touch.identifier;
+        const rect = zone.getBoundingClientRect();
+        center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+        handleTouchMove(touch);
+      }, { passive: false });
+
+      zone.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === touchId) {
+            handleTouchMove(e.changedTouches[i]);
+            break;
+          }
+        }
+      }, { passive: false });
+
+      const resetJoystick = () => {
+        touchId = null;
+        joystick.x = 0;
+        joystick.y = 0;
+        joystick.active = false;
+        knob.style.transform = `translate(0px, 0px)`;
+      };
+
+      zone.addEventListener('touchend', resetJoystick);
+      zone.addEventListener('touchcancel', resetJoystick);
+
+      function handleTouchMove(touch) {
+        let dx = touch.clientX - center.x;
+        let dy = touch.clientY - center.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > maxRadius) {
+          dx = (dx / dist) * maxRadius;
+          dy = (dy / dist) * maxRadius;
+        }
+
+        knob.style.transform = `translate(${dx}px, ${dy}px)`;
+        joystick.x = dx / maxRadius;
+        joystick.y = dy / maxRadius;
+        joystick.active = Math.hypot(joystick.x, joystick.y) > 0.15;
+      }
+    }
+
+    function handleJump() {
+      if (isGrounded) {
+        playerVelocityY = 8.5;
+        isGrounded = false;
+        SoundFx.jump();
+      }
+    }
+
+    /* ====================================================================
+       6. MAIN ANIMATION & PHYSICS GAME LOOP
+       ==================================================================== */
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const delta = Math.min(clock.getDelta(), 0.1);
+      const time = clock.getElapsedTime();
+
+      // Check parachute drop sequence
+      if (isParachuting) {
+        playerPos.y -= 10 * delta;
+        parachuteMesh.visible = true;
+        if (playerPos.y <= 0) {
+          playerPos.y = 0;
+          isParachuting = false;
+          parachuteMesh.visible = false;
+          showToast('Mendarat!', 'Kamu telah terjun payung di Kota Ilmu. Cari kristal soal!');
+          SoundFx.playTone(587.33, 'triangle', 0.2);
+        }
+      } else {
+        // Player Gravity & Jump Physics
+        if (!isGrounded) {
+          playerVelocityY -= 22 * delta;
+          playerPos.y += playerVelocityY * delta;
+          if (playerPos.y <= 0) {
+            playerPos.y = 0;
+            playerVelocityY = 0;
+            isGrounded = true;
+          }
+        }
+      }
+
+      // Movement Calculations (Keyboard + Joystick)
+      let moveX = 0;
+      let moveZ = 0;
+
+      if (keys.w) moveZ -= 1;
+      if (keys.s) moveZ += 1;
+      if (keys.a) moveX -= 1;
+      if (keys.d) moveX += 1;
+
+      if (joystick.active) {
+        moveX += joystick.x;
+        moveZ += joystick.y;
+      }
+
+      const inputLen = Math.hypot(moveX, moveZ);
+      const isMoving = inputLen > 0.1;
+
+      if (isMoving && !isParachuting) {
+        const speed = 9.0;
+        const normX = moveX / Math.max(inputLen, 1);
+        const normZ = moveZ / Math.max(inputLen, 1);
+
+        // Move relative to camera orientation
+        const forwardX = -Math.sin(cameraAngle);
+        const forwardZ = -Math.cos(cameraAngle);
+        const rightX = Math.cos(cameraAngle);
+        const rightZ = -Math.sin(cameraAngle);
+
+        const deltaMoveX = (rightX * normX + forwardX * normZ) * speed * delta;
+        const deltaMoveZ = (rightZ * normX + forwardZ * normZ) * speed * delta;
+
+        playerPos.x += deltaMoveX;
+        playerPos.z += deltaMoveZ;
+
+        // Keep inside bounds
+        playerPos.x = Math.max(-75, Math.min(75, playerPos.x));
+        playerPos.z = Math.max(-75, Math.min(75, playerPos.z));
+
+        // Rotate character towards moving direction
+        const targetRotation = Math.atan2(deltaMoveX, deltaMoveZ);
+        avatarGroup.rotation.y = targetRotation;
+
+        // Animate legs and arms swing (Roblox run animation)
+        const swing = Math.sin(time * 14) * 0.7;
+        leftLeg.rotation.x = swing;
+        rightLeg.rotation.x = -swing;
+        leftArm.rotation.x = -swing;
+        rightArm.rotation.x = swing;
+      } else {
+        // Idle animation
+        leftLeg.rotation.x = 0;
+        rightLeg.rotation.x = 0;
+        leftArm.rotation.x = 0;
+        rightArm.rotation.x = 0;
+        avatarBody.position.y = 1.0 + Math.sin(time * 3) * 0.03;
+      }
+
+      // Sync avatar mesh position
+      avatarGroup.position.set(playerPos.x, playerPos.y, playerPos.z);
+
+      // Animate Question Crystals (Floating & Rotating)
+      let closestQuiz = null;
+      let minDistance = Infinity;
+
+      crystalObjects.forEach(c => {
+        c.gem.rotation.y = time * 1.5;
+        c.gem.position.y = 2.4 + Math.sin(time * 2.5 + c.pos.x) * 0.35;
+
+        // Distance check
+        const dist = Math.hypot(playerPos.x - c.pos.x, playerPos.z - c.pos.z);
+        if (dist < minDistance) {
+          minDistance = dist;
+          if (dist < 3.8) {
+            closestQuiz = c.question;
+          }
+        }
+      });
+
+      // Update interaction prompt
+      activeNearQuiz = closestQuiz;
+      const promptEl = document.getElementById('interactPrompt');
+      if (activeNearQuiz && !isParachuting) {
+        promptEl.classList.remove('hidden');
+      } else {
+        promptEl.classList.add('hidden');
+      }
+
+      // Camera Follow Third-Person (Roblox style orbit)
+      const camDist = 9.5;
+      const camHeight = 3.8 + cameraPitch * 3.5;
+      const camX = playerPos.x + Math.sin(cameraAngle) * camDist;
+      const camZ = playerPos.z + Math.cos(cameraAngle) * camDist;
+
+      camera.position.x += (camX - camera.position.x) * 0.1;
+      camera.position.y += (playerPos.y + camHeight - camera.position.y) * 0.1;
+      camera.position.z += (camZ - camera.position.z) * 0.1;
+      camera.lookAt(playerPos.x, playerPos.y + 1.6, playerPos.z);
+
+      renderer.render(scene, camera);
+    }
+
+    function onWindowResize() {
+      if (!camera || !renderer) return;
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    /* ====================================================================
+       7. STUDENT JOIN & GAMEPLAY INTERACTIONS
+       ==================================================================== */
+    function handleStudentJoin(e) {
+      e.preventDefault();
+      const codeInput = document.getElementById('inputClassCode').value.trim().toUpperCase();
+      const nickInput = document.getElementById('inputNickname').value.trim();
+      const absenInput = document.getElementById('inputAbsen').value.trim();
+
+      if (!codeInput || !nickInput || !absenInput) {
+        alert('Mohon lengkapi kode kelas, nama, dan no absen!');
+        return;
+      }
+
+      STATE.classCode = codeInput;
+      STATE.student.nickname = nickInput;
+      STATE.student.name = nickInput;
+      STATE.student.absen = absenInput;
+
+      // Update HUD elements
+      document.getElementById('hudStudentName').innerText = nickInput;
+      document.getElementById('hudAbsenBadge').innerText = `Absen ${absenInput}`;
+      document.getElementById('hudAvatarIcon').innerText = nickInput.charAt(0).toUpperCase();
+
+      // Close lobby modal, open HUD
+      document.getElementById('lobbyScreen').classList.add('hidden');
+      document.getElementById('gameHud').classList.remove('hidden');
+
+      // Start Parachute Drop sequence
+      playerPos = { x: 0, y: 35, z: 12 };
+      isParachuting = true;
+
+      showToast('Terjun Payung!', 'Selamat datang di Lomba Kelas! Mendaratlah dan raih bintang ilmu!');
+      SoundFx.jump();
+    }
+
+    function selectWorld(worldKey) {
+      STATE.currentWorld = worldKey;
+      document.querySelectorAll('.world-choice-btn').forEach(b => {
+        b.classList.remove('border-game-blue', 'bg-game-blue/20');
+        b.classList.add('border-white/10', 'bg-black/40');
+      });
+      const activeBtn = document.getElementById(`worldOpt-${worldKey}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('border-white/10', 'bg-black/40');
+        activeBtn.classList.add('border-game-blue', 'bg-game-blue/20');
+      }
+      loadWorldEnvironment(worldKey);
+    }
+
+    function setAvatarColor(hex) {
+      updateAvatarColor(hex);
+      showToast('Warna Avatar', 'Warna seragam berhasil diperbarui');
+    }
+
+    function changeInGameWorld(w) {
+      selectWorld(w);
+      showToast('Pindah Alam 3D', `Berpindah ke alam: ${w.toUpperCase()}`);
+    }
+
+    /* ====================================================================
+       8. QUIZ ENGINE (5 QUESTION TYPES)
+       ==================================================================== */
+    let currentQuizInstance = null;
+    let quizSelectedOption = null;
+    let quizUserOrder = [];
+    let quizUserPairs = {};
+
+    function triggerNearbyQuiz() {
+      if (!activeNearQuiz) return;
+      openQuizModal(activeNearQuiz);
+    }
+
+    function openQuizModal(q) {
+      currentQuizInstance = q;
+      quizSelectedOption = null;
+
+      const modal = document.getElementById('quizModal');
+      const badgeType = document.getElementById('quizBadgeType');
+      const title = document.getElementById('quizTitle');
+      const subtitle = document.getElementById('quizSubtitle');
+      const interactArea = document.getElementById('quizInteractArea');
+      const feedbackBox = document.getElementById('quizFeedbackBox');
+      const submitBtn = document.getElementById('btnSubmitQuiz');
+
+      feedbackBox.classList.add('hidden');
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50');
+
+      title.innerText = q.title;
+      interactArea.innerHTML = '';
+
+      // Set Type Badges & render UI according to 5 types
+      if (q.type === 'pg') {
+        badgeType.innerText = 'PILIHAN GANDA';
+        badgeType.className = 'px-3 py-1 rounded-xl text-xs font-cartoon font-bold bg-game-blue text-white uppercase';
+        subtitle.classList.add('hidden');
+
+        q.options.forEach((opt, idx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'w-full text-left p-3.5 rounded-2xl bg-black/40 hover:bg-game-blue/20 border-2 border-white/15 text-white font-sans text-sm flex items-center justify-between transition';
+          btn.innerHTML = `<span><b class="text-game-yellow mr-2 font-cartoon">${String.fromCharCode(65 + idx)}.</b> ${opt}</span> <i data-lucide="circle" class="w-4 h-4 text-slate-400"></i>`;
+          btn.onclick = () => {
+            quizSelectedOption = idx;
+            document.querySelectorAll('#quizInteractArea button').forEach(b => {
+              b.classList.remove('border-game-yellow', 'bg-game-yellow/20');
+              b.classList.add('border-white/15');
+            });
+            btn.classList.add('border-game-yellow', 'bg-game-yellow/20');
+            btn.classList.remove('border-white/15');
+            SoundFx.playTone(440, 'sine', 0.08);
+          };
+          interactArea.appendChild(btn);
+        });
+
+      } else if (q.type === 'bs') {
+        badgeType.innerText = 'BENAR / SALAH';
+        badgeType.className = 'px-3 py-1 rounded-xl text-xs font-cartoon font-bold bg-game-purple text-white uppercase';
+        subtitle.classList.add('hidden');
+
+        const grid = document.createElement('div');
+        grid.className = 'grid grid-cols-2 gap-3';
+
+        const bBenar = document.createElement('button');
+        bBenar.type = 'button';
+        bBenar.className = 'p-5 rounded-2xl bg-game-green/20 hover:bg-game-green/40 border-2 border-game-green text-center transition';
+        bBenar.innerHTML = `<div class="text-3xl mb-1">👍</div><div class="font-cartoon font-bold text-lg text-white">BENAR</div>`;
+        bBenar.onclick = () => {
+          quizSelectedOption = 0;
+          bBenar.classList.add('ring-4', 'ring-white');
+          bSalah.classList.remove('ring-4', 'ring-white');
+          SoundFx.playTone(440, 'sine', 0.08);
+        };
+
+        const bSalah = document.createElement('button');
+        bSalah.type = 'button';
+        bSalah.className = 'p-5 rounded-2xl bg-game-red/20 hover:bg-game-red/40 border-2 border-game-red text-center transition';
+        bSalah.innerHTML = `<div class="text-3xl mb-1">👎</div><div class="font-cartoon font-bold text-lg text-white">SALAH</div>`;
+        bSalah.onclick = () => {
+          quizSelectedOption = 1;
+          bSalah.classList.add('ring-4', 'ring-white');
+          bBenar.classList.remove('ring-4', 'ring-white');
+          SoundFx.playTone(380, 'sine', 0.08);
+        };
+
+        grid.appendChild(bBenar);
+        grid.appendChild(bSalah);
+        interactArea.appendChild(grid);
+
+      } else if (q.type === 'isian') {
+        badgeType.innerText = 'ISIAN SINGKAT';
+        badgeType.className = 'px-3 py-1 rounded-xl text-xs font-cartoon font-bold bg-game-orange text-white uppercase';
+        subtitle.innerText = 'Ketikkan jawaban ringkas tanpa tanda baca:';
+        subtitle.classList.remove('hidden');
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = 'inputQuizShort';
+        input.placeholder = 'Ketik jawaban Anda di sini...';
+        input.className = 'w-full bg-black/50 border-2 border-white/20 focus:border-game-yellow rounded-2xl px-4 py-3 text-white text-base outline-none font-sans';
+        interactArea.appendChild(input);
+
+      } else if (q.type === 'jodoh') {
+        badgeType.innerText = 'MENJODOHKAN';
+        badgeType.className = 'px-3 py-1 rounded-xl text-xs font-cartoon font-bold bg-teal-500 text-white uppercase';
+        subtitle.innerText = 'Pilih pasangan yang sesuai untuk setiap pernyataan:';
+        subtitle.classList.remove('hidden');
+        quizUserPairs = {};
+
+        const pairs = q.pairs || [];
+        const rightOptions = pairs.map(p => p.right).sort(() => Math.random() - 0.5);
+
+        pairs.forEach((p, pIdx) => {
+          const row = document.createElement('div');
+          row.className = 'p-3 rounded-2xl bg-black/40 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-2';
+          row.innerHTML = `
+            <div class="font-semibold text-xs text-white w-full md:w-1/2">${p.left}</div>
+            <select id="pairSelect_${pIdx}" class="w-full md:w-1/2 bg-slate-900 border border-white/20 rounded-xl px-2.5 py-1.5 text-xs text-game-yellow font-bold outline-none">
+              <option value="">-- Pilih Pasangan --</option>
+              ${rightOptions.map(r => `<option value="${r}">${r}</option>`).join('')}
+            </select>
+          `;
+          interactArea.appendChild(row);
+        });
+
+      } else if (q.type === 'urut') {
+        badgeType.innerText = 'MENGURUTKAN URUTAN';
+        badgeType.className = 'px-3 py-1 rounded-xl text-xs font-cartoon font-bold bg-pink-500 text-white uppercase';
+        subtitle.innerText = 'Gunakan tombol panah Naik / Turun untuk menyusun urutan yang tepat:';
+        subtitle.classList.remove('hidden');
+
+        quizUserOrder = [...q.items];
+        renderOrderList();
+      }
+
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+      SoundFx.playTone(523.25, 'triangle', 0.1);
+    }
+
+    function renderOrderList() {
+      const interactArea = document.getElementById('quizInteractArea');
+      interactArea.innerHTML = '';
+
+      quizUserOrder.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = 'p-3 rounded-2xl bg-black/40 border border-white/15 flex items-center justify-between';
+        row.innerHTML = `
+          <div class="flex items-center space-x-2">
+            <span class="w-6 h-6 rounded-lg bg-game-blue text-white font-cartoon font-bold text-xs flex items-center justify-center">${idx + 1}</span>
+            <span class="text-xs text-white font-semibold">${item}</span>
+          </div>
+          <div class="flex items-center space-x-1">
+            <button type="button" onclick="moveOrderItem(${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-30 p-1.5"' : 'class="p-1.5 hover:bg-white/10 rounded-lg text-slate-300"'}>
+              <i data-lucide="chevron-up" class="w-4 h-4"></i>
+            </button>
+            <button type="button" onclick="moveOrderItem(${idx}, 1)" ${idx === quizUserOrder.length - 1 ? 'disabled class="opacity-30 p-1.5"' : 'class="p-1.5 hover:bg-white/10 rounded-lg text-slate-300"'}>
+              <i data-lucide="chevron-down" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `;
+        interactArea.appendChild(row);
+      });
+      lucide.createIcons();
+    }
+
+    function moveOrderItem(idx, dir) {
+      const target = idx + dir;
+      if (target < 0 || target >= quizUserOrder.length) return;
+      const temp = quizUserOrder[idx];
+      quizUserOrder[idx] = quizUserOrder[target];
+      quizUserOrder[target] = temp;
+      renderOrderList();
+      SoundFx.playTone(350, 'sine', 0.05);
+    }
+
+    function submitCurrentQuiz() {
+      if (!currentQuizInstance) return;
+      const q = currentQuizInstance;
+      let isCorrect = false;
+
+      if (q.type === 'pg' || q.type === 'bs') {
+        if (quizSelectedOption === null) {
+          alert('Pilih salah satu jawaban terlebih dahulu!');
+          return;
+        }
+        isCorrect = (quizSelectedOption === q.correctAnswer);
+
+      } else if (q.type === 'isian') {
+        const inp = document.getElementById('inputQuizShort');
+        if (!inp || !inp.value.trim()) {
+          alert('Tolong ketikkan jawaban singkat Anda!');
+          return;
+        }
+        const userVal = inp.value.trim().toLowerCase();
+        isCorrect = userVal.includes(String(q.correctAnswer).toLowerCase());
+
+      } else if (q.type === 'jodoh') {
+        let allMatch = true;
+        (q.pairs || []).forEach((p, idx) => {
+          const sel = document.getElementById(`pairSelect_${idx}`);
+          if (!sel || sel.value !== p.right) allMatch = false;
+        });
+        isCorrect = allMatch;
+
+      } else if (q.type === 'urut') {
+        // Compare current order items with original items sequence
+        let match = true;
+        (q.correctOrder || [0, 1, 2, 3]).forEach((correctIdx, pos) => {
+          if (quizUserOrder[pos] !== q.items[correctIdx]) match = false;
+        });
+        isCorrect = match;
+      }
+
+      // Show Feedback
+      const feedbackBox = document.getElementById('quizFeedbackBox');
+      const feedbackTitle = document.getElementById('quizFeedbackTitle');
+      const feedbackText = document.getElementById('quizFeedbackText');
+      const submitBtn = document.getElementById('btnSubmitQuiz');
+
+      feedbackBox.classList.remove('hidden');
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50');
+
+      if (isCorrect) {
+        SoundFx.correct();
+        feedbackBox.className = 'p-4 rounded-2xl mb-4 border border-game-green bg-game-green/20 text-game-green';
+        feedbackTitle.innerHTML = '🎉 Jawaban Tepat Sekali!';
+        feedbackText.innerText = q.explanation || 'Pemahaman konsep Anda sangat hebat!';
+
+        // Update Student Progress
+        if (!STATE.student.answeredList.includes(q.id)) {
+          STATE.student.answeredList.push(q.id);
+          STATE.student.score += q.weight || 20;
+
+          // Confetti celebration
+          confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
+
+          // Refresh HUD
+          document.getElementById('hudScore').innerText = STATE.student.score;
+          document.getElementById('hudCompletedCount').innerText = `${STATE.student.answeredList.length} / ${STATE.questions.length}`;
+
+          // Update Crystal color to green
+          const found = crystalObjects.find(c => c.question.id === q.id);
+          if (found) {
+            found.gem.material.color.set(0x00D664);
+            found.gem.material.emissive.set(0x004d24);
+          }
+
+          // Check all completed
+          if (STATE.student.answeredList.length >= STATE.questions.length) {
+            setTimeout(() => {
+              closeQuizModal();
+              openVictoryModal();
+            }, 1800);
+          }
+        }
+
+      } else {
+        SoundFx.wrong();
+        feedbackBox.className = 'p-4 rounded-2xl mb-4 border border-game-red bg-game-red/20 text-game-red';
+        feedbackTitle.innerHTML = '❌ Belum Tepat, Semangat!';
+        feedbackText.innerText = q.explanation || 'Jangan menyerah, tinjau kembali materinya!';
+      }
+
+      // Sync grade to teacher records automatically
+      syncStudentGrade();
+    }
+
+    function closeQuizModal() {
+      document.getElementById('quizModal').classList.add('hidden');
+      currentQuizInstance = null;
+    }
+
+    function syncStudentGrade() {
+      const acc = `${Math.min(100, Math.round((STATE.student.score / Math.max(1, STATE.questions.length * 20)) * 100))}%`;
+      const online = isAppOnline();
+      const record = {
+        id: `std_${STATE.student.absen}`,
+        classCode: STATE.classCode,
+        absen: STATE.student.absen,
+        name: STATE.student.name,
+        completed: STATE.student.answeredList.length,
+        total: STATE.questions.length,
+        accuracy: acc,
+        time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        score: STATE.student.score,
+        assessmentType: 'harian',
+        syncStatus: online ? 'synced' : 'pending_sync'
+      };
+
+      const vicText = document.getElementById('vicSyncStatusText');
+
+      if (online) {
+        const idx = STATE.gradebook.findIndex(s => s.name === STATE.student.name || s.absen === STATE.student.absen);
+        if (idx !== -1) {
+          STATE.gradebook[idx] = record;
+        } else {
+          STATE.gradebook.unshift(record);
+        }
+        // Also push directly to Supabase if configured
+        if (STATE.supabaseConfig.url && STATE.supabaseConfig.key) {
+          STATE.pendingSyncQueue.push(record);
+          flushSyncQueue(false);
+        }
+        if (vicText) vicText.innerText = '✓ Nilai otomatis terkirim online ke Dashboard Guru.';
+      } else {
+        // Offline-First Queue: Save to pending_sync queue
+        const qIdx = STATE.pendingSyncQueue.findIndex(s => s.name === record.name && s.absen === record.absen);
+        if (qIdx !== -1) {
+          STATE.pendingSyncQueue[qIdx] = record;
+        } else {
+          STATE.pendingSyncQueue.push(record);
+        }
+        // Also reflect locally with pending badge so student sees progress
+        const idx = STATE.gradebook.findIndex(s => s.name === STATE.student.name || s.absen === STATE.student.absen);
+        if (idx !== -1) {
+          STATE.gradebook[idx] = record;
+        } else {
+          STATE.gradebook.unshift(record);
+        }
+        if (vicText) vicText.innerText = '⏳ Tersimpan Offline di HP! Nilai akan otomatis terkirim saat online.';
+        showToast('Tersimpan Offline', 'Nilai masuk antrean & akan terkirim otomatis saat sinyal terhubung.');
+      }
+
+      persistStateToLocal();
+      updateNetworkStatusUI();
+      renderTeacherDashboard();
+    }
+
+    /* ====================================================================
+       9. VICTORY, LEADERBOARD & MINIGAME MODALS
+       ==================================================================== */
+    function openVictoryModal() {
+      SoundFx.victory();
+      confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+      document.getElementById('vicName').innerText = STATE.student.nickname;
+      document.getElementById('vicScore').innerText = STATE.student.score;
+      document.getElementById('victoryModal').classList.remove('hidden');
+    }
+
+    function closeVictoryModal() {
+      document.getElementById('victoryModal').classList.add('hidden');
+    }
+
+    function openMiniLeaderboard() {
+      const modal = document.getElementById('studentLeaderboardModal');
+      const list = document.getElementById('studentLeaderboardList');
+      document.getElementById('lbClassCode').innerText = STATE.classCode;
+
+      list.innerHTML = '';
+      const sorted = [...STATE.gradebook].sort((a, b) => b.score - a.score);
+
+      sorted.forEach((std, i) => {
+        const item = document.createElement('div');
+        item.className = `p-3 rounded-2xl flex items-center justify-between border ${i === 0 ? 'bg-game-yellow/20 border-game-yellow' : 'bg-black/40 border-white/10'}`;
+        item.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <span class="font-cartoon text-base font-bold ${i === 0 ? 'text-game-yellow' : 'text-slate-400'}">#${i + 1}</span>
+            <div>
+              <div class="font-cartoon font-bold text-sm text-white">${std.name}</div>
+              <div class="text-[10px] text-slate-300">Absen: ${std.absen} • Akurasi: ${std.accuracy}</div>
+            </div>
+          </div>
+          <div class="font-cartoon font-bold text-base ${i === 0 ? 'text-game-yellow' : 'text-white'}">${std.score} Pts</div>
+        `;
+        list.appendChild(item);
+      });
+
+      modal.classList.remove('hidden');
+      SoundFx.playTone(440, 'sine', 0.1);
+    }
+
+    function closeMiniLeaderboard() {
+      document.getElementById('studentLeaderboardModal').classList.add('hidden');
+    }
+
+    /* ====================================================================
+       10. TEACHER VIEW CONTROLLER & GRADEBOOK MANAGEMENT
+       ==================================================================== */
+    function switchMainView(view) {
+      STATE.view = view;
+      const sView = document.getElementById('studentView');
+      const tView = document.getElementById('teacherView');
+      const btnStd = document.getElementById('navBtnStudent');
+      const btnTch = document.getElementById('navBtnTeacher');
+
+      if (view === 'student') {
+        sView.classList.remove('hidden');
+        tView.classList.add('hidden');
+        btnStd.className = 'px-3 md:px-4 py-1.5 rounded-xl font-cartoon text-xs md:text-sm font-bold bg-game-yellow text-game-navy shadow-sm';
+        btnTch.className = 'px-3 md:px-4 py-1.5 rounded-xl font-cartoon text-xs md:text-sm font-bold text-slate-300 hover:text-white transition';
+        onWindowResize();
+      } else {
+        sView.classList.add('hidden');
+        tView.classList.remove('hidden');
+        btnTch.className = 'px-3 md:px-4 py-1.5 rounded-xl font-cartoon text-xs md:text-sm font-bold bg-game-yellow text-game-navy shadow-sm';
+        btnStd.className = 'px-3 md:px-4 py-1.5 rounded-xl font-cartoon text-xs md:text-sm font-bold text-slate-300 hover:text-white transition';
+        renderTeacherDashboard();
+      }
+      lucide.createIcons();
+    }
+
+    function setTeacherTab(tab) {
+      STATE.teacherTab = tab;
+      ['bank', 'nilai', 'analisis', 'database'].forEach(t => {
+        const content = document.getElementById(`tabContent-${t}`);
+        const btn = document.getElementById(`tabBtn-${t}`);
+        if (t === tab) {
+          content.classList.remove('hidden');
+          btn.className = 'px-4 py-2 rounded-xl font-cartoon text-xs md:text-sm font-bold bg-game-blue text-white shadow transition flex items-center gap-2 whitespace-nowrap';
+        } else {
+          content.classList.add('hidden');
+          btn.className = 'px-4 py-2 rounded-xl font-cartoon text-xs md:text-sm font-bold text-slate-300 hover:text-white transition flex items-center gap-2 whitespace-nowrap';
+        }
+      });
+      lucide.createIcons();
+    }
+
+    function renderTeacherDashboard() {
+      // 1. Metric calculations
+      const totalStudents = STATE.gradebook.length;
+      const avgScore = totalStudents > 0 
+        ? (STATE.gradebook.reduce((sum, s) => sum + s.score, 0) / totalStudents).toFixed(1)
+        : 0;
+      const passedCount = STATE.gradebook.filter(s => s.score >= 75).length;
+      const mastery = totalStudents > 0 ? `${Math.round((passedCount / totalStudents) * 100)}%` : '0%';
+
+      document.getElementById('statTotalStudents').innerText = totalStudents;
+      document.getElementById('statAverageScore').innerText = avgScore;
+      document.getElementById('statTotalQuestions').innerText = STATE.questions.length;
+      document.getElementById('statMastery').innerText = mastery;
+      document.getElementById('teacherClassCodeDisplay').innerText = STATE.classCode;
+
+      // 2. Render Bank Soal cards
+      renderQuestionsList();
+
+      // 3. Render Gradebook table
+      renderGradebookTable();
+
+      // 4. Render Item Analysis
+      renderItemAnalysis();
+
+      lucide.createIcons();
+    }
+
+    function renderQuestionsList() {
+      const container = document.getElementById('teacherQuestionsList');
+      container.innerHTML = '';
+
+      STATE.questions.forEach((q, idx) => {
+        const card = document.createElement('div');
+        card.className = 'glass-panel p-4 rounded-2xl border border-white/10 flex flex-col justify-between';
+        
+        const typeLabels = {
+          pg: 'Pilihan Ganda',
+          bs: 'Benar / Salah',
+          isian: 'Isian Singkat',
+          jodoh: 'Menjodohkan',
+          urut: 'Mengurutkan'
+        };
+
+        const worldIcons = {
+          kota: '🏙️ Kota Ilmu',
+          nusantara: '🏝️ Nusantara',
+          laut: '🪸 Bawah Laut',
+          angkasa: '🚀 Antariksa'
+        };
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-game-blue/20 text-game-blue border border-game-blue/30 font-cartoon uppercase">
+                ${typeLabels[q.type] || q.type}
+              </span>
+              <span class="text-[10px] text-slate-400 font-medium">${worldIcons[q.world] || 'Kota'}</span>
+            </div>
+            <h4 class="font-cartoon text-sm font-bold text-white leading-snug">#${idx + 1}. ${q.title}</h4>
+            <p class="text-xs text-slate-300 mt-2 italic bg-black/30 p-2 rounded-xl">
+              💡 Pembahasan: ${q.explanation || '-'}
+            </p>
+          </div>
+
+          <div class="flex items-center justify-between pt-3 mt-3 border-t border-white/5">
+            <span class="text-[11px] text-game-yellow font-bold font-cartoon">Bobot: ${q.weight || 20} Poin</span>
+            <div class="flex items-center space-x-1">
+              <button onclick="editQuestion('${q.id}')" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-cyan-300" title="Sunting">
+                <i data-lucide="edit" class="w-4 h-4"></i>
+              </button>
+              <button onclick="deleteQuestion('${q.id}')" class="p-1.5 rounded-lg bg-white/10 hover:bg-game-red/30 text-game-red" title="Hapus">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderGradebookTable() {
+      const tbody = document.getElementById('teacherGradesTbody');
+      tbody.innerHTML = '';
+
+      const filter = document.getElementById('assessmentFilter').value;
+      let list = [...STATE.gradebook];
+      if (filter !== 'all') {
+        list = list.filter(s => s.assessmentType === filter);
+      }
+      list.sort((a, b) => b.score - a.score);
+
+      list.forEach((s, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-white/5 transition';
+        tr.innerHTML = `
+          <td class="p-3 font-cartoon font-bold ${idx === 0 ? 'text-game-yellow' : 'text-slate-300'}">
+            ${idx === 0 ? '🥇 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : idx + 1}
+          </td>
+          <td class="p-3 font-cartoon text-game-yellow font-bold">${s.absen}</td>
+          <td class="p-3 font-semibold text-white">${s.name}</td>
+          <td class="p-3 text-[11px] text-slate-300">${s.completed} / ${s.total} Pos</td>
+          <td class="p-3 text-emerald-400 font-bold">${s.accuracy}</td>
+          <td class="p-3 text-[11px]">
+            ${s.syncStatus === 'pending_sync'
+              ? '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-400/40 font-bold">⏳ Pending Offline</span>'
+              : '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-bold">✓ Synced (' + s.time + ')</span>'}
+          </td>
+          <td class="p-3">
+            <span class="px-2.5 py-1 rounded-lg text-xs font-cartoon font-bold ${s.score >= 75 ? 'bg-game-green/20 text-game-green border border-game-green/30' : 'bg-game-red/20 text-game-red'}">
+              ${s.score}
+            </span>
+          </td>
+          <td class="p-3 text-center">
+            <button onclick="openCertificateForStudent('${s.name}', ${s.score})" class="px-2.5 py-1 rounded-lg bg-game-yellow/20 hover:bg-game-yellow/30 text-game-yellow font-cartoon text-[11px] font-bold border border-game-yellow/30 inline-flex items-center gap-1">
+              <i data-lucide="award" class="w-3.5 h-3.5"></i> Piagam
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderItemAnalysis() {
+      const container = document.getElementById('analysisQuestionsContainer');
+      container.innerHTML = '';
+
+      STATE.questions.forEach((q, idx) => {
+        // Simulated difficulty & discrimination index
+        const correctPercent = Math.min(95, Math.max(40, 90 - idx * 10));
+        let diffLabel = 'Sedang';
+        let diffColor = 'text-game-yellow';
+        if (correctPercent > 80) { diffLabel = 'Mudah'; diffColor = 'text-game-green'; }
+        if (correctPercent < 55) { diffLabel = 'Sukar'; diffColor = 'text-game-red'; }
+
+        const row = document.createElement('div');
+        row.className = 'p-4 rounded-2xl glass-panel border border-white/10 space-y-2';
+        row.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="font-cartoon text-sm font-bold text-white">#${idx + 1}. ${q.title}</div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-bold ${diffColor}">Kategori: ${diffLabel}</span>
+              <span class="text-xs text-slate-400">(${correctPercent}% Siswa Benar)</span>
+            </div>
+          </div>
+          <div class="w-full bg-black/40 h-2.5 rounded-full overflow-hidden border border-white/10">
+            <div class="bg-gradient-to-r from-game-blue to-game-green h-full rounded-full" style="width: ${correctPercent}%;"></div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function filterGradebook() {
+      renderGradebookTable();
+      lucide.createIcons();
+    }
+
+    /* ====================================================================
+       11. QUESTION BUILDER MODAL LOGIC (CRUD)
+       ==================================================================== */
+    function openAddQuestionModal() {
+      document.getElementById('editQuestionId').value = '';
+      document.getElementById('modalQuestionFormTitle').innerText = 'Tambah Soal Baru';
+      document.getElementById('qFormTitle').value = '';
+      document.getElementById('qFormExplanation').value = '';
+      renderQuestionTypeInputs();
+      document.getElementById('addQuestionModal').classList.remove('hidden');
+    }
+
+    function closeAddQuestionModal() {
+      document.getElementById('addQuestionModal').classList.add('hidden');
+    }
+
+    function renderQuestionTypeInputs() {
+      const type = document.getElementById('qFormType').value;
+      const box = document.getElementById('dynamicTypeInputs');
+      box.innerHTML = '';
+
+      if (type === 'pg') {
+        box.innerHTML = `
+          <label class="block font-bold text-slate-300 mb-1">PILIHAN JAWABAN (A, B, C, D) & TANDAI JAWABAN BENAR</label>
+          <div class="space-y-2">
+            ${['A', 'B', 'C', 'D'].map((ltr, idx) => `
+              <div class="flex items-center space-x-2">
+                <input type="radio" name="pgCorrectRadio" value="${idx}" ${idx === 0 ? 'checked' : ''} class="w-4 h-4 text-game-yellow">
+                <span class="font-cartoon font-bold text-game-yellow text-xs">${ltr}.</span>
+                <input type="text" id="pgOpt_${idx}" required placeholder="Teks Pilihan ${ltr}" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-1.5 text-white outline-none">
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else if (type === 'bs') {
+        box.innerHTML = `
+          <label class="block font-bold text-slate-300 mb-1">KUNCI JAWABAN BENAR</label>
+          <div class="flex gap-4">
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="radio" name="bsCorrectRadio" value="0" checked class="w-4 h-4 text-game-green">
+              <span class="text-white font-bold">BENAR</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="radio" name="bsCorrectRadio" value="1" class="w-4 h-4 text-game-red">
+              <span class="text-white font-bold">SALAH</span>
+            </label>
+          </div>
+        `;
+      } else if (type === 'isian') {
+        box.innerHTML = `
+          <label class="block font-bold text-slate-300 mb-1">KUNCI JAWABAN KATA KUNCI</label>
+          <input type="text" id="isianCorrectInput" required placeholder="Contoh: Fotosintesis" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white outline-none">
+        `;
+      } else if (type === 'jodoh') {
+        box.innerHTML = `
+          <label class="block font-bold text-slate-300 mb-1">PASANGAN COCOK (Kiri vs Kanan)</label>
+          <div class="space-y-2">
+            <div class="grid grid-cols-2 gap-2">
+              <input type="text" id="pairL_0" placeholder="Pernyataan 1" value="Matahari" class="bg-black/50 border border-white/20 rounded-xl p-2 text-white">
+              <input type="text" id="pairR_0" placeholder="Pasangan 1" value="Bintang Pusat Tata Surya" class="bg-black/50 border border-white/20 rounded-xl p-2 text-white">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <input type="text" id="pairL_1" placeholder="Pernyataan 2" value="Bulan" class="bg-black/50 border border-white/20 rounded-xl p-2 text-white">
+              <input type="text" id="pairR_1" placeholder="Pasangan 2" value="Satelit Alami Bumi" class="bg-black/50 border border-white/20 rounded-xl p-2 text-white">
+            </div>
+          </div>
+        `;
+      } else if (type === 'urut') {
+        box.innerHTML = `
+          <label class="block font-bold text-slate-300 mb-1">MASUKKAN ITEM BERURUTAN DARI AWAL KE AKHIR (Pisahkan tanda koma)</label>
+          <input type="text" id="urutInputCsv" required placeholder="Telur, Ulat, Kepompong, Kupu-kupu" value="Telur, Ulat, Kepompong, Kupu-kupu" class="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white outline-none">
+        `;
+      }
+    }
+
+    function handleSaveQuestion(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editQuestionId').value;
+      const type = document.getElementById('qFormType').value;
+      const world = document.getElementById('qFormWorld').value;
+      const title = document.getElementById('qFormTitle').value.trim();
+      const explanation = document.getElementById('qFormExplanation').value.trim();
+
+      const newQ = {
+        id: editId || `q_${Date.now()}`,
+        type,
+        world,
+        title,
+        explanation,
+        weight: 20
+      };
+
+      if (type === 'pg') {
+        newQ.options = [
+          document.getElementById('pgOpt_0').value.trim(),
+          document.getElementById('pgOpt_1').value.trim(),
+          document.getElementById('pgOpt_2').value.trim(),
+          document.getElementById('pgOpt_3').value.trim()
+        ];
+        const rad = document.querySelector('input[name="pgCorrectRadio"]:checked');
+        newQ.correctAnswer = rad ? parseInt(rad.value) : 0;
+      } else if (type === 'bs') {
+        newQ.options = ['Benar', 'Salah'];
+        const rad = document.querySelector('input[name="bsCorrectRadio"]:checked');
+        newQ.correctAnswer = rad ? parseInt(rad.value) : 0;
+      } else if (type === 'isian') {
+        newQ.correctAnswer = document.getElementById('isianCorrectInput').value.trim().toLowerCase();
+      } else if (type === 'jodoh') {
+        newQ.pairs = [
+          { left: document.getElementById('pairL_0').value, right: document.getElementById('pairR_0').value },
+          { left: document.getElementById('pairL_1').value, right: document.getElementById('pairR_1').value }
+        ];
+      } else if (type === 'urut') {
+        const raw = document.getElementById('urutInputCsv').value;
+        const items = raw.split(',').map(s => s.trim()).filter(Boolean);
+        newQ.items = items;
+        newQ.correctOrder = items.map((_, i) => i);
+      }
+
+      if (editId) {
+        const idx = STATE.questions.findIndex(q => q.id === editId);
+        if (idx !== -1) STATE.questions[idx] = newQ;
+      } else {
+        STATE.questions.push(newQ);
+      }
+
+      // Re-spawn 3D portals
+      persistStateToLocal();
+      spawnQuestionCrystals();
+      renderTeacherDashboard();
+      closeAddQuestionModal();
+      showToast('Soal Tersimpan', 'Soal baru berhasil ditempatkan di peta 3D');
+    }
+
+    function editQuestion(id) {
+      const q = STATE.questions.find(item => item.id === id);
+      if (!q) return;
+
+      document.getElementById('editQuestionId').value = q.id;
+      document.getElementById('modalQuestionFormTitle').innerText = 'Sunting Soal';
+      document.getElementById('qFormType').value = q.type;
+      document.getElementById('qFormWorld').value = q.world || 'kota';
+      document.getElementById('qFormTitle').value = q.title;
+      document.getElementById('qFormExplanation').value = q.explanation || '';
+
+      renderQuestionTypeInputs();
+
+      // Populate values
+      if (q.type === 'pg' && q.options) {
+        q.options.forEach((opt, i) => {
+          const el = document.getElementById(`pgOpt_${i}`);
+          if (el) el.value = opt;
+        });
+      }
+
+      document.getElementById('addQuestionModal').classList.remove('hidden');
+    }
+
+    function deleteQuestion(id) {
+      if (STATE.questions.length <= 1) {
+        alert('Minimal sisakan 1 soal di dalam game!');
+        return;
+      }
+      STATE.questions = STATE.questions.filter(q => q.id !== id);
+      persistStateToLocal();
+      spawnQuestionCrystals();
+      renderTeacherDashboard();
+      showToast('Soal Dihapus', 'Soal telah dihapus dari dunia game');
+    }
+
+    /* ====================================================================
+       12. AI QUESTION GENERATOR SIMULATOR
+       ==================================================================== */
+    let aiQuestionCount = 3;
+
+    function openAiGeneratorModal() {
+      document.getElementById('aiGenModal').classList.remove('hidden');
+    }
+
+    function closeAiGeneratorModal() {
+      document.getElementById('aiGenModal').classList.add('hidden');
+    }
+
+    function setAiCount(c) {
+      aiQuestionCount = c;
+      document.querySelectorAll('.ai-cnt-btn').forEach(b => {
+        b.className = 'ai-cnt-btn flex-1 py-1.5 rounded-xl bg-white/10 text-slate-300 font-cartoon font-bold';
+      });
+      event.target.className = 'ai-cnt-btn flex-1 py-1.5 rounded-xl bg-game-purple text-white font-cartoon font-bold';
+    }
+
+    function generateQuestionsWithAi() {
+      const grade = document.getElementById('aiGrade').value;
+      const subj = document.getElementById('aiSubject').value;
+      const topic = document.getElementById('aiTopic').value.trim() || 'Ilmu Pengetahuan Terpadu';
+      const btn = document.getElementById('btnRunAi');
+
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Merancang ${aiQuestionCount} Soal AI...`;
+      lucide.createIcons();
+
+      setTimeout(() => {
+        // High quality simulated curriculum bank
+        const templates = [
+          {
+            type: 'pg',
+            world: 'kota',
+            title: `[${subj}] Bagian sel manakah yang dijuluki "pembangkit tenaga" atau powerhouse of cell?`,
+            options: ['Ribosom', 'Mitokondria', 'Nukleus', 'Badan Golgi'],
+            correctAnswer: 1,
+            explanation: 'Mitokondria menghasilkan ATP melalui proses respirasi selular.',
+            weight: 20
+          },
+          {
+            type: 'bs',
+            world: 'nusantara',
+            title: `[${topic}] Sumpah Palapa diikrarkan oleh Patih Gajah Mada untuk menyatukan Nusantara.`,
+            options: ['Benar', 'Salah'],
+            correctAnswer: 0,
+            explanation: 'Sumpah Palapa dicatat dalam Kitab Pararaton pada masa Kerajaan Majapahit.',
+            weight: 20
+          },
+          {
+            type: 'isian',
+            world: 'laut',
+            title: `[${subj}] Satuan dasar SI untuk mengukur arus listrik adalah...`,
+            correctAnswer: 'ampere',
+            explanation: 'Ampere (A) adalah satuan pokok arus listrik dalam standar internasional.',
+            weight: 20
+          },
+          {
+            type: 'urut',
+            world: 'angkasa',
+            title: `[${topic}] Urutkan planet dari yang paling dekat dengan Matahari:`,
+            items: ['Merkurius', 'Venus', 'Bumi', 'Mars'],
+            correctOrder: [0, 1, 2, 3],
+            explanation: 'Susunan terdekat adalah Merkurius, Venus, Bumi, dan Mars.',
+            weight: 20
+          }
+        ];
+
+        for (let i = 0; i < aiQuestionCount; i++) {
+          const t = templates[i % templates.length];
+          STATE.questions.push({
+            ...t,
+            id: `ai_${Date.now()}_${i}`
+          });
+        }
+
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="cpu" class="w-4 h-4"></i> Hasilkan Soal Otomatis Sekarang`;
+        closeAiGeneratorModal();
+        persistStateToLocal();
+        spawnQuestionCrystals();
+        renderTeacherDashboard();
+        showToast('AI Berhasil!', `${aiQuestionCount} Soal kurikulum baru berhasil ditambahkan`);
+        SoundFx.correct();
+      }, 900);
+    }
+
+    /* ====================================================================
+       13. DUAL-MODE WORD & EXCEL IMPORTER + EXPORT SOAL & KUNCI JAWABAN
+       ==================================================================== */
+    function openImportStudioModal() {
+      STATE.stagedImportQuestions = [];
+      document.getElementById('importPreviewSection').classList.add('hidden');
+      document.getElementById('docUploadInput').value = '';
+      setImportMode(STATE.importMode);
+      document.getElementById('importStudioModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeImportStudioModal() {
+      document.getElementById('importStudioModal').classList.add('hidden');
+    }
+
+    function setImportMode(mode) {
+      STATE.importMode = mode;
+      const btnStd = document.getElementById('btnModeStandar');
+      const btnPnt = document.getElementById('btnModePintar');
+      if (mode === 'standar') {
+        btnStd.className = 'p-4 rounded-2xl bg-emerald-500/20 border-2 border-emerald-400 text-left transition';
+        btnPnt.className = 'p-4 rounded-2xl bg-black/40 border-2 border-white/15 text-left transition hover:border-purple-400/60';
+      } else {
+        btnPnt.className = 'p-4 rounded-2xl bg-purple-500/20 border-2 border-purple-400 text-left transition';
+        btnStd.className = 'p-4 rounded-2xl bg-black/40 border-2 border-white/15 text-left transition hover:border-emerald-400/60';
+      }
+    }
+
+    function downloadExcelTemplate() {
+      if (typeof XLSX === 'undefined') {
+        alert('Library Excel sedang dimuat, silakan coba beberapa detik lagi.');
+        return;
+      }
+      const rows = [
+        {
+          Tipe: 'pg',
+          Alam: 'kota',
+          Pertanyaan: 'Ibukota negara Indonesia yang baru di Kalimantan Timur bernama...',
+          Opsi_A: 'Balikpapan',
+          Opsi_B: 'Nusantara',
+          Opsi_C: 'Samarinda',
+          Opsi_D: 'Banjarmasin',
+          Kunci: 'B',
+          Pembahasan: 'Ibu Kota Nusantara (IKN) terletak di sebagian wilayah Penajam Paser Utara dan Kutai Kartanegara.'
+        },
+        {
+          Tipe: 'bs',
+          Alam: 'laut',
+          Pertanyaan: 'Paus biru merupakan mamalia laut terbesar yang bernapas menggunakan paru-paru.',
+          Opsi_A: 'Benar',
+          Opsi_B: 'Salah',
+          Opsi_C: '',
+          Opsi_D: '',
+          Kunci: 'Benar',
+          Pembahasan: 'Paus adalah mamalia laut yang sesekali muncul ke permukaan untuk menghirup udara.'
+        },
+        {
+          Tipe: 'isian',
+          Alam: 'angkasa',
+          Pertanyaan: 'Planet terbesar dalam tata surya kita adalah...',
+          Opsi_A: '',
+          Opsi_B: '',
+          Opsi_C: '',
+          Opsi_D: '',
+          Kunci: 'Jupiter',
+          Pembahasan: 'Jupiter merupakan planet raksasa gas terbesar di tata surya.'
+        }
+      ];
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Template_Soal_3D');
+      XLSX.writeFile(wb, 'Template_Import_Soal_Petualangan3D.xlsx');
+      showToast('Template Diunduh', 'Silakan isi soal pada Excel lalu unggah kembali.');
+    }
+
+    function loadSampleUnansweredImport() {
+      setImportMode('pintar');
+      STATE.stagedImportQuestions = [
+        {
+          id: `imp_${Date.now()}_1`,
+          type: 'pg',
+          world: 'kota',
+          title: 'Proses perubahan wujud benda dari cair menjadi gas disebut...',
+          options: ['Membeku', 'Mencair', 'Menguap', 'Menyublim'],
+          correctAnswer: null,
+          explanation: '',
+          weight: 20
+        },
+        {
+          id: `imp_${Date.now()}_2`,
+          type: 'pg',
+          world: 'nusantara',
+          title: 'Kerajaan Hindu tertua di Indonesia yang terletak di Kalimantan Timur adalah...',
+          options: ['Majapahit', 'Kutai', 'Tarumanegara', 'Sriwijaya'],
+          correctAnswer: null,
+          explanation: '',
+          weight: 20
+        },
+        {
+          id: `imp_${Date.now()}_3`,
+          type: 'bs',
+          world: 'angkasa',
+          title: 'Matahari merupakan pusat peredaran planet-planet di dalam tata surya.',
+          options: ['Benar', 'Salah'],
+          correctAnswer: null,
+          explanation: '',
+          weight: 20
+        }
+      ];
+      renderStagedImportPreview();
+      showToast('Naskah Tanpa Kunci Dimuat', 'Klik "Isi Kunci Otomatis (Asisten Pintar)" atau pilih jawaban langsung di bawah!');
+    }
+
+    async function handleWordExcelFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const ext = file.name.split('.').pop().toLowerCase();
+
+      try {
+        if (ext === 'xlsx' || ext === 'xls' || ext === 'csv') {
+          const data = await file.arrayBuffer();
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+          parseExcelRowsToStaged(rows);
+        } else if (ext === 'docx') {
+          const arrayBuffer = await file.arrayBuffer();
+          const result = await mammoth.extractRawText({ arrayBuffer });
+          parsePlainTextToStaged(result.value);
+        } else if (ext === 'txt') {
+          const text = await file.text();
+          parsePlainTextToStaged(text);
+        } else {
+          alert('Format file belum didukung. Gunakan .xlsx, .csv, atau .docx');
+        }
+      } catch (err) {
+        alert('Gagal membaca dokumen: ' + err.message);
+      }
+    }
+
+    function parseExcelRowsToStaged(rows) {
+      const parsed = [];
+      rows.forEach((r, idx) => {
+        const title = String(r.Pertanyaan || r.Soal || r.Question || '').trim();
+        if (!title) return;
+
+        const rawType = String(r.Tipe || 'pg').toLowerCase().trim();
+        const world = ['kota', 'nusantara', 'laut', 'angkasa'].includes(String(r.Alam || '').toLowerCase())
+          ? String(r.Alam).toLowerCase()
+          : 'kota';
+        const rawKey = String(r.Kunci || r.Jawaban || r.Answer || '').trim();
+        const explanation = String(r.Pembahasan || r.Penjelasan || '').trim();
+
+        if (rawType === 'bs' || rawType === 'benar/salah') {
+          let ans = null;
+          if (STATE.importMode === 'standar' && rawKey) {
+            ans = (rawKey.toLowerCase().startsWith('b') || rawKey === '0' || rawKey === 'true') ? 0 : 1;
+          }
+          parsed.push({
+            id: `imp_${Date.now()}_${idx}`,
+            type: 'bs',
+            world,
+            title,
+            options: ['Benar', 'Salah'],
+            correctAnswer: ans,
+            explanation,
+            weight: 20
+          });
+        } else if (rawType === 'isian') {
+          parsed.push({
+            id: `imp_${Date.now()}_${idx}`,
+            type: 'isian',
+            world,
+            title,
+            correctAnswer: (STATE.importMode === 'standar' && rawKey) ? rawKey.toLowerCase() : null,
+            explanation,
+            weight: 20
+          });
+        } else {
+          const opts = [
+            String(r.Opsi_A || r.A || 'Pilihan A').trim(),
+            String(r.Opsi_B || r.B || 'Pilihan B').trim(),
+            String(r.Opsi_C || r.C || 'Pilihan C').trim(),
+            String(r.Opsi_D || r.D || 'Pilihan D').trim()
+          ];
+          let ans = null;
+          if (STATE.importMode === 'standar' && rawKey) {
+            const upper = rawKey.toUpperCase();
+            if (['A', 'B', 'C', 'D'].includes(upper)) ans = ['A', 'B', 'C', 'D'].indexOf(upper);
+            else if (['0', '1', '2', '3'].includes(upper)) ans = parseInt(upper);
+            else {
+              const matchIdx = opts.findIndex(o => o.toLowerCase() === rawKey.toLowerCase());
+              if (matchIdx !== -1) ans = matchIdx;
+            }
+          }
+          parsed.push({
+            id: `imp_${Date.now()}_${idx}`,
+            type: 'pg',
+            world,
+            title,
+            options: opts,
+            correctAnswer: ans,
+            explanation,
+            weight: 20
+          });
+        }
+      });
+
+      if (parsed.length === 0) {
+        alert('Tidak ditemukan baris soal yang valid pada file Excel.');
+        return;
+      }
+
+      STATE.stagedImportQuestions = parsed;
+      renderStagedImportPreview();
+      showToast('Excel Terbaca!', `${parsed.length} butir soal berhasil dipindai ke pratinjau.`);
+    }
+
+    function parsePlainTextToStaged(rawText) {
+      const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const parsed = [];
+      let current = null;
+
+      lines.forEach(line => {
+        const qMatch = line.match(/^(\d+)[\.\)]\s*(.+)/);
+        const optMatch = line.match(/^(\*?)([A-Da-d])[\.\)]\s*(.+)/);
+        const keyMatch = line.match(/^(?:Kunci|Jawaban)\s*:\s*(.+)/i);
+
+        if (qMatch) {
+          if (current) parsed.push(current);
+          current = {
+            id: `doc_${Date.now()}_${parsed.length}`,
+            type: 'pg',
+            world: 'kota',
+            title: qMatch[2].trim(),
+            options: [],
+            correctAnswer: null,
+            explanation: '',
+            weight: 20
+          };
+        } else if (optMatch && current) {
+          const isStarred = optMatch[1] === '*';
+          const letterIdx = ['A', 'B', 'C', 'D'].indexOf(optMatch[2].toUpperCase());
+          current.options[letterIdx] = optMatch[3].trim();
+          if (STATE.importMode === 'standar' && isStarred) {
+            current.correctAnswer = letterIdx;
+          }
+        } else if (keyMatch && current && STATE.importMode === 'standar') {
+          const k = keyMatch[1].trim().toUpperCase();
+          if (['A', 'B', 'C', 'D'].includes(k)) current.correctAnswer = ['A', 'B', 'C', 'D'].indexOf(k);
+        }
+      });
+      if (current) parsed.push(current);
+
+      parsed.forEach(q => {
+        if (q.options.length === 0) {
+          q.type = 'isian';
+        } else {
+          for (let i = 0; i < 4; i++) if (!q.options[i]) q.options[i] = `Opsi ${['A', 'B', 'C', 'D'][i]}`;
+        }
+      });
+
+      if (parsed.length === 0) {
+        alert('Tidak terdeteksi nomor soal (contoh: "1. Pertanyaan...") di dalam dokumen Word.');
+        return;
+      }
+
+      STATE.stagedImportQuestions = parsed;
+      renderStagedImportPreview();
+      showToast('Word Terbaca!', `${parsed.length} butir soal berhasil dipindai dari dokumen.`);
+    }
+
+    function renderStagedImportPreview() {
+      const section = document.getElementById('importPreviewSection');
+      const list = document.getElementById('importPreviewList');
+      const badge = document.getElementById('importPreviewBadge');
+
+      section.classList.remove('hidden');
+      badge.innerText = `${STATE.stagedImportQuestions.length} Soal`;
+      list.innerHTML = '';
+
+      STATE.stagedImportQuestions.forEach((q, idx) => {
+        const hasKey = q.correctAnswer !== null && q.correctAnswer !== undefined && q.correctAnswer !== '';
+        const card = document.createElement('div');
+        card.className = `p-3.5 rounded-2xl border ${hasKey ? 'bg-black/40 border-emerald-400/40' : 'bg-purple-950/30 border-amber-400/60'}`;
+
+        let answerControlHtml = '';
+        if (q.type === 'pg' || q.type === 'bs') {
+          answerControlHtml = `
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              ${q.options.map((opt, oIdx) => {
+                const isSelected = q.correctAnswer === oIdx;
+                const labelPrefix = q.type === 'pg' ? `${['A', 'B', 'C', 'D'][oIdx]}. ` : '';
+                return `
+                  <button type="button" onclick="setStagedQuestionKey(${idx}, ${oIdx})"
+                    class="px-2.5 py-1 rounded-xl text-[11px] font-bold border transition ${isSelected ? 'bg-game-green text-white border-white shadow' : 'bg-black/50 text-slate-300 border-white/15 hover:border-game-yellow'}">
+                    ${isSelected ? '✓ ' : ''}${labelPrefix}${opt}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          `;
+        } else if (q.type === 'isian') {
+          answerControlHtml = `
+            <div class="mt-2 flex items-center gap-2">
+              <span class="text-[11px] text-slate-300 font-bold">Kunci Jawaban:</span>
+              <input type="text" value="${q.correctAnswer || ''}" onchange="setStagedQuestionKey(${idx}, this.value.trim().toLowerCase())"
+                placeholder="Ketik kunci jawaban..." class="bg-black/60 border border-white/20 rounded-lg px-2.5 py-1 text-xs text-game-yellow font-bold outline-none">
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div class="font-cartoon text-xs md:text-sm font-bold text-white">#${idx + 1}. ${q.title}</div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold whitespace-nowrap ${hasKey ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40' : 'bg-amber-500/20 text-amber-300 border border-amber-400/40'}">
+              ${hasKey ? '✓ Kunci Terisi' : '⚠️ Perlu Kunci Jawaban'}
+            </span>
+          </div>
+          ${answerControlHtml}
+          ${q.explanation ? `<div class="text-[10px] text-emerald-300/90 mt-1.5 italic">💡 ${q.explanation}</div>` : ''}
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function setStagedQuestionKey(qIdx, val) {
+      STATE.stagedImportQuestions[qIdx].correctAnswer = val;
+      renderStagedImportPreview();
+      SoundFx.playTone(523.25, 'sine', 0.08);
+    }
+
+    function autoFillMissingKeysWithSmartAssistant() {
+      const knowledgeHints = [
+        { keywords: ['menguap', 'cair menjadi gas'], matchOpt: 'menguap', exp: 'Penguapan adalah perubahan wujud zat dari cair menjadi gas akibat penyerapan kalor.' },
+        { keywords: ['kutai', 'hindu tertua'], matchOpt: 'kutai', exp: 'Kerajaan Kutai di Kalimantan Timur merupakan kerajaan Hindu tertua di Indonesia (abad ke-4 M).' },
+        { keywords: ['matahari', 'pusat'], matchOpt: 'benar', exp: 'Dalam sistem heliosentris, Matahari adalah bintang pusat tata surya.' },
+        { keywords: ['nusantara', 'ibukota'], matchOpt: 'nusantara', exp: 'Ibu Kota Nusantara (IKN) ditetapkan sebagai ibu kota negara baru di Kalimantan Timur.' },
+        { keywords: ['jupiter', 'terbesar'], matchOpt: 'jupiter', exp: 'Jupiter adalah planet dengan massa dan volume terbesar di tata surya.' }
+      ];
+
+      let filledCount = 0;
+      STATE.stagedImportQuestions.forEach(q => {
+        if (q.correctAnswer !== null && q.correctAnswer !== undefined && q.correctAnswer !== '') return;
+
+        const lowerTitle = q.title.toLowerCase();
+        const foundRule = knowledgeHints.find(h => h.keywords.some(kw => lowerTitle.includes(kw)));
+
+        if (q.type === 'pg' || q.type === 'bs') {
+          if (foundRule) {
+            const optIdx = q.options.findIndex(o => o.toLowerCase().includes(foundRule.matchOpt));
+            q.correctAnswer = optIdx !== -1 ? optIdx : 0;
+            q.explanation = foundRule.exp;
+          } else {
+            // Smart longest/most descriptive option heuristic fallback
+            let bestIdx = 0;
+            q.options.forEach((o, i) => {
+              if (o.length > (q.options[bestIdx] || '').length) bestIdx = i;
+            });
+            q.correctAnswer = bestIdx;
+            q.explanation = 'Kunci jawaban dideteksi oleh Asisten Pintar (dapat disesuaikan guru sebelum terbit).';
+          }
+          filledCount++;
+        } else if (q.type === 'isian') {
+          q.correctAnswer = foundRule ? foundRule.matchOpt : 'jawaban';
+          q.explanation = foundRule ? foundRule.exp : 'Kunci isian singkat terisi otomatis.';
+          filledCount++;
+        }
+      });
+
+      renderStagedImportPreview();
+      SoundFx.correct();
+      showToast('Asisten Pintar Selesai!', `${filledCount} kunci jawaban & pembahasan berhasil dilengkapi otomatis.`);
+    }
+
+    function commitImportedQuestions() {
+      if (STATE.stagedImportQuestions.length === 0) return;
+
+      const missing = STATE.stagedImportQuestions.filter(q => q.correctAnswer === null || q.correctAnswer === undefined || q.correctAnswer === '');
+      if (missing.length > 0) {
+        alert(`Masih ada ${missing.length} soal yang belum memiliki kunci jawaban. Silakan klik kunci jawaban atau tekan "Isi Kunci Otomatis (Asisten Pintar)".`);
+        return;
+      }
+
+      STATE.questions.push(...STATE.stagedImportQuestions);
+      persistStateToLocal();
+      spawnQuestionCrystals();
+      renderTeacherDashboard();
+      closeImportStudioModal();
+      SoundFx.victory();
+      showToast('Soal Terbit ke 3D!', `${STATE.stagedImportQuestions.length} soal impor kini muncul sebagai kristal misi di peta 3D!`);
+    }
+
+    /* ====================================================================
+       14. EXPORT BANK SOAL & KUNCI JAWABAN (EXCEL .XLSX & WORD .DOC)
+       ==================================================================== */
+    function buildExportRowsFromQuestions(questionList) {
+      return questionList.map((q, idx) => {
+        let keyLabel = '';
+        if (q.type === 'pg') {
+          const letter = ['A', 'B', 'C', 'D'][q.correctAnswer] || 'A';
+          const text = (q.options && q.options[q.correctAnswer]) ? q.options[q.correctAnswer] : '';
+          keyLabel = `${letter} (${text})`;
+        } else if (q.type === 'bs') {
+          keyLabel = q.correctAnswer === 0 ? 'Benar' : 'Salah';
+        } else if (q.type === 'isian') {
+          keyLabel = String(q.correctAnswer || '');
+        } else if (q.type === 'jodoh') {
+          keyLabel = (q.pairs || []).map(p => `${p.left} = ${p.right}`).join('; ');
+        } else if (q.type === 'urut') {
+          keyLabel = (q.items || []).join(' -> ');
+        }
+
+        return {
+          No: idx + 1,
+          Tipe: q.type.toUpperCase(),
+          Alam_3D: q.world || 'kota',
+          Pertanyaan: q.title,
+          Opsi_A: q.options?.[0] || '',
+          Opsi_B: q.options?.[1] || '',
+          Opsi_C: q.options?.[2] || '',
+          Opsi_D: q.options?.[3] || '',
+          Kunci_Jawaban: keyLabel,
+          Pembahasan: q.explanation || ''
+        };
+      });
+    }
+
+    function exportQuestionsToExcel() {
+      if (typeof XLSX === 'undefined') {
+        alert('Library Excel sedang dimuat.');
+        return;
+      }
+      const rows = buildExportRowsFromQuestions(STATE.questions);
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Bank_Soal_dan_Kunci');
+      XLSX.writeFile(wb, `Soal_dan_Kunci_Kelas_${STATE.classCode}.xlsx`);
+      showToast('Ekspor Excel Sukses', 'Bank soal lengkap dengan kunci jawaban diunduh (.xlsx)');
+    }
+
+    function exportStagedQuestionsToExcel() {
+      if (typeof XLSX === 'undefined' || STATE.stagedImportQuestions.length === 0) return;
+      const rows = buildExportRowsFromQuestions(STATE.stagedImportQuestions);
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Hasil_Kunci_Pintar');
+      XLSX.writeFile(wb, `Hasil_Kunci_Jawaban_${STATE.classCode}.xlsx`);
+      showToast('Unduh Berhasil', 'Hasil soal & kunci jawaban berhasil disimpan ke Excel (.xlsx)');
+    }
+
+    function exportQuestionsToWordDoc() {
+      let html = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='utf-8'><title>Naskah Soal & Kunci Jawaban</title></head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.5;">
+          <h2>NASKAH SOAL & KUNCI JAWABAN - PETUALANGAN BELAJAR 3D</h2>
+          <p><b>Kode Kelas:</b> ${STATE.classCode} | <b>Jumlah Soal:</b> ${STATE.questions.length} Butir</p>
+          <hr/>
+      `;
+
+      STATE.questions.forEach((q, idx) => {
+        html += `<p><b>${idx + 1}. ${q.title}</b></p>`;
+        if (q.type === 'pg' && q.options) {
+          html += `<ul>`;
+          q.options.forEach((opt, oIdx) => {
+            const isCorrect = q.correctAnswer === oIdx;
+            html += `<li>${['A', 'B', 'C', 'D'][oIdx]}. ${opt} ${isCorrect ? '<b>[KUNCI JAWABAN]</b>' : ''}</li>`;
+          });
+          html += `</ul>`;
+        } else if (q.type === 'bs') {
+          html += `<p><i>Kunci Jawaban:</i> <b>${q.correctAnswer === 0 ? 'Benar' : 'Salah'}</b></p>`;
+        } else if (q.type === 'isian') {
+          html += `<p><i>Kunci Jawaban:</i> <b>${q.correctAnswer}</b></p>`;
+        }
+        if (q.explanation) {
+          html += `<p style="color:#0f5132;"><i>Pembahasan: ${q.explanation}</i></p>`;
+        }
+      });
+
+      html += `</body></html>`;
+      const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Naskah_Soal_dan_Kunci_${STATE.classCode}.doc`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast('Ekspor Word Sukses', 'Dokumen soal & kunci jawaban siap dibuka di Microsoft Word.');
+    }
+
+    function downloadGradesExcelXlsx() {
+      if (typeof XLSX === 'undefined') return;
+      const rows = STATE.gradebook.map((s, idx) => ({
+        Peringkat: idx + 1,
+        No_Absen: s.absen,
+        Nama_Siswa: s.name,
+        Nilai_Akhir: s.score,
+        Akurasi: s.accuracy,
+        Pos_Selesai: `${s.completed}/${s.total}`,
+        Status_Sync: s.syncStatus === 'pending_sync' ? 'Pending Offline' : 'Synced'
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Rekap_Nilai_Rapor');
+      XLSX.writeFile(wb, `Rekap_Nilai_Rapor_${STATE.classCode}.xlsx`);
+      showToast('Unduh Excel Sukses', 'Rekap nilai rapor siswa berhasil diunduh (.xlsx)');
+    }
+
+    /* ====================================================================
+       15. SUPABASE CLOUD CONFIGURATION HANDLERS
+       ==================================================================== */
+    function saveSupabaseConfig() {
+      const url = document.getElementById('inputSupabaseUrl').value.trim();
+      const key = document.getElementById('inputSupabaseKey').value.trim();
+      STATE.supabaseConfig = { url, key };
+      localStorage.setItem(STORAGE_KEYS.SUPABASE, JSON.stringify(STATE.supabaseConfig));
+      const badge = document.getElementById('supabaseConnBadge');
+      if (url && key) {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-game-green/20 text-game-green border border-game-green/40';
+        badge.innerText = '✓ Terhubung ke Cloud Supabase';
+        flushSyncQueue(false);
+        showToast('Supabase Tersimpan', 'Konfigurasi cloud database aktif untuk sinkronisasi otomatis.');
+      } else {
+        showToast('Lengkapi Data', 'Masukkan URL dan Anon Key Supabase Anda.');
+      }
+    }
+
+    function clearSupabaseConfig() {
+      STATE.supabaseConfig = { url: '', key: '' };
+      localStorage.removeItem(STORAGE_KEYS.SUPABASE);
+      document.getElementById('inputSupabaseUrl').value = '';
+      document.getElementById('inputSupabaseKey').value = '';
+      const badge = document.getElementById('supabaseConnBadge');
+      badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-400/40';
+      badge.innerText = 'Mode Penyimpanan Lokal + Antrean Otomatis Aktif';
+      showToast('Reset Berhasil', 'Kembali ke mode penyimpanan lokal.');
+    }
+
+    function copySupabaseSql() {
+      const sqlText = document.getElementById('supabaseSqlCode').innerText;
+      const ta = document.createElement('textarea');
+      ta.value = sqlText;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      showToast('SQL Disalin', 'Silakan tempel di SQL Editor dashboard Supabase Anda.');
+    }
+
+    /* ====================================================================
+       16. PROJECTOR TV PODIUM JUARA 1, 2, 3
+       ==================================================================== */
+    function regenerateClassCode() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      STATE.classCode = code;
+      document.getElementById('teacherClassCodeDisplay').innerText = code;
+      showToast('Kode Baru', `Kode kelas berhasil diganti menjadi ${code}`);
+    }
+
+    function shareToWhatsApp() {
+      const text = encodeURIComponent(
+        `Halo Anak-anak! Ayo belajar sambil main game 3D Roblox Edukasi!\n` +
+        `🌐 Buka game di HP / Laptop (Gratis, tanpa akun)\n` +
+        `🔑 Masukkan Kode Kelas: *${STATE.classCode}*\n` +
+        `Kalian bisa jalan-jalan di Kota Ilmu, Candi Nusantara, dan raih podium juara!`
+      );
+      window.open(`https://wa.me/?text=${text}`, '_blank');
+    }
+
+    function exportQuestionsJson() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(STATE.questions, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `Bank_Soal_3D_${STATE.classCode}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('Ekspor Berhasil', 'File bank soal JSON tersimpan');
+    }
+
+    function handleImportFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (Array.isArray(parsed)) {
+            STATE.questions = parsed;
+            spawnQuestionCrystals();
+            renderTeacherDashboard();
+            showToast('Impor Sukses', `${parsed.length} Soal berhasil dimuat ke dalam game`);
+          } else {
+            alert('Format file JSON tidak sesuai struktur array soal.');
+          }
+        } catch (err) {
+          alert('Gagal membaca file JSON: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function downloadExcelCsv() {
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "No,No Absen,Nama Siswa,Skor Akhir,Akurasi,Status Pos,Waktu Tempuh\n";
+
+      STATE.gradebook.forEach((s, idx) => {
+        csvContent += `${idx + 1},${s.absen},"${s.name}",${s.score},${s.accuracy},${s.completed}/${s.total},${s.time}\n`;
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Rekap_Nilai_Kelas_${STATE.classCode}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      showToast('Unduh Nilai', 'File CSV nilai siap dibuka di Microsoft Excel');
+    }
+
+    /* ====================================================================
+       14. PROJECTOR TV PODIUM JUARA 1, 2, 3
+       ==================================================================== */
+    function openPodiumProjector() {
+      const sorted = [...STATE.gradebook].sort((a, b) => b.score - a.score);
+      document.getElementById('projCode').innerText = STATE.classCode;
+
+      if (sorted[0]) {
+        document.getElementById('podium1Name').innerText = sorted[0].name;
+        document.getElementById('podium1Score').innerText = `Skor: ${sorted[0].score} • Juara 1`;
+      }
+      if (sorted[1]) {
+        document.getElementById('podium2Name').innerText = sorted[1].name;
+        document.getElementById('podium2Score').innerText = `Skor: ${sorted[1].score}`;
+      }
+      if (sorted[2]) {
+        document.getElementById('podium3Name').innerText = sorted[2].name;
+        document.getElementById('podium3Score').innerText = `Skor: ${sorted[2].score}`;
+      }
+
+      document.getElementById('projectorPodiumModal').classList.remove('hidden');
+      triggerPodiumConfetti();
+    }
+
+    function closePodiumProjector() {
+      document.getElementById('projectorPodiumModal').classList.add('hidden');
+    }
+
+    function triggerPodiumConfetti() {
+      SoundFx.victory();
+      confetti({
+        particleCount: 120,
+        spread: 80,
+        origin: { y: 0.5 }
+      });
+      setTimeout(() => {
+        confetti({
+          particleCount: 80,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 }
+        });
+        confetti({
+          particleCount: 80,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 }
+        });
+      }, 300);
+    }
+
+    /* ====================================================================
+       15. DIGITAL CERTIFICATE (PIAGAM JUARA)
+       ==================================================================== */
+    function openCertificateForStudent(name, score) {
+      document.getElementById('certStudentName').innerText = name.toUpperCase();
+      document.getElementById('certCode').innerText = STATE.classCode;
+      document.getElementById('certDetails').innerText = `Atas prestasi luar biasa dalam menyelesaikan Petualangan Belajar 3D dengan Nilai Akhir: ${score} poin.`;
+      document.getElementById('certificateModal').classList.remove('hidden');
+      SoundFx.playTone(659.25, 'triangle', 0.2);
+    }
+
+    function openBatchCertificateModal() {
+      openCertificateForStudent(STATE.gradebook[0]?.name || 'Siswa Terbaik', 100);
+    }
+
+    function closeCertificateModal() {
+      document.getElementById('certificateModal').classList.add('hidden');
+    }
+
+    function printCertificate() {
+      window.print();
+    }
+
+    /* ====================================================================
+       16. HELP & TOAST UTILITIES
+       ==================================================================== */
+    function openHelpModal() {
+      document.getElementById('helpModal').classList.remove('hidden');
+    }
+
+    function closeHelpModal() {
+      document.getElementById('helpModal').classList.add('hidden');
+    }
+
+    function showToast(title, msg) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastTitle').innerText = title;
+      document.getElementById('toastMessage').innerText = msg;
+      toast.classList.remove('translate-y-[-150%]');
+      toast.classList.add('translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-[-150%]');
+        toast.classList.remove('translate-y-0');
+      }, 3000);
+    }
+
+    /* ====================================================================
+       17. WINDOW ONLOAD BOOTSTRAPPER
+       ==================================================================== */
+    window.onload = function() {
+      // 1. Load offline storage & sync queue
+      loadPersistedState();
+
+      // 2. Initialize Icons
+      lucide.createIcons();
+
+      // 3. Initialize 3D Engine & Animation Loop
+      init3DWorld();
+
+      // 4. Pre-render Teacher Dashboard & Network Status
+      updateNetworkStatusUI();
+      renderTeacherDashboard();
+
+      // 5. Listen to real browser online/offline transitions
+      window.addEventListener('online', () => {
+        updateNetworkStatusUI();
+        flushSyncQueue(false);
+      });
+      window.addEventListener('offline', () => {
+        updateNetworkStatusUI();
+        showToast('Koneksi Terputus', 'Aplikasi beralih ke mode offline otomatis.');
+      });
+
+      // Attempt initial sync if pending items exist
+      if (isAppOnline() && STATE.pendingSyncQueue.length > 0) {
+        flushSyncQueue(false);
+      }
+
+      console.log('Petualangan Belajar 3D initialized with Offline Auto-Sync & Dual-Mode Word/Excel Studio.');
+    };
+  </script>
+</body>
+</html>

@@ -309,8 +309,11 @@
 
     <!-- ========= IN-GAME HUD (Clean Heads-Up Display) ========= -->
     <div id="gameHud" class="fixed inset-0 z-20 pointer-events-none hidden">
+      <!-- Dedicated Fullscreen Camera Drag Surface (Behind HUD Buttons) -->
+      <div id="cameraTouchPad" class="fixed inset-0 z-0 pointer-events-auto touch-none"></div>
+
       <!-- Top Clean Bar: Score, Mission Count, Room Trophy & Exit -->
-      <div class="px-3 sm:px-6 pt-3 flex items-center justify-between gap-2">
+      <div class="relative z-10 px-3 sm:px-6 pt-3 flex items-center justify-between gap-2">
         <div class="flex items-center gap-2 pointer-events-auto">
           <div class="glass-hud rounded-2xl px-3.5 py-2 flex items-center gap-2 border border-game-yellow/40">
             <i data-lucide="star" class="w-5 h-5 text-game-yellow fill-current"></i>
@@ -2294,7 +2297,7 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
 
       // Smooth 360 Camera Drag & Raycast Click on 3D Crystals (Landscape Touch & Mouse)
       const domEl = renderer.domElement;
-      const hudLayer = document.getElementById('gameHud');
+      const camPad = document.getElementById('cameraTouchPad');
       let downX = 0, downY = 0;
 
       const handleCamPointerDown = (e) => {
@@ -2303,7 +2306,6 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         activeCameraPointerId = e.pointerId;
         lastPointerX = downX = e.clientX;
         lastPointerY = downY = e.clientY;
-        try { e.target.setPointerCapture(e.pointerId); } catch (_) {}
       };
 
       const handleCamPointerMove = (e) => {
@@ -2312,8 +2314,8 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         const dy = e.clientY - lastPointerY;
         lastPointerX = e.clientX;
         lastPointerY = e.clientY;
-        targetCameraAngle -= dx * 0.0075;
-        targetCameraPitch = Math.max(0.14, Math.min(1.08, targetCameraPitch + dy * 0.005));
+        targetCameraAngle -= dx * 0.0085;
+        targetCameraPitch = Math.max(0.14, Math.min(1.08, targetCameraPitch + dy * 0.0055));
       };
 
       const handleCamPointerUp = (e) => {
@@ -2334,12 +2336,14 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         }
       };
 
-      [domEl, hudLayer].forEach(el => {
+      [domEl, camPad].forEach(el => {
         if (!el) return;
         el.addEventListener('pointerdown', handleCamPointerDown);
-        el.addEventListener('pointermove', handleCamPointerMove);
-        el.addEventListener('pointerup', handleCamPointerUp);
-        el.addEventListener('pointercancel', () => { activeCameraPointerId = null; });
+      });
+      window.addEventListener('pointermove', handleCamPointerMove);
+      window.addEventListener('pointerup', handleCamPointerUp);
+      window.addEventListener('pointercancel', (e) => {
+        if (e.pointerId === activeCameraPointerId) activeCameraPointerId = null;
       });
     }
 

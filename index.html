@@ -354,29 +354,10 @@
       </div>
     </section>
 
-    <!-- ========= IN-GAME HUD (Heads-Up Display) ========= -->
-    <div id="gameHud" class="absolute inset-0 pointer-events-none z-20 hidden">
-      
-      <!-- Top Left: Player Status -->
-      <div class="absolute top-16 left-4 pointer-events-auto flex items-center space-x-3 glass-panel p-2.5 rounded-2xl border border-white/20 shadow-lg">
-        <div id="hudAvatarIcon" class="w-12 h-12 rounded-xl bg-game-blue flex items-center justify-center border-2 border-white font-cartoon text-xl font-bold shadow-inner text-white">
-          B
-        </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <span id="hudStudentName" class="font-cartoon font-bold text-sm md:text-base text-white tracking-wide">Budi S.</span>
-            <span id="hudAbsenBadge" class="bg-game-yellow text-game-navy text-[10px] font-bold px-1.5 py-0.5 rounded-md">Absen 12</span>
-          </div>
-          <div class="flex items-center space-x-2 mt-1">
-            <div class="w-24 md:w-32 bg-black/50 h-3 rounded-full overflow-hidden p-0.5 border border-white/20">
-              <div id="hudHealthBar" class="bg-gradient-to-r from-game-red to-game-green h-full rounded-full transition-all duration-300" style="width: 100%;"></div>
-            </div>
-            <span class="text-[10px] font-bold text-game-green flex items-center"><i data-lucide="zap" class="w-3 h-3"></i> 100%</span>
-          </div>
     <!-- ========= IN-GAME HUD (Clean Heads-Up Display) ========= -->
-    <div id="gameHud" class="absolute inset-0 pointer-events-none z-20 hidden">
+    <div id="gameHud" class="fixed inset-0 pointer-events-none z-30 hidden">
       
-      <!-- Top Bar Clean HUD: Only Skor, Misi, Piala Room, & Selesai/Keluar -->
+      <!-- Top Bar Clean HUD: Skor, Misi (Terjawab/Total), Piala Room, & Selesai/Keluar -->
       <div class="absolute top-3 left-3 right-3 pointer-events-auto flex items-center justify-between gap-2">
         <!-- Left: Skor & Misi -->
         <div class="flex items-center space-x-2">
@@ -420,7 +401,7 @@
         <div class="text-[9px] font-bold text-slate-300 mb-1 flex items-center gap-1">
           <i data-lucide="compass" class="w-3 h-3 text-cyan-400"></i> RADAR MISI
         </div>
-        <div id="radarBox" class="w-24 h-24 md:w-28 md:h-28 bg-black/70 rounded-full relative border-2 border-cyan-500/40 overflow-hidden flex items-center justify-center">
+        <div id="radarBox" class="w-20 h-20 md:w-28 md:h-28 bg-black/70 rounded-full relative border-2 border-cyan-500/40 overflow-hidden flex items-center justify-center">
           <div class="w-full h-[1px] bg-cyan-500/20 absolute"></div>
           <div class="h-full w-[1px] bg-cyan-500/20 absolute"></div>
           <!-- Player center direction arrow -->
@@ -431,42 +412,42 @@
       </div>
 
       <!-- Action Interact Prompt Button (Center Bottom) -->
-      <div id="interactPrompt" class="absolute bottom-32 md:bottom-16 left-1/2 -translate-x-1/2 pointer-events-auto hidden transform transition-all duration-200 z-30">
-        <button id="interactPromptBtn" onclick="triggerNearbyQuiz()" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-game-yellow via-game-orange to-game-yellow text-game-navy font-cartoon font-bold text-sm md:text-base shadow-2xl border-2 border-white animate-bounce flex items-center gap-2">
-          <i data-lucide="sparkles" class="w-5 h-5 fill-current"></i>
+      <div id="interactPrompt" class="absolute bottom-44 md:bottom-16 left-1/2 -translate-x-1/2 pointer-events-auto hidden transform transition-all duration-200 z-30 w-max max-w-[92vw]">
+        <button id="interactPromptBtn" onclick="triggerNearbyQuiz()" class="px-4 py-2.5 md:px-5 md:py-3 rounded-2xl bg-gradient-to-r from-game-yellow via-game-orange to-game-yellow text-game-navy font-cartoon font-bold text-xs md:text-base shadow-2xl border-2 border-white animate-bounce flex items-center gap-2">
+          <i data-lucide="sparkles" class="w-5 h-5 fill-current shrink-0"></i>
           <span id="interactPromptLabel">KLIK / TEKAN 'E' UNTUK JAWAB SOAL!</span>
         </button>
       </div>
 
-      <!-- Touch Controls (Mobile & Tablet D-Pad + Jump) -->
-      <div id="mobileControls" class="md:hidden pointer-events-auto">
-        <!-- Touch Joystick (Hidden in favor of clear 4-way D-pad, kept for fallback) -->
+      <!-- Touch Controls (Mobile & Tablet D-Pad + Jump - Always visible on touch/mobile screens) -->
+      <div id="mobileControls" class="block lg:hidden pointer-events-auto">
+        <!-- Touch Joystick fallback container -->
         <div id="joystickZone" class="hidden">
           <div id="joystickKnob"></div>
         </div>
 
         <!-- 4-Way Directional D-Pad (Atas, Bawah, Kiri, Kanan) -->
-        <div class="absolute bottom-5 left-5 w-36 h-36 select-none z-30">
+        <div class="fixed bottom-5 left-5 w-36 h-36 select-none z-40">
           <!-- Atas (Maju) -->
-          <button type="button" data-dir="up" class="dpad-btn absolute top-0 left-1/2 -translate-x-1/2 w-12 h-12 rounded-2xl bg-slate-900/80 active:bg-game-yellow active:text-game-navy border-2 border-white/40 text-white flex items-center justify-center shadow-lg">
+          <button type="button" data-dir="up" class="dpad-btn absolute top-0 left-1/2 -translate-x-1/2 w-12 h-12 rounded-2xl bg-slate-900/85 active:bg-game-yellow active:text-game-navy border-2 border-white/50 text-white flex items-center justify-center shadow-xl">
             <i data-lucide="chevron-up" class="w-7 h-7 stroke-[3]"></i>
           </button>
           <!-- Bawah (Mundur) -->
-          <button type="button" data-dir="down" class="dpad-btn absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-12 rounded-2xl bg-slate-900/80 active:bg-game-yellow active:text-game-navy border-2 border-white/40 text-white flex items-center justify-center shadow-lg">
+          <button type="button" data-dir="down" class="dpad-btn absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-12 rounded-2xl bg-slate-900/85 active:bg-game-yellow active:text-game-navy border-2 border-white/50 text-white flex items-center justify-center shadow-xl">
             <i data-lucide="chevron-down" class="w-7 h-7 stroke-[3]"></i>
           </button>
           <!-- Kiri -->
-          <button type="button" data-dir="left" class="dpad-btn absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl bg-slate-900/80 active:bg-game-yellow active:text-game-navy border-2 border-white/40 text-white flex items-center justify-center shadow-lg">
+          <button type="button" data-dir="left" class="dpad-btn absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl bg-slate-900/85 active:bg-game-yellow active:text-game-navy border-2 border-white/50 text-white flex items-center justify-center shadow-xl">
             <i data-lucide="chevron-left" class="w-7 h-7 stroke-[3]"></i>
           </button>
           <!-- Kanan -->
-          <button type="button" data-dir="right" class="dpad-btn absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl bg-slate-900/80 active:bg-game-yellow active:text-game-navy border-2 border-white/40 text-white flex items-center justify-center shadow-lg">
+          <button type="button" data-dir="right" class="dpad-btn absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl bg-slate-900/85 active:bg-game-yellow active:text-game-navy border-2 border-white/50 text-white flex items-center justify-center shadow-xl">
             <i data-lucide="chevron-right" class="w-7 h-7 stroke-[3]"></i>
           </button>
         </div>
 
         <!-- Touch Jump Action button right side -->
-        <button id="btnMobileJump" class="absolute bottom-7 right-6 w-16 h-16 rounded-full bg-gradient-to-tr from-game-blue to-cyan-400 border-4 border-white/80 shadow-2xl flex flex-col items-center justify-center active:scale-90 transition transform z-30">
+        <button id="btnMobileJump" type="button" class="fixed bottom-7 right-6 w-16 h-16 rounded-full bg-gradient-to-tr from-game-blue to-cyan-400 border-4 border-white/90 shadow-2xl flex flex-col items-center justify-center active:scale-90 transition transform z-40">
           <i data-lucide="arrow-up" class="w-7 h-7 text-white stroke-[3]"></i>
           <span class="text-[9px] font-cartoon font-bold text-white uppercase leading-none">LOMPAT</span>
         </button>
@@ -474,9 +455,28 @@
 
     </div>
 
-    <!-- ========= QUIZ POPUP MODAL (Across 5 Question Types) ========= -->
+    <!-- ========= QUIZ POPUP MODAL (Centered across all screens) ========= -->
     <div id="quizModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
-      <div class="relative w-full max-w-xl glass-panel rounded-3xl p-6 md:p-8 border-2 border-game-yellow shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="relative w-full max-w-xl mx-auto glass-panel rounded-3xl p-5 md:p-8 border-2 border-game-yellow shadow-2xl max-h-[88vh] overflow-y-auto custom-scrollbar">
+          </button>
+          <!-- Kanan -->
+          <button type="button" data-dir="right" class="dpad-btn absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl bg-slate-900/85 active:bg-game-yellow active:text-game-navy border-2 border-white/50 text-white flex items-center justify-center shadow-xl">
+            <i data-lucide="chevron-right" class="w-7 h-7 stroke-[3]"></i>
+          </button>
+        </div>
+
+        <!-- Touch Jump Action button right side -->
+        <button id="btnMobileJump" type="button" class="fixed bottom-7 right-6 w-16 h-16 rounded-full bg-gradient-to-tr from-game-blue to-cyan-400 border-4 border-white/90 shadow-2xl flex flex-col items-center justify-center active:scale-90 transition transform z-30">
+          <i data-lucide="arrow-up" class="w-7 h-7 text-white stroke-[3]"></i>
+          <span class="text-[9px] font-cartoon font-bold text-white uppercase leading-none">LOMPAT</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ========= QUIZ POPUP MODAL (Centered Fullscreen Overlay) ========= -->
+    <div id="quizModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+      <div class="relative w-full max-w-xl mx-auto glass-panel rounded-3xl p-6 md:p-8 border-2 border-game-yellow shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
         
         <!-- Header -->
         <div class="flex items-center justify-between pb-3 border-b border-white/10">
@@ -1304,7 +1304,7 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       </div>
       <div class="my-4 space-y-3 text-xs text-slate-200">
         <p>🎮 <b>Akun & Login Murid:</b> Murid tidak perlu registrasi email/password. Cukup masukkan <b>Kode Kelas</b>, <b>Nama Panggilan</b>, dan <b>No. Absen</b> di layar awal untuk langsung masuk ke room kelas dan tercatat otomatis di daftar nilai guru.</p>
-        <p>👩‍🏫 <b>Akses Khusus Guru:</b> Mode Guru dilindungi <b>PIN Keamanan</b> (PIN standar awal: <b class="text-game-yellow">1234</b>) agar murid tidak dapat membuka kunci jawaban atau mengubah bank soal.</p>
+        <p>👩‍🏫 <b>Akses Khusus Guru:</b> Mode Guru dilindungi <b>PIN Keamanan</b> agar murid tidak dapat membuka kunci jawaban atau mengubah bank soal.</p>
         <p>🏁 <b>Selesai Kapan Saja:</b> Murid dapat menekan tombol <b>Selesai & Keluar</b> di pojok kanan atas kapan saja; skor yang sudah dikumpulkan tetap tersimpan sah ke rekap guru.</p>
       </div>
       <button onclick="closeHelpModal()" class="w-full py-2.5 rounded-xl bg-game-blue text-white font-cartoon text-xs font-bold">Mengerti</button>
@@ -1446,6 +1446,7 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
     const STATE = {
       view: 'student', // 'student' or 'teacher'
       teacherTab: 'bank',
+      currentWorld: 'kota',
       classCode: 'JUARA2026',
       audioEnabled: true,
       simulatedOffline: false,
@@ -1934,7 +1935,7 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       createPlayerAvatar();
 
       // Build Selected World Environment
-      loadWorldEnvironment(STATE.currentWorld);
+      loadWorldEnvironment(STATE.currentWorld || 'kota');
 
       // Setup Listeners
       setupControls();
@@ -1942,6 +1943,58 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
 
       // Start loop
       animate();
+    }
+
+    function createProceduralGroundTexture(baseColor, accentColor, patternType = 'grid') {
+      const c = document.createElement('canvas');
+      c.width = 256;
+      c.height = 256;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = baseColor;
+      ctx.fillRect(0, 0, 256, 256);
+
+      if (patternType === 'asphalt') {
+        for (let i = 0; i < 600; i++) {
+          ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.12)';
+          ctx.fillRect(Math.random() * 256, Math.random() * 256, 3, 3);
+        }
+        ctx.strokeStyle = accentColor;
+        ctx.lineWidth = 4;
+        ctx.strokeRect(2, 2, 252, 252);
+      } else if (patternType === 'grass') {
+        for (let i = 0; i < 500; i++) {
+          ctx.fillStyle = i % 2 === 0 ? accentColor : 'rgba(0,0,0,0.08)';
+          ctx.fillRect(Math.random() * 256, Math.random() * 256, 4, 8);
+        }
+      } else if (patternType === 'sand') {
+        ctx.strokeStyle = accentColor;
+        ctx.lineWidth = 3;
+        for (let y = 16; y < 256; y += 32) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.bezierCurveTo(64, y - 8, 192, y + 8, 256, y);
+          ctx.stroke();
+        }
+      } else if (patternType === 'lunar') {
+        for (let i = 0; i < 18; i++) {
+          const cx = Math.random() * 256;
+          const cy = Math.random() * 256;
+          const r = 6 + Math.random() * 14;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(0,0,0,0.22)';
+          ctx.fill();
+          ctx.strokeStyle = accentColor;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      }
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(24, 24);
+      return tex;
     }
 
     function createPlayerAvatar() {
@@ -2118,40 +2171,40 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       group.add(roof);
 
       const door = new THREE.Mesh(
-        new THREE.BoxGeometry(1.1, 2.0, 0.15),
+        new THREE.BoxGeometry(1.1, 2.0, 0.2),
         new THREE.MeshLambertMaterial({ color: 0x451a03 })
       );
       door.position.set(0, 1.0, 2.52);
       group.add(door);
 
       const winMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
-      const winL = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.15), winMat);
-      winL.position.set(-1.6, 2.4, 2.52);
-      const winR = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.15), winMat);
-      winR.position.set(1.6, 2.4, 2.52);
-      group.add(winL, winR);
+      [-1.5, 1.5].forEach(wx => {
+        const win = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.2), winMat);
+        win.position.set(wx, 2.6, 2.52);
+        group.add(win);
+      });
 
       group.position.set(x, 0, z);
       scene.add(group);
       worldMeshes.push(group);
-      registerBoxCollider(x, z, 2.75, 2.5);
+      registerBoxCollider(x, z, 2.8, 2.6);
     }
 
-    function buildCartoonCar(orbitRadius, speed, angleOffset, bodyColor) {
+    function buildCartoonCar(radius, speed, offset, bodyColor) {
       const car = new THREE.Group();
       const chassis = new THREE.Mesh(
-        new THREE.BoxGeometry(2.2, 0.8, 3.8),
+        new THREE.BoxGeometry(2.2, 0.9, 3.8),
         new THREE.MeshLambertMaterial({ color: bodyColor })
       );
-      chassis.position.y = 0.7;
+      chassis.position.y = 0.75;
       chassis.castShadow = true;
       car.add(chassis);
 
       const cabin = new THREE.Mesh(
         new THREE.BoxGeometry(1.8, 0.75, 2.0),
-        new THREE.MeshLambertMaterial({ color: 0xe2e8f0 })
+        new THREE.MeshLambertMaterial({ color: 0xe0f2fe })
       );
-      cabin.position.set(0, 1.45, -0.2);
+      cabin.position.set(0, 1.5, -0.2);
       car.add(cabin);
 
       const wheelGeo = new THREE.CylinderGeometry(0.42, 0.42, 0.35, 12);
@@ -2165,39 +2218,39 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
 
       scene.add(car);
       worldMeshes.push(car);
-      STATE.dynamicActors.push({ type: 'car', mesh: car, radius: orbitRadius, speed, offset: angleOffset });
+      STATE.dynamicActors.push({ type: 'car', mesh: car, radius, speed, offset });
     }
 
-    function buildFlyingBirdOrFish(orbitRadius, heightY, speed, offset, colorHex, isFish = false) {
+    function buildFlyingBirdOrFish(radius, y, speed, offset, colorHex, isFish) {
       const actor = new THREE.Group();
       const body = new THREE.Mesh(
-        new THREE.ConeGeometry(isFish ? 0.45 : 0.32, isFish ? 1.4 : 1.1, 6),
+        isFish ? new THREE.SphereGeometry(0.55, 10, 8) : new THREE.ConeGeometry(0.35, 1.1, 8),
         new THREE.MeshLambertMaterial({ color: colorHex })
       );
-      body.rotation.x = Math.PI / 2;
+      if (isFish) body.scale.set(0.7, 0.8, 1.6);
+      else body.rotation.x = Math.PI / 2;
       actor.add(body);
 
       const wing = new THREE.Mesh(
-        new THREE.BoxGeometry(isFish ? 0.2 : 1.6, isFish ? 0.7 : 0.1, 0.45),
-        new THREE.MeshLambertMaterial({ color: 0xffffff })
+        new THREE.BoxGeometry(isFish ? 0.15 : 1.6, isFish ? 0.6 : 0.08, 0.45),
+        new THREE.MeshLambertMaterial({ color: isFish ? 0xf59e0b : 0xffffff })
       );
+      if (isFish) wing.position.z = -0.85;
       actor.add(wing);
 
       scene.add(actor);
       worldMeshes.push(actor);
-      STATE.dynamicActors.push({ type: isFish ? 'fish' : 'bird', mesh: actor, wing, radius: orbitRadius, y: heightY, speed, offset });
+      STATE.dynamicActors.push({ type: isFish ? 'fish' : 'bird', mesh: actor, wing, radius, y, speed, offset });
     }
 
-    function checkCollisionAt(nextX, nextZ) {
-      const playerRadius = 0.55;
+    function checkCollisionAt(nx, nz) {
+      const playerR = 0.65;
       for (let i = 0; i < STATE.solidColliders.length; i++) {
-        const col = STATE.solidColliders[i];
-        if (col.type === 'circle') {
-          if (Math.hypot(nextX - col.x, nextZ - col.z) < (col.radius + playerRadius)) return true;
-        } else if (col.type === 'box') {
-          const closestX = Math.max(col.x - col.halfW, Math.min(nextX, col.x + col.halfW));
-          const closestZ = Math.max(col.z - col.halfD, Math.min(nextZ, col.z + col.halfD));
-          if (Math.hypot(nextX - closestX, nextZ - closestZ) < playerRadius) return true;
+        const c = STATE.solidColliders[i];
+        if (c.type === 'circle') {
+          if (Math.hypot(nx - c.x, nz - c.z) < (c.radius + playerR)) return true;
+        } else if (c.type === 'box') {
+          if (Math.abs(nx - c.x) < (c.halfW + playerR) && Math.abs(nz - c.z) < (c.halfD + playerR)) return true;
         }
       }
       return false;
@@ -2205,36 +2258,50 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
 
     function loadWorldEnvironment(worldType) {
       clearOldWorld();
-      STATE.currentWorld = worldType;
 
       if (worldType === 'kota') {
-        // Modern Futuristic Cyber / Educational City with Houses, Trees, Cars & Climbable Stairs
-        scene.background = new THREE.Color(0x0f1e36);
-        scene.fog.color.set(0x0f1e36);
+        // Modern Realistic Educational City with Sky, Clouds, Street Lamps, Houses, Trees, Cars & Climbable Stairs
+        scene.background = new THREE.Color(0x38bdf8);
+        scene.fog.color.set(0x7dd3fc);
 
         const ground = new THREE.Mesh(
           new THREE.PlaneGeometry(160, 160),
-          new THREE.MeshLambertMaterial({ color: 0x1e293b })
+          new THREE.MeshLambertMaterial({ color: 0x166534 })
         );
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
         scene.add(ground);
         worldMeshes.push(ground);
 
-        const gridHelper = new THREE.GridHelper(160, 32, 0x00A3FF, 0x334155);
-        gridHelper.position.y = 0.02;
-        scene.add(gridHelper);
-        worldMeshes.push(gridHelper);
+        // Central City Plaza Pavement
+        const plaza = new THREE.Mesh(
+          new THREE.CircleGeometry(21, 48),
+          new THREE.MeshLambertMaterial({ color: 0x334155 })
+        );
+        plaza.rotation.x = -Math.PI / 2;
+        plaza.position.y = 0.02;
+        plaza.receiveShadow = true;
+        scene.add(plaza);
+        worldMeshes.push(plaza);
 
-        // Circular Road Ring
+        // Circular Asphalt Road Ring with Dashed Center Line
         const road = new THREE.Mesh(
-          new THREE.RingGeometry(21, 26, 48),
-          new THREE.MeshLambertMaterial({ color: 0x0f172a, side: THREE.DoubleSide })
+          new THREE.RingGeometry(21, 26.5, 64),
+          new THREE.MeshLambertMaterial({ color: 0x1e293b, side: THREE.DoubleSide })
         );
         road.rotation.x = -Math.PI / 2;
         road.position.y = 0.03;
         scene.add(road);
         worldMeshes.push(road);
+
+        const roadMark = new THREE.Mesh(
+          new THREE.RingGeometry(23.6, 23.9, 64),
+          new THREE.MeshBasicMaterial({ color: 0xfacc15, side: THREE.DoubleSide })
+        );
+        roadMark.rotation.x = -Math.PI / 2;
+        roadMark.position.y = 0.04;
+        scene.add(roadMark);
+        worldMeshes.push(roadMark);
 
         // Houses around the neighborhood
         const houseCoords = [
@@ -2246,22 +2313,53 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
         ];
         houseCoords.forEach(([hx, hz, wc, rc]) => buildCartoonHouse(hx, hz, wc, rc));
 
-        // Trees along avenues
+        // Trees & Street Lamps along avenues
         for (let i = 0; i < 18; i++) {
           const ang = (i / 18) * Math.PI * 2 + 0.15;
           const dist = 28.5;
           const tx = Math.cos(ang) * dist;
           const tz = Math.sin(ang) * dist;
           const tree = new THREE.Group();
-          const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.4, 2.6, 6), new THREE.MeshLambertMaterial({ color: 0x78350f }));
-          trunk.position.y = 1.3;
-          const crown = new THREE.Mesh(new THREE.DodecahedronGeometry(1.5), new THREE.MeshLambertMaterial({ color: 0x22c55e }));
-          crown.position.y = 3.2;
-          tree.add(trunk, crown);
+          const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.42, 2.8, 8), new THREE.MeshLambertMaterial({ color: 0x78350f }));
+          trunk.position.y = 1.4;
+          trunk.castShadow = true;
+          const crown1 = new THREE.Mesh(new THREE.DodecahedronGeometry(1.5, 1), new THREE.MeshLambertMaterial({ color: 0x22c55e }));
+          crown1.position.y = 3.2;
+          crown1.castShadow = true;
+          const crown2 = new THREE.Mesh(new THREE.DodecahedronGeometry(1.1, 1), new THREE.MeshLambertMaterial({ color: 0x4ade80 }));
+          crown2.position.set(0.5, 3.8, 0.3);
+          tree.add(trunk, crown1, crown2);
           tree.position.set(tx, 0, tz);
           scene.add(tree);
           worldMeshes.push(tree);
           registerCircleCollider(tx, tz, 0.5);
+
+          if (i % 3 === 0) {
+            const lamp = new THREE.Group();
+            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.14, 4.2, 8), new THREE.MeshLambertMaterial({ color: 0x0f172a }));
+            pole.position.y = 2.1;
+            const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.32, 8, 8), new THREE.MeshBasicMaterial({ color: 0xfef08a }));
+            bulb.position.y = 4.3;
+            lamp.add(pole, bulb);
+            lamp.position.set(Math.cos(ang) * 20.3, 0, Math.sin(ang) * 20.3);
+            scene.add(lamp);
+            worldMeshes.push(lamp);
+          }
+        }
+
+        // Fluffy Clouds in the Sky
+        for (let c = 0; c < 10; c++) {
+          const cloud = new THREE.Group();
+          const cMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.85 });
+          for (let p = 0; p < 3; p++) {
+            const puff = new THREE.Mesh(new THREE.SphereGeometry(2.2 - p * 0.3, 10, 10), cMat);
+            puff.position.set(p * 1.8 - 1.8, (p % 2) * 0.5, 0);
+            cloud.add(puff);
+          }
+          const ca = (c / 10) * Math.PI * 2;
+          cloud.position.set(Math.cos(ca) * 48, 24 + (c % 3) * 3, Math.sin(ca) * 48);
+          scene.add(cloud);
+          worldMeshes.push(cloud);
         }
 
         // Animated Cars driving around the ring road
@@ -2279,16 +2377,17 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
 
         // Central Monument with Solid Collider
         const monument = new THREE.Mesh(
-          new THREE.CylinderGeometry(2, 3, 14, 8),
+          new THREE.CylinderGeometry(2, 3, 14, 12),
           new THREE.MeshLambertMaterial({ color: 0xffd027 })
         );
         monument.position.set(0, 7, 0);
+        monument.castShadow = true;
         scene.add(monument);
         worldMeshes.push(monument);
         registerCircleCollider(0, 0, 2.8);
 
       } else if (worldType === 'nusantara') {
-        // Candi, Rocks, Birds, Houses & Climbable Temple Stairs
+        // Candi with Stupas, Rocks, Birds, Houses & Climbable Temple Stairs
         scene.background = new THREE.Color(0x38bdf8);
         scene.fog.color.set(0x7dd3fc);
 
@@ -2301,7 +2400,7 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
         scene.add(ground);
         worldMeshes.push(ground);
 
-        // Climbable Stepped Candi Temple Pyramid (Players can climb all the way to the top!)
+        // Climbable Stepped Candi Temple Pyramid + Top Stupa
         for (let lvl = 0; lvl < 5; lvl++) {
           const w = 16 - lvl * 2.6;
           const topH = (lvl + 1) * 0.7;
@@ -2316,6 +2415,14 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
           worldMeshes.push(tier);
           registerClimbableBox(0, 0, w / 2, w / 2, topH);
         }
+        const mainStupa = new THREE.Mesh(
+          new THREE.ConeGeometry(1.4, 2.6, 12),
+          new THREE.MeshLambertMaterial({ color: 0x44403c })
+        );
+        mainStupa.position.set(0, 4.8, 0);
+        mainStupa.castShadow = true;
+        scene.add(mainStupa);
+        worldMeshes.push(mainStupa);
 
         // Traditional Nusantara Houses
         buildCartoonHouse(-26, -18, 0x92400e, 0x451a03);
@@ -2325,7 +2432,7 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
         for (let i = 0; i < 16; i++) {
           const r = 0.9 + Math.random() * 1.1;
           const rock = new THREE.Mesh(
-            new THREE.DodecahedronGeometry(r, 0),
+            new THREE.DodecahedronGeometry(r, 1),
             new THREE.MeshLambertMaterial({ color: 0x94a3b8 })
           );
           const ang = Math.random() * Math.PI * 2;
@@ -2334,6 +2441,7 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
           const rz = Math.sin(ang) * dist;
           rock.position.set(rx, r * 0.5, rz);
           rock.scale.set(1.2, 0.7, 1);
+          rock.castShadow = true;
           scene.add(rock);
           worldMeshes.push(rock);
           registerCircleCollider(rx, rz, r * 0.9);
@@ -2341,8 +2449,8 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
 
         // Coconut / Palm Trees with Collider
         for (let i = 0; i < 22; i++) {
-          const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 6, 6), new THREE.MeshLambertMaterial({ color: 0x78350f }));
-          const leaves = new THREE.Mesh(new THREE.ConeGeometry(2.5, 3, 6), new THREE.MeshLambertMaterial({ color: 0x22c55e }));
+          const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 6, 8), new THREE.MeshLambertMaterial({ color: 0x78350f }));
+          const leaves = new THREE.Mesh(new THREE.ConeGeometry(2.5, 3, 8), new THREE.MeshLambertMaterial({ color: 0x22c55e }));
           leaves.position.y = 3.5;
 
           const treeGroup = new THREE.Group();
@@ -2363,27 +2471,28 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
         }
 
       } else if (worldType === 'laut') {
-        // Under the Sea: Coral Reef, Ocean Rocks, Swimming Fish & Climbable Reef Steps
-        scene.background = new THREE.Color(0x0c4a6e);
+        // Under the Sea: Coral Reef, Seaweed, Bubbles, Ocean Rocks, Swimming Fish & Climbable Reef Steps
+        scene.background = new THREE.Color(0x0369a1);
         scene.fog.color.set(0x075985);
 
         const ground = new THREE.Mesh(
           new THREE.PlaneGeometry(160, 160),
-          new THREE.MeshLambertMaterial({ color: 0xfef08a })
+          new THREE.MeshLambertMaterial({ color: 0xfde047 })
         );
         ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
         scene.add(ground);
         worldMeshes.push(ground);
 
         // Climbable Coral Reef Staircase
         buildClimbableStaircase(-6, -5, 0, -1, 6, 3.5, 1.4, 0.55, 0x06b6d4);
 
-        // Colorful Coral & Sea Rocks with Collider
+        // Colorful Coral, Seaweed & Sea Rocks with Collider
         const coralColors = [0xf43f5e, 0xa855f7, 0x06b6d4, 0xf59e0b, 0x64748b];
         for (let i = 0; i < 34; i++) {
           const r = 1.3 + Math.random() * 1.8;
           const coral = new THREE.Mesh(
-            new THREE.DodecahedronGeometry(r),
+            new THREE.DodecahedronGeometry(r, 1),
             new THREE.MeshLambertMaterial({ color: coralColors[i % coralColors.length] })
           );
           const angle = Math.random() * Math.PI * 2;
@@ -2395,6 +2504,26 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
           scene.add(coral);
           worldMeshes.push(coral);
           registerCircleCollider(cx, cz, r * 0.85);
+
+          if (i % 2 === 0) {
+            const kelp = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.18, 0.28, 4.5, 6),
+              new THREE.MeshLambertMaterial({ color: 0x10b981 })
+            );
+            kelp.position.set(cx + 1.4, 2.2, cz);
+            scene.add(kelp);
+            worldMeshes.push(kelp);
+          }
+        }
+
+        // Rising Ocean Bubbles
+        const bubbleGeo = new THREE.SphereGeometry(0.25, 8, 8);
+        const bubbleMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe, transparent: true, opacity: 0.65 });
+        for (let b = 0; b < 45; b++) {
+          const bub = new THREE.Mesh(bubbleGeo, bubbleMat);
+          bub.position.set((Math.random() - 0.5) * 60, 1 + Math.random() * 18, (Math.random() - 0.5) * 60);
+          scene.add(bub);
+          worldMeshes.push(bub);
         }
 
         // Swimming Fish schools
@@ -2403,22 +2532,38 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
         }
 
       } else if (worldType === 'angkasa') {
-        // Deep Outer Space, Moon Rocks, Orbiting UFO/Satellites & Climbable Space Ramp
+        // Deep Outer Space, Ringed Planets, Moon Rocks, Orbiting UFO/Satellites & Climbable Space Ramp
         scene.background = new THREE.Color(0x030712);
         scene.fog.color.set(0x030712);
 
         const starsGeo = new THREE.BufferGeometry();
         const starCoords = [];
-        for (let i = 0; i < 800; i++) {
-          starCoords.push((Math.random() - 0.5) * 300, Math.random() * 100 + 10, (Math.random() - 0.5) * 300);
+        for (let i = 0; i < 900; i++) {
+          starCoords.push((Math.random() - 0.5) * 300, Math.random() * 110 + 8, (Math.random() - 0.5) * 300);
         }
         starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
-        const starField = new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.8 }));
+        const starField = new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.85 }));
         scene.add(starField);
         worldMeshes.push(starField);
 
+        // Giant Saturn-like Ringed Planet in Background
+        const saturnGroup = new THREE.Group();
+        const planetSphere = new THREE.Mesh(
+          new THREE.SphereGeometry(9, 24, 24),
+          new THREE.MeshLambertMaterial({ color: 0xa855f7 })
+        );
+        const planetRing = new THREE.Mesh(
+          new THREE.RingGeometry(12, 17, 48),
+          new THREE.MeshBasicMaterial({ color: 0xfde047, side: THREE.DoubleSide, transparent: true, opacity: 0.7 })
+        );
+        planetRing.rotation.x = Math.PI / 2.6;
+        saturnGroup.add(planetSphere, planetRing);
+        saturnGroup.position.set(-45, 28, -55);
+        scene.add(saturnGroup);
+        worldMeshes.push(saturnGroup);
+
         const plat = new THREE.Mesh(
-          new THREE.CylinderGeometry(28, 28, 2, 32),
+          new THREE.CylinderGeometry(28, 28, 2, 48),
           new THREE.MeshLambertMaterial({ color: 0x334155 })
         );
         plat.position.y = -1;
@@ -2433,7 +2578,7 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
         for (let i = 0; i < 12; i++) {
           const r = 0.8 + Math.random() * 0.9;
           const mRock = new THREE.Mesh(
-            new THREE.DodecahedronGeometry(r),
+            new THREE.DodecahedronGeometry(r, 1),
             new THREE.MeshLambertMaterial({ color: 0x64748b })
           );
           const ang = (i / 12) * Math.PI * 2 + 0.3;

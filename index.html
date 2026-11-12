@@ -2135,6 +2135,35 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
         });
       });
     }
+
+    /* ====================================================================
+       5. CONTROLS (KEYBOARD, MOUSE DRAG, 3D CLICK, 4-WAY DPAD & JUMP)
+       ==================================================================== */
+    function setupControls() {
+      window.addEventListener('keydown', (e) => {
+        if (document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+        const k = e.key.toLowerCase();
+        if (k === 'w' || e.key === 'ArrowUp') keys.w = true;
+        if (k === 's' || e.key === 'ArrowDown') keys.s = true;
+        if (k === 'a' || e.key === 'ArrowLeft') keys.a = true;
+        if (k === 'd' || e.key === 'ArrowRight') keys.d = true;
+        if (e.code === 'Space') {
+          e.preventDefault();
+          handleJump();
+        }
+        if (k === 'e' && activeNearQuiz && document.getElementById('quizModal').classList.contains('hidden')) {
+          triggerNearbyQuiz();
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        const k = e.key.toLowerCase();
+        if (k === 'w' || e.key === 'ArrowUp') keys.w = false;
+        if (k === 's' || e.key === 'ArrowDown') keys.s = false;
+        if (k === 'a' || e.key === 'ArrowLeft') keys.a = false;
+        if (k === 'd' || e.key === 'ArrowRight') keys.d = false;
+      });
+
       // Mouse drag rotation + Tap/Click directly on 3D Question Crystal
       let isDragging = false;
       let pointerDownX = 0;
@@ -2415,6 +2444,17 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       updateRadarMarkers();
 
       // Camera Follow Third-Person (Roblox style orbit)
+      const camDist = 10;
+      const camHeight = 3.5 + Math.sin(cameraPitch) * 6;
+      const horizDist = camDist * Math.cos(cameraPitch);
+      camera.position.x = playerPos.x + Math.sin(cameraAngle) * horizDist;
+      camera.position.z = playerPos.z + Math.cos(cameraAngle) * horizDist;
+      camera.position.y = playerPos.y + camHeight;
+      camera.lookAt(playerPos.x, playerPos.y + 1.8, playerPos.z);
+
+      renderer.render(scene, camera);
+    }
+
     function updateRadarMarkers() {
       const layer = document.getElementById('radarMarkersLayer');
       if (!layer) return;
@@ -2536,29 +2576,54 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       STATE.student.nickname = nickInput;
       STATE.student.name = nickInput;
       STATE.student.absen = absenInput;
+      STATE.student.score = 0;
+      STATE.student.answeredList = [];
+      STATE.student.answeredDetails = {};
 
       // Tarik paket soal guru dari Cloud Supabase jika online
       const fetchedFromCloud = await fetchQuestionsFromCloud(codeInput);
       if (fetchedFromCloud) {
         spawnQuestionCrystals();
-        document.getElementById('hudCompletedCount').innerText = `0 / ${STATE.questions.length}`;
       }
 
-      // Update HUD elements
-      document.getElementById('hudStudentName').innerText = nickInput;
-      document.getElementById('hudAbsenBadge').innerText = `Absen ${absenInput}`;
-      document.getElementById('hudAvatarIcon').innerText = nickInput.charAt(0).toUpperCase();
+      document.getElementById('hudScore').innerText = '0';
+      document.getElementById('hudCompletedCount').innerText = `0 / ${STATE.questions.length}`;
+      spawnQuestionCrystals();
 
-      // Close lobby modal, open HUD
+      // Register student into room gradebook immediately upon joining
+      syncStudentGrade();
+
+      // Hide lobby & hide global top header for clean 3D gameplay screen
       document.getElementById('lobbyScreen').classList.add('hidden');
+      document.getElementById('globalHeader').classList.add('hidden');
       document.getElementById('gameHud').classList.remove('hidden');
 
       // Start Parachute Drop sequence
       playerPos = { x: 0, y: 35, z: 12 };
       isParachuting = true;
 
-      showToast('Terjun Payung!', 'Selamat datang di Lomba Kelas! Mendaratlah dan raih bintang ilmu!');
+      showToast('Terjun Payung!', 'Selamat datang di Room Kelas! Cari kristal soal di sekitarmu!');
       SoundFx.jump();
+    }
+
+    function confirmFinishAndExitGame() {
+      document.getElementById('exitCurrentScore').innerText = STATE.student.score;
+      document.getElementById('exitGameConfirmModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeExitConfirmModal() {
+      document.getElementById('exitGameConfirmModal').classList.add('hidden');
+    }
+
+    function executeFinishAndExitGame() {
+      closeExitConfirmModal();
+      syncStudentGrade();
+      document.getElementById('gameHud').classList.add('hidden');
+      document.getElementById('globalHeader').classList.remove('hidden');
+      document.getElementById('lobbyScreen').classList.remove('hidden');
+      SoundFx.victory();
+      showToast('Permainan Selesai!', `Skor akhir Anda (${STATE.student.score} poin) telah diterima dan masuk ke Rekap Guru.`);
     }
 
     function selectWorld(worldKey) {
@@ -2682,6 +2747,47 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
         grid.appendChild(bBenar);
         grid.appendChild(bSalah);
         interactArea.appendChild(grid);
+
+      } else if (q.type === 'isian') {
+        badgeType.innerText = 'ISIAN SINGKAT';
+        badgeType.className = 'px-3 py-1 rounded-xl text-xs font-cartoon font-bold bg-emerald-600 text-white uppercase';
+        subtitle.classList.add('hidden');
+
+        interactArea.innerHTML = `
+          <input id="inputQuizShort" type="text" placeholder="Ketik jawaban singkat Anda di sini..."
+                 class="w-full bg-black/50 border-2 border-white/20 focus:border-game-yellow rounded-2xl px-4 py-3 text-white font-sans text-sm outline-none">
+        `;
+
+      } else if (q.type === 'jodoh') {
+        badgeType.innerText = 'MENJODOHKAN';
+        badgeType.className = 'px-3 py-1 rounded-xl text-xs font-cartoon font-bold bg-amber-600 text-white uppercase';
+        subtitle.innerText = 'Pilih pasangan yang paling tepat untuk setiap pernyataan di sebelah kiri.';
+        subtitle.classList.remove('hidden');
+
+        const rightOptions = (q.pairs || []).map(p => p.right);
+        (q.pairs || []).forEach((pair, idx) => {
+          const row = document.createElement('div');
+          row.className = 'p-3 rounded-2xl bg-black/40 border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-2';
+          row.innerHTML = `
+            <span class="font-bold text-xs text-white">${pair.left}</span>
+            <select id="pairSelect_${idx}" class="bg-slate-900 border border-white/20 rounded-xl px-3 py-1.5 text-xs text-game-yellow font-bold outline-none">
+              <option value="">-- Pilih Pasangan --</option>
+              ${rightOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+            </select>
+          `;
+          interactArea.appendChild(row);
+        });
+
+      } else if (q.type === 'urut') {
+        badgeType.innerText = 'MENGURUTKAN';
+        badgeType.className = 'px-3 py-1 rounded-xl text-xs font-cartoon font-bold bg-pink-600 text-white uppercase';
+        subtitle.innerText = 'Gunakan tombol panah atas/bawah untuk menyusun urutan yang benar.';
+        subtitle.classList.remove('hidden');
+
+        quizUserOrder = [...(q.items || [])].sort(() => Math.random() - 0.5);
+        renderOrderList();
+      }
+
       // If question has already been answered, lock editing & show recorded answer + correct key
       if (existingRecord) {
         renderLockedAnsweredState(q, existingRecord);
@@ -2690,6 +2796,118 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
       modal.classList.remove('hidden');
       lucide.createIcons();
       SoundFx.playTone(523.25, 'triangle', 0.1);
+    }
+
+    function renderOrderList() {
+      const interactArea = document.getElementById('quizInteractArea');
+      if (!interactArea) return;
+      interactArea.innerHTML = '';
+      quizUserOrder.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = 'p-3 rounded-2xl bg-black/40 border border-white/15 flex items-center justify-between text-xs text-white';
+        row.innerHTML = `
+          <span><b class="text-game-yellow mr-2">#${idx + 1}</b> ${item}</span>
+          <div class="flex gap-1">
+            <button type="button" onclick="moveOrderItem(${idx}, -1)" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20">▲</button>
+            <button type="button" onclick="moveOrderItem(${idx}, 1)" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20">▼</button>
+          </div>
+        `;
+        interactArea.appendChild(row);
+      });
+    }
+
+    function closeQuizModal() {
+      document.getElementById('quizModal').classList.add('hidden');
+      currentQuizInstance = null;
+    }
+
+    function closeMinigameModal() {
+      document.getElementById('minigameModal').classList.add('hidden');
+    }
+
+    function openMiniLeaderboard() {
+      document.getElementById('lbClassCode').innerText = STATE.classCode;
+      const list = document.getElementById('studentLeaderboardList');
+      const sorted = [...STATE.gradebook].sort((a, b) => (b.score - a.score) || (b.completed - a.completed));
+      list.innerHTML = sorted.map((s, idx) => {
+        const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `#${idx + 1}`));
+        const isMe = s.name === STATE.student.name && String(s.absen) === String(STATE.student.absen);
+        return `
+          <div class="p-3 rounded-2xl border flex items-center justify-between ${isMe ? 'bg-game-yellow/20 border-game-yellow' : 'bg-black/40 border-white/10'}">
+            <div class="flex items-center gap-3">
+              <span class="font-cartoon text-lg font-bold w-8 text-center">${medal}</span>
+              <div>
+                <div class="font-cartoon text-sm font-bold text-white">${s.name} ${isMe ? '(Kamu)' : ''}</div>
+                <div class="text-[10px] text-slate-300">Absen ${s.absen} • Misi ${s.completed}/${s.total}</div>
+              </div>
+            </div>
+            <div class="font-cartoon text-lg font-bold text-game-yellow">${s.score} pt</div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('studentLeaderboardModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeMiniLeaderboard() {
+      document.getElementById('studentLeaderboardModal').classList.add('hidden');
+    }
+
+    function openVictoryModal() {
+      document.getElementById('vicName').innerText = STATE.student.name;
+      document.getElementById('vicScore').innerText = STATE.student.score;
+      document.getElementById('vicSyncStatusText').innerText = isAppOnline()
+        ? 'Nilai otomatis terkirim ke Dashboard Guru Anda.'
+        : 'Tersimpan di perangkat (Akan terkirim otomatis begitu sinyal online).';
+      document.getElementById('victoryModal').classList.remove('hidden');
+      SoundFx.victory();
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }
+
+    function closeVictoryModal() {
+      document.getElementById('victoryModal').classList.add('hidden');
+    }
+
+    function syncStudentGrade() {
+      const answeredCount = STATE.student.answeredList.length;
+      const correctCount = Object.values(STATE.student.answeredDetails).filter(d => d.isCorrect).length;
+      const accPct = answeredCount > 0 ? `${Math.round((correctCount / answeredCount) * 100)}%` : '0%';
+      const online = isAppOnline();
+
+      const record = {
+        id: `std_${STATE.student.absen}_${STATE.student.name.replace(/\s+/g, '_')}`,
+        classCode: STATE.classCode,
+        absen: String(STATE.student.absen).padStart(2, '0'),
+        name: STATE.student.name,
+        completed: answeredCount,
+        total: STATE.questions.length,
+        accuracy: accPct,
+        time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        score: STATE.student.score,
+        assessmentType: 'harian',
+        syncStatus: online ? 'synced' : 'pending_sync'
+      };
+
+      const existingIdx = STATE.gradebook.findIndex(s => s.name === record.name && String(s.absen) === String(record.absen));
+      if (existingIdx !== -1) {
+        STATE.gradebook[existingIdx] = record;
+      } else {
+        STATE.gradebook.unshift(record);
+      }
+
+      if (!online) {
+        const qIdx = STATE.pendingSyncQueue.findIndex(s => s.name === record.name && String(s.absen) === String(record.absen));
+        if (qIdx !== -1) STATE.pendingSyncQueue[qIdx] = record;
+        else STATE.pendingSyncQueue.push(record);
+      } else if (STATE.supabaseConfig.url && STATE.supabaseConfig.key) {
+        STATE.pendingSyncQueue.push(record);
+        flushSyncQueue(false);
+        return;
+      }
+
+      persistStateToLocal();
+      updateNetworkStatusUI();
+      renderTeacherDashboard();
     }
 
     function getCorrectAnswerReadable(q) {
@@ -3004,6 +3222,221 @@ CREATE POLICY "Akses publik soal" ON bank_soal_3d FOR ALL USING (true) WITH CHEC
     }
 
     function switchMainView(view) {
+      STATE.view = view;
+      const studentEl = document.getElementById('studentView');
+      const teacherEl = document.getElementById('teacherView');
+      const btnS = document.getElementById('navBtnStudent');
+      const btnT = document.getElementById('navBtnTeacher');
+
+      if (view === 'student') {
+        studentEl.classList.remove('hidden');
+        teacherEl.classList.add('hidden');
+        btnS.className = 'px-3 md:px-4 py-1.5 rounded-xl font-cartoon text-xs md:text-sm font-bold transition-all duration-200 bg-game-yellow text-game-navy shadow-sm';
+        btnT.className = 'px-3 md:px-4 py-1.5 rounded-xl font-cartoon text-xs md:text-sm font-bold text-slate-300 hover:text-white transition-all duration-200 flex items-center gap-1';
+        onWindowResize();
+      } else {
+        studentEl.classList.add('hidden');
+        teacherEl.classList.remove('hidden');
+        btnT.className = 'px-3 md:px-4 py-1.5 rounded-xl font-cartoon text-xs md:text-sm font-bold transition-all duration-200 bg-game-yellow text-game-navy shadow-sm flex items-center gap-1';
+        btnS.className = 'px-3 md:px-4 py-1.5 rounded-xl font-cartoon text-xs md:text-sm font-bold text-slate-300 hover:text-white transition-all duration-200';
+        fetchGradesFromCloud();
+        renderTeacherDashboard();
+      }
+    }
+
+    function setTeacherTab(tab) {
+      STATE.teacherTab = tab;
+      ['bank', 'nilai', 'analisis', 'database'].forEach(t => {
+        const btn = document.getElementById(`tabBtn-${t}`);
+        const content = document.getElementById(`tabContent-${t}`);
+        if (btn) {
+          btn.className = t === tab
+            ? 'px-4 py-2 rounded-xl font-cartoon text-xs md:text-sm font-bold bg-game-blue text-white shadow transition flex items-center gap-2 whitespace-nowrap'
+            : 'px-4 py-2 rounded-xl font-cartoon text-xs md:text-sm font-bold text-slate-300 hover:text-white transition flex items-center gap-2 whitespace-nowrap';
+        }
+        if (content) {
+          content.classList.toggle('hidden', t !== tab);
+        }
+      });
+      renderTeacherDashboard();
+    }
+
+    function renderTeacherDashboard() {
+      // Update KPI cards
+      const totalStudents = STATE.gradebook.length;
+      const avgScore = totalStudents > 0
+        ? (STATE.gradebook.reduce((acc, s) => acc + (Number(s.score) || 0), 0) / totalStudents).toFixed(1)
+        : '0.0';
+      const passed = STATE.gradebook.filter(s => Number(s.score) >= 75).length;
+      const masteryPct = totalStudents > 0 ? `${Math.round((passed / totalStudents) * 100)}%` : '0%';
+
+      const elTotalS = document.getElementById('statTotalStudents');
+      const elAvg = document.getElementById('statAverageScore');
+      const elTotalQ = document.getElementById('statTotalQuestions');
+      const elMast = document.getElementById('statMastery');
+      if (elTotalS) elTotalS.innerText = totalStudents;
+      if (elAvg) elAvg.innerText = avgScore;
+      if (elTotalQ) elTotalQ.innerText = STATE.questions.length;
+      if (elMast) elMast.innerText = masteryPct;
+
+      // 1. Render Question Bank Cards
+      const qList = document.getElementById('teacherQuestionsList');
+      if (qList) {
+        qList.innerHTML = STATE.questions.map((q, idx) => `
+          <div class="p-4 rounded-2xl bg-black/40 border border-white/15 flex flex-col justify-between gap-3">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-1.5">
+                <span class="px-2.5 py-0.5 rounded-lg bg-game-blue/20 text-game-blue border border-game-blue/40 font-cartoon text-[10px] font-bold uppercase">${q.type}</span>
+                <span class="text-[10px] text-slate-400 font-bold uppercase">🌍 ${q.world || 'kota'}</span>
+              </div>
+              <div class="font-cartoon text-sm font-bold text-white">#${idx + 1}. ${q.title}</div>
+              <div class="text-xs text-game-green mt-1.5 font-semibold">✓ Kunci: ${getCorrectAnswerReadable(q)}</div>
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
+              <button onclick="editQuestion('${q.id}')" class="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold text-amber-300">Edit</button>
+              <button onclick="deleteQuestion('${q.id}')" class="px-3 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-xs font-bold text-rose-300">Hapus</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // 2. Render Gradebook Table
+      filterGradebook();
+
+      // 3. Render Item Analysis
+      const analysisBox = document.getElementById('analysisQuestionsContainer');
+      if (analysisBox) {
+        analysisBox.innerHTML = STATE.questions.map((q, idx) => {
+          const pct = Math.max(55, 95 - idx * 7);
+          const diffLabel = pct >= 80 ? 'Mudah' : (pct >= 65 ? 'Sedang' : 'Sukar');
+          return `
+            <div class="p-4 rounded-2xl bg-black/40 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="font-cartoon text-sm font-bold text-white">Butir #${idx + 1}: ${q.title}</div>
+                <div class="text-xs text-slate-400 mt-0.5">Tingkat Kesukaran: <b class="text-game-yellow">${diffLabel}</b> (${pct}% Siswa Menjawab Benar)</div>
+              </div>
+              <div class="w-full sm:w-48 bg-slate-800 h-3 rounded-full overflow-hidden">
+                <div class="bg-game-green h-full" style="width:${pct}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      lucide.createIcons();
+    }
+
+    function filterGradebook() {
+      const tbody = document.getElementById('teacherGradesTbody');
+      if (!tbody) return;
+      const filterVal = document.getElementById('assessmentFilter')?.value || 'all';
+      const sorted = [...STATE.gradebook]
+        .filter(s => filterVal === 'all' || s.assessmentType === filterVal)
+        .sort((a, b) => (b.score - a.score) || (b.completed - a.completed));
+
+      tbody.innerHTML = sorted.map((s, idx) => {
+        const isPending = s.syncStatus === 'pending_sync';
+        return `
+          <tr class="hover:bg-white/5 transition">
+            <td class="p-3 font-cartoon font-bold text-game-yellow">#${idx + 1}</td>
+            <td class="p-3 font-bold">${s.absen}</td>
+            <td class="p-3 font-bold text-white">${s.name}</td>
+            <td class="p-3">${s.completed} / ${s.total} Pos</td>
+            <td class="p-3">${s.accuracy}</td>
+            <td class="p-3">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isPending ? 'bg-amber-500/20 text-amber-300' : 'bg-game-green/20 text-game-green'}">
+                ${isPending ? '⏳ Pending Offline' : '✓ Synced'}
+              </span>
+            </td>
+            <td class="p-3 font-cartoon text-base font-bold text-game-green">${s.score}</td>
+            <td class="p-3 text-center">
+              <button onclick="openCertificateForStudent('${s.name.replace(/'/g, "\\'")}', ${s.score})" class="px-2.5 py-1 rounded-lg bg-game-yellow/20 hover:bg-game-yellow/30 text-game-yellow font-bold text-[11px]">
+                Piagam
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    /* ====================================================================
+       11. MANUAL QUESTION MODAL & AI GENERATOR HELPERS
+       ==================================================================== */
+    let aiQuestionCount = 3;
+
+    function openAddQuestionModal() {
+      document.getElementById('editQuestionId').value = '';
+      document.getElementById('modalQuestionFormTitle').innerText = 'Tambah Soal Baru';
+      document.getElementById('questionForm').reset();
+      renderQuestionTypeInputs();
+      document.getElementById('addQuestionModal').classList.remove('hidden');
+    }
+
+    function closeAddQuestionModal() {
+      document.getElementById('addQuestionModal').classList.add('hidden');
+    }
+
+    function renderQuestionTypeInputs() {
+      const type = document.getElementById('qFormType').value;
+      const box = document.getElementById('dynamicTypeInputs');
+      if (!box) return;
+
+      if (type === 'pg') {
+        box.innerHTML = [0, 1, 2, 3].map(i => `
+          <div class="flex items-center gap-2">
+            <input type="radio" name="pgCorrectRadio" value="${i}" ${i === 0 ? 'checked' : ''}>
+            <span class="font-bold text-game-yellow w-4">${['A', 'B', 'C', 'D'][i]}.</span>
+            <input id="pgOpt_${i}" type="text" required placeholder="Opsi ${['A', 'B', 'C', 'D'][i]}" class="flex-1 bg-black/50 border border-white/15 rounded-lg px-2.5 py-1.5 text-white">
+          </div>
+        `).join('');
+      } else if (type === 'bs') {
+        box.innerHTML = `
+          <div class="flex gap-4">
+            <label class="flex items-center gap-2 text-white font-bold"><input type="radio" name="bsCorrectRadio" value="0" checked> Benar</label>
+            <label class="flex items-center gap-2 text-white font-bold"><input type="radio" name="bsCorrectRadio" value="1"> Salah</label>
+          </div>
+        `;
+      } else if (type === 'isian') {
+        box.innerHTML = `<input id="isianCorrectInput" type="text" required placeholder="Kata kunci jawaban benar..." class="w-full bg-black/50 border border-white/15 rounded-lg px-3 py-2 text-white">`;
+      } else if (type === 'jodoh') {
+        box.innerHTML = `
+          <div class="grid grid-cols-2 gap-2">
+            <input id="pairL_0" type="text" required placeholder="Pernyataan 1" class="bg-black/50 border border-white/15 rounded-lg px-2.5 py-1.5 text-white">
+            <input id="pairR_0" type="text" required placeholder="Pasangan 1" class="bg-black/50 border border-white/15 rounded-lg px-2.5 py-1.5 text-white">
+            <input id="pairL_1" type="text" required placeholder="Pernyataan 2" class="bg-black/50 border border-white/15 rounded-lg px-2.5 py-1.5 text-white">
+            <input id="pairR_1" type="text" required placeholder="Pasangan 2" class="bg-black/50 border border-white/15 rounded-lg px-2.5 py-1.5 text-white">
+          </div>
+        `;
+      } else if (type === 'urut') {
+        box.innerHTML = `<input id="urutInputCsv" type="text" required placeholder="Ketik urutan benar dipisah koma (Contoh: Tahap 1, Tahap 2, Tahap 3)" class="w-full bg-black/50 border border-white/15 rounded-lg px-3 py-2 text-white">`;
+      }
+    }
+
+    function openAiGeneratorModal() {
+      document.getElementById('aiGenModal').classList.remove('hidden');
+    }
+
+    function closeAiGeneratorModal() {
+      document.getElementById('aiGenModal').classList.add('hidden');
+    }
+
+    function setAiCount(n) {
+      aiQuestionCount = n;
+      document.querySelectorAll('.ai-cnt-btn').forEach(b => {
+        b.className = b.innerText.startsWith(String(n))
+          ? 'ai-cnt-btn flex-1 py-1.5 rounded-xl bg-game-purple text-white font-cartoon font-bold'
+          : 'ai-cnt-btn flex-1 py-1.5 rounded-xl bg-white/10 text-slate-300 font-cartoon font-bold';
+      });
+    }
+
+    function generateQuestionsWithAi() {
+      const subj = document.getElementById('aiSubject').value;
+      const topic = document.getElementById('aiTopic').value.trim() || subj;
+      const btn = document.getElementById('btnRunAi');
+      btn.disabled = true;
+      btn.innerText = 'Menyusun Soal AI...';
+
+      setTimeout(() => {
         // High quality simulated curriculum bank
         const templates = [
           {

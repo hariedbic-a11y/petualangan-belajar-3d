@@ -1001,7 +1001,7 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
        ==================================================================== */
     const DEFAULT_CLOUD_CONFIG = {
       url: 'https://ihhliahcraylkmokkrnh.supabase.co',
-      key: ''
+      key: 'sb_publishable_WjISZUCXq6UL-_v49ISvDw_-bBAr'
     };
 
     const STORAGE_KEYS = {
@@ -1316,10 +1316,12 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
       if (!isAppOnline() || !STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return false;
       try {
         const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
-        const res = await fetch(`${cleanBaseUrl}/rest/v1/bank_soal_3d?kode_kelas=eq.${encodeURIComponent(code)}&select=daftar_soal`, {
+        const cleanCode = String(code || STATE.classCode || '').trim().toUpperCase();
+        const res = await fetch(`${cleanBaseUrl}/rest/v1/bank_soal_3d?kode_kelas=ilike.${encodeURIComponent(cleanCode)}&select=kode_kelas,daftar_soal`, {
           headers: {
             'apikey': STATE.supabaseConfig.key,
-            'Authorization': `Bearer ${STATE.supabaseConfig.key}`
+            'Authorization': `Bearer ${STATE.supabaseConfig.key}`,
+            'Cache-Control': 'no-cache'
           }
         });
         if (!res.ok) return false;
@@ -2812,14 +2814,15 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
         return;
       }
 
-      if (codeInput !== STATE.classCode) {
+      STATE.classCode = codeInput;
+      const fetchedFromCloud = await fetchQuestionsFromCloud(codeInput);
+      await fetchGradesFromCloud();
+
+      if (!fetchedFromCloud && codeInput !== (localStorage.getItem(STORAGE_KEYS.CLASS_CODE) || 'JUARA2026')) {
         SoundFx.wrong();
-        showToast('Kode Kelas Tidak Cocok', `Kode kelas aktif saat ini adalah ${STATE.classCode}.`);
+        showToast('Kode Kelas Tidak Ditemukan', `Kode kelas ${codeInput} belum diterbitkan oleh Guru.`);
         return;
       }
-
-      await fetchGradesFromCloud();
-      const fetchedFromCloud = await fetchQuestionsFromCloud(codeInput);
 
       const formattedAbsen = String(Number(absenInput) || absenInput).padStart(2, '0');
       const matchedRoster = STATE.gradebook.find(s =>
@@ -4042,6 +4045,17 @@ CREATE POLICY "Publik baca tulis soal" ON bank_soal_3d FOR ALL USING (true) WITH
       updateNetworkStatusUI();
       renderTeacherDashboard();
       lucide.createIcons();
+
+      // Auto-sync latest questions & student roster from Supabase on mobile/desktop load
+      if (isAppOnline()) {
+        fetchQuestionsFromCloud(STATE.classCode).then(updated => {
+          if (updated) {
+            spawnQuestionCrystals();
+            renderTeacherDashboard();
+          }
+        });
+        fetchGradesFromCloud();
+      }
 
       document.getElementById('confirmDialogYesBtn').onclick = () => {
         if (pendingConfirmCallback) pendingConfirmCallback();

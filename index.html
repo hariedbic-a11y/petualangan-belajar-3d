@@ -977,83 +977,104 @@
     // =========================================================================
     // TWO-WAY CLOUD SYNC (PC <-> HP QUESTIONS, ROSTER & SCORES)
     // =========================================================================
-    async function syncQuestionsToCloud() {
-      if (!isAppOnline() || !STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return false;
-      try {
-        const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
-        const cleanCode = String(STATE.classCode || 'JUARA2026').trim().toUpperCase();
-        const rosterSnapshot = STATE.gradebook.map(s => ({
-          absen: String(s.absen).padStart(2, '0'),
-          name: String(s.name).trim(),
-          completed: Number(s.completed) || 0,
-          total: STATE.questions.length,
-          score: Number(s.score) || 0,
-          accuracy: s.accuracy || '0%',
-          syncStatus: s.syncStatus || 'synced'
-        }));
+    let lastCloudErrorMsg = '';
 
-        const packagePayload = {
-          questions: STATE.questions,
-          roster: rosterSnapshot,
-          deletedKeys: STATE.deletedStudentKeys,
-          updatedAt: Date.now()
-        };
+async function syncQuestionsToCloud() {
+  if (!isAppOnline() || !STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return false;
+  try {
+    const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+    const cleanCode = String(STATE.classCode || 'JUARA2026').trim().toUpperCase();
+    const apiKey = STATE.supabaseConfig.key.trim();
+    const rosterSnapshot = STATE.gradebook.map(s => ({
+      absen: String(s.absen).padStart(2, '0'),
+      name: String(s.name).trim(),
+      completed: Number(s.completed) || 0,
+      total: STATE.questions.length,
+      score: Number(s.score) || 0,
+      accuracy: s.accuracy || '0%',
+      syncStatus: s.syncStatus || 'synced'
+    }));
 
-        let syncedOk = false;
+    const packagePayload = {
+      questions: STATE.questions,
+      roster: rosterSnapshot,
+      deletedKeys: STATE.deletedStudentKeys,
+      updatedAt: Date.now()
+    };
 
-        // Channel 1: bank_soal_3d
-        try {
-          const r1 = await fetch(`${cleanBaseUrl}/rest/v1/bank_soal_3d?on_conflict=kode_kelas`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey': STATE.supabaseConfig.key,
-              
-              'Prefer': 'resolution=merge-duplicates'
-            },
-            body: JSON.stringify({
-              kode_kelas: cleanCode,
-              daftar_soal: packagePayload,
-              updated_at: new Date().toISOString()
-            })
-          });
-          if (r1.ok) syncedOk = true;
-        } catch (_) {}
+    let syncedOk = false;
+    lastCloudErrorMsg = '';
 
-        // Channel 2: hasil_belajar_3d (__PKG_CLASS__)
-        try {
-          await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${encodeURIComponent(cleanCode)}&no_absen=eq.__PKG_CLASS__`, {
-            method: 'DELETE',
-            headers: { 'apikey': STATE.supabaseConfig.key,  }
-          });
-          const r2 = await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey': STATE.supabaseConfig.key,
-              
-            },
-            body: JSON.stringify({
-              kode_kelas: cleanCode,
-              no_absen: '__PKG_CLASS__',
-              nama_siswa: JSON.stringify(packagePayload),
-              skor: STATE.questions.length,
-              akurasi: 'PKG',
-              waktu_selesai: new Date().toISOString()
-            })
-          });
-          if (r2.ok) syncedOk = true;
-        } catch (_) {}
-
-        const badge = document.getElementById('cloudSyncBadgeTeacher');
-        if (badge) {
-          badge.textContent = syncedOk
-            ? `✓ Tersinkron ke HP (${STATE.questions.length} Soal • ${STATE.gradebook.length} Siswa)`
-            : '⚠ Tersimpan Lokal (Periksa Publishable Key di Tab Cloud)';
-        }
-        return syncedOk;
-      } catch (_) { return false; }
+    // Channel 1: bank_soal_3d
+    const r1 = await fetch(`${cleanBaseUrl}/rest/v1/bank_soal_3d?on_conflict=kode_kelas`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': apiKey,
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({
+        kode_kelas: cleanCode,
+        daftar_soal: packagePayload,
+        updated_at: new Date().toISOString()
+      })
+    });
+    if (r1.ok) {
+      syncedOk = true;
+    } else {
+      lastCloudErrorMsg = `HTTP ${r1.status}: ${await r1.text()}`;
     }
+
+    // Channel 2: hasil_belajar_3d (__PKG_CLASS__)
+    if (!syncedOk) {
+      await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${encodeURIComponent(cleanCode)}&no_absen=eq.__PKG_CLASS__`, {
+        method: 'DELETE',
+        headers: { 'apikey': apiKey }
+      });
+      const r2 = await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': apiKey
+        },
+        body: JSON.stringify({
+          kode_kelas: cleanCode,
+          no_absen: '__PKG_CLASS__',
+          nama_siswa: JSON.stringify(packagePayload),
+          skor: STATE.questions.length,
+          akurasi: 'PKG',
+          waktu_selesai: new Date().toISOString()
+        })
+      });
+      if (r2.ok) syncedOk = true;
+      else if (!lastCloudErrorMsg) lastCloudErrorMsg = `HTTP ${r2.status}: ${await r2.text()}`;
+    }
+
+    const badge = document.getElementById('cloudSyncBadgeTeacher');
+    if (badge) {
+      badge.textContent = syncedOk
+        ? `✓ Tersinkron ke HP (${STATE.questions.length} Soal • ${STATE.gradebook.length} Siswa)`
+        : `⚠ Gagal Sync (${lastCloudErrorMsg.slice(0, 45)})`;
+    }
+    return syncedOk;
+  } catch (err) {
+    lastCloudErrorMsg = err.message || 'Network error';
+    return false;
+  }
+}
+
+function saveSupabaseConfig() {
+  STATE.supabaseConfig.url = (document.getElementById('cfgSupaUrl').value || '').trim();
+  STATE.supabaseConfig.key = (document.getElementById('cfgSupaKey').value || '').trim();
+  persistStateToLocal();
+  syncQuestionsToCloud().then(ok => {
+    showToast(
+      ok ? 'Cloud Tersinkron' : 'Gagal Koneksi Supabase',
+      ok ? `Berhasil mengirim ${STATE.questions.length} soal & ${STATE.gradebook.length} siswa ke HP.` : (lastCloudErrorMsg || 'Periksa tabel SQL & URL/Key Supabase.'),
+      !ok
+    );
+  });
+}
 
     async function fetchQuestionsFromCloud(code) {
       if (!isAppOnline() || !STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return false;

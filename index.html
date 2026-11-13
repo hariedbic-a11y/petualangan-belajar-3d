@@ -1008,7 +1008,7 @@
             headers: {
               'Content-Type': 'application/json',
               'apikey': STATE.supabaseConfig.key,
-              'Authorization': `Bearer ${STATE.supabaseConfig.key}`,
+              
               'Prefer': 'resolution=merge-duplicates'
             },
             body: JSON.stringify({
@@ -1064,7 +1064,7 @@
 
         try {
           const res1 = await fetch(`${cleanBaseUrl}/rest/v1/bank_soal_3d?kode_kelas=ilike.${encodeURIComponent(cleanCode)}&select=kode_kelas,daftar_soal`, {
-            headers: { 'apikey': STATE.supabaseConfig.key, 'Authorization': `Bearer ${STATE.supabaseConfig.key}`, 'Cache-Control': 'no-cache' }
+            headers: { 'apikey': STATE.supabaseConfig.key,  'Cache-Control': 'no-cache' }
           });
           if (res1.ok) {
             const rows1 = await res1.json();
@@ -1075,7 +1075,7 @@
         if (!payload) {
           try {
             const res2 = await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${encodeURIComponent(cleanCode)}&no_absen=eq.__PKG_CLASS__&order=waktu_selesai.desc&limit=1`, {
-              headers: { 'apikey': STATE.supabaseConfig.key, 'Authorization': `Bearer ${STATE.supabaseConfig.key}`, 'Cache-Control': 'no-cache' }
+              headers: { 'apikey': STATE.supabaseConfig.key,  'Cache-Control': 'no-cache' }
             });
             if (res2.ok) {
               const rows2 = await res2.json();
@@ -1107,7 +1107,7 @@
       try {
         const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
         const res = await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${encodeURIComponent(STATE.classCode)}&no_absen=neq.__PKG_CLASS__&order=waktu_selesai.desc`, {
-          headers: { 'apikey': STATE.supabaseConfig.key, 'Authorization': `Bearer ${STATE.supabaseConfig.key}`, 'Cache-Control': 'no-cache' }
+          headers: { 'apikey': STATE.supabaseConfig.key,  'Cache-Control': 'no-cache' }
         });
         if (!res.ok) return;
         const rows = await res.json();
@@ -1730,7 +1730,7 @@
             headers: {
               'Content-Type': 'application/json',
               'apikey': key,
-              'Authorization': `Bearer ${key}`,
+              
               'Prefer': 'resolution=merge-duplicates'
             },
             body: JSON.stringify({
@@ -1744,7 +1744,7 @@
           });
 
           const res = await fetch(`${cleanBase}/rest/v1/room_players_3d?kode_kelas=ilike.${code}&alam=eq.${world}`, {
-            headers: { 'apikey': key, 'Authorization': `Bearer ${key}`, 'Cache-Control': 'no-cache' }
+            headers: { 'apikey': key,  'Cache-Control': 'no-cache' }
           });
           if (!res.ok) return;
           const rows = await res.json();

@@ -40,30 +40,93 @@
   </script>
 
   <style>
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-    input, textarea, select { user-select: text; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #070b14; color: #f8fafc; margin: 0; padding: 0; overflow-x: hidden; touch-action: none;}
-    .font-display { font-family: 'Fredoka', sans-serif; }
-
-    .btn-3d-gold { background: linear-gradient(180deg, #fde047 0%, #f59e0b 100%); color: #1e1b08; box-shadow: 0 5px 0 #b45309, 0 10px 20px rgba(245, 158, 11, 0.35); transition: transform 0.12s ease, box-shadow 0.12s ease; }
-    .btn-3d-gold:active { transform: translateY(4px); box-shadow: 0 1px 0 #b45309, 0 4px 10px rgba(245, 158, 11, 0.25); }
-
-    .btn-3d-blue { background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%); color: #ffffff; box-shadow: 0 5px 0 #0369a1, 0 10px 20px rgba(2, 132, 199, 0.35); transition: transform 0.12s ease, box-shadow 0.12s ease; }
-    .btn-3d-blue:active { transform: translateY(4px); box-shadow: 0 1px 0 #0369a1; }
-
-    .btn-3d-green { background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%); color: #052e16; box-shadow: 0 5px 0 #15803d, 0 10px 20px rgba(22, 163, 74, 0.35); transition: transform 0.12s ease, box-shadow 0.12s ease; }
-    .btn-3d-green:active { transform: translateY(4px); box-shadow: 0 1px 0 #15803d; }
-
-    .glass-panel { background: rgba(15, 23, 42, 0.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(148, 163, 184, 0.18); }
-
-    #gameCanvasContainer canvas { display: block; width: 100% !important; height: 100% !important; touch-action: none; }
-
-    @media (pointer: coarse), (hover: none) {
-      #mobileControls { display: block !important; opacity: 1 !important; visibility: visible !important; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
-    @keyframes pulseBeacon { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.22); opacity: 0.4; } }
-    .radar-pulse { animation: pulseBeacon 1.6s infinite ease-in-out; }
+    input, textarea, select {
+      user-select: text;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #070b14;
+      color: #f8fafc;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      touch-action: none;
+    }
+
+    .font-display {
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    .btn-3d-gold {
+      background: linear-gradient(180deg, #fde047 0%, #f59e0b 100%);
+      color: #1e1b08;
+      box-shadow: 0 5px 0 #b45309, 0 10px 20px rgba(245, 158, 11, 0.35);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .btn-3d-gold:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #b45309, 0 4px 10px rgba(245, 158, 11, 0.25);
+    }
+
+    .btn-3d-blue {
+      background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+      color: #ffffff;
+      box-shadow: 0 5px 0 #0369a1, 0 10px 20px rgba(2, 132, 199, 0.35);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .btn-3d-blue:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #0369a1;
+    }
+
+    .btn-3d-green {
+      background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
+      color: #052e16;
+      box-shadow: 0 5px 0 #15803d, 0 10px 20px rgba(22, 163, 74, 0.35);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .btn-3d-green:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #15803d;
+    }
+
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.86);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    #gameCanvasContainer canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+      touch-action: none;
+    }
+
+    /* Memaksa kontrol seluler muncul di HP, menangani bug tailwind */
+    @media (pointer: coarse), (hover: none) {
+      #mobileControls {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+    }
+
+    @keyframes pulseBeacon {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.22); opacity: 0.4; }
+    }
+    .radar-pulse {
+      animation: pulseBeacon 1.6s infinite ease-in-out;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-[#070b14] text-slate-100">
@@ -100,20 +163,26 @@
 
     <div class="flex items-center gap-2 pointer-events-auto">
       <button onclick="toggleSimulatedOffline()" id="btnOfflineSim" class="hidden md:flex items-center gap-1.5 glass-panel hover:bg-slate-800/90 text-xs font-semibold px-3 py-2 rounded-xl border border-emerald-500/30 text-emerald-300 transition">
-        <i data-lucide="wifi" class="w-3.5 h-3.5"></i><span id="offlineSimText">Online (Uji Offline)</span>
+        <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
+        <span id="offlineSimText">Online (Uji Offline)</span>
       </button>
+
       <div class="glass-panel rounded-2xl p-1 flex items-center gap-1 shadow-lg">
         <button onclick="switchMainView('student')" id="navBtnStudent" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-display font-bold bg-amber-400 text-slate-950 flex items-center gap-1.5 transition">
-          <i data-lucide="joystick" class="w-4 h-4"></i><span>Mode Murid</span>
+          <i data-lucide="joystick" class="w-4 h-4"></i>
+          <span>Mode Murid</span>
         </button>
         <button onclick="requestTeacherAccess()" id="navBtnTeacher" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-display font-bold text-slate-300 hover:text-white flex items-center gap-1.5 transition">
-          <i data-lucide="lock" class="w-3.5 h-3.5 text-amber-400"></i><span>Mode Guru</span>
+          <i data-lucide="lock" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Mode Guru</span>
         </button>
         <button onclick="openProjectorLeaderboard()" class="hidden sm:flex px-3 py-2 rounded-xl text-xs sm:text-sm font-display font-bold text-amber-300 hover:bg-slate-800 items-center gap-1.5 transition">
-          <i data-lucide="trophy" class="w-4 h-4"></i><span>Proyektor</span>
+          <i data-lucide="trophy" class="w-4 h-4"></i>
+          <span>Proyektor</span>
         </button>
       </div>
-      <button onclick="toggleAudio()" id="btnAudioToggle" class="glass-panel w-10 h-10 rounded-xl flex items-center justify-center text-amber-400 hover:bg-slate-800 transition">
+
+      <button onclick="toggleAudio()" id="btnAudioToggle" title="Suara Efek" class="glass-panel w-10 h-10 rounded-xl flex items-center justify-center text-amber-400 hover:bg-slate-800 transition">
         <i id="audioIcon" data-lucide="volume-2" class="w-5 h-5"></i>
       </button>
     </div>
@@ -132,39 +201,66 @@
           </span>
           <h1 class="font-display font-bold text-2xl sm:text-3xl text-white">Masuk ke Dunia Ilmu!</h1>
           <p class="text-xs sm:text-sm text-slate-300 mt-1">
-            Masukkan <strong class="text-amber-300">Kode Kelas</strong>, <strong class="text-white">Nomor Absen</strong>, dan <strong class="text-white">Nama Siswa</strong> sesuai daftar kelas.
+            Masukkan <strong class="text-amber-300">Kode Kelas</strong>, <strong class="text-white">Nomor Absen</strong>, dan <strong class="text-white">Nama Siswa</strong> sesuai yang didaftarkan Bapak/Ibu Guru.
           </p>
         </div>
       </div>
 
-      <!-- World Theme Selection -->
+      <!-- World Theme Selection with Custom Visual Illustrations -->
       <div class="mb-4">
         <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Pilih Alam Petualangan 3D:</label>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <!-- Kota Ilmu -->
           <button type="button" onclick="selectWorldTheme('kota')" id="worldCard-kota" class="world-theme-card text-left p-2 rounded-2xl border-2 border-amber-400 bg-slate-900/90 transition">
             <div class="w-full h-14 rounded-xl overflow-hidden mb-1.5 bg-sky-500 relative">
-              <svg viewBox="0 0 120 56" class="w-full h-full"><rect width="120" height="38" fill="#38bdf8"/><rect y="38" width="120" height="18" fill="#22c55e"/><rect y="42" width="120" height="7" fill="#334155"/><rect x="10" y="16" width="16" height="22" rx="2" fill="#3b82f6"/><polygon points="34,24 46,13 58,24" fill="#ef4444"/><rect x="37" y="24" width="18" height="14" fill="#fef08a"/></svg>
+              <svg viewBox="0 0 120 56" class="w-full h-full">
+                <rect width="120" height="38" fill="#38bdf8"/>
+                <rect y="38" width="120" height="18" fill="#22c55e"/>
+                <rect y="42" width="120" height="7" fill="#334155"/>
+                <rect x="10" y="16" width="16" height="22" rx="2" fill="#3b82f6"/>
+                <polygon points="34,24 46,13 58,24" fill="#ef4444"/>
+                <rect x="37" y="24" width="18" height="14" fill="#fef08a"/>
+              </svg>
             </div>
             <p class="font-display font-bold text-xs text-white">🏙️ Kota Ilmu</p>
             <p class="text-[10px] text-slate-400 leading-tight">Gedung & Jembatan</p>
           </button>
+
+          <!-- Nusantara -->
           <button type="button" onclick="selectWorldTheme('nusantara')" id="worldCard-nusantara" class="world-theme-card text-left p-2 rounded-2xl border border-slate-700 bg-slate-900/70 hover:border-slate-500 transition">
             <div class="w-full h-14 rounded-xl overflow-hidden mb-1.5 bg-sky-400 relative">
-              <svg viewBox="0 0 120 56" class="w-full h-full"><rect width="120" height="38" fill="#7dd3fc"/><rect y="38" width="120" height="18" fill="#15803d"/><polygon points="36,38 60,12 84,38" fill="#64748b"/></svg>
+              <svg viewBox="0 0 120 56" class="w-full h-full">
+                <rect width="120" height="38" fill="#7dd3fc"/>
+                <rect y="38" width="120" height="18" fill="#15803d"/>
+                <polygon points="36,38 60,12 84,38" fill="#64748b"/>
+              </svg>
             </div>
             <p class="font-display font-bold text-xs text-white">🛕 Nusantara</p>
             <p class="text-[10px] text-slate-400 leading-tight">Candi & Burung</p>
           </button>
+
+          <!-- Bawah Laut -->
           <button type="button" onclick="selectWorldTheme('laut')" id="worldCard-laut" class="world-theme-card text-left p-2 rounded-2xl border border-slate-700 bg-slate-900/70 hover:border-slate-500 transition">
             <div class="w-full h-14 rounded-xl overflow-hidden mb-1.5 bg-sky-700 relative">
-              <svg viewBox="0 0 120 56" class="w-full h-full"><rect width="120" height="42" fill="#0284c7"/><rect y="42" width="120" height="14" fill="#d97706"/><ellipse cx="78" cy="22" rx="11" ry="6" fill="#facc15"/><polygon points="89,22 97,16 97,28" fill="#f97316"/></svg>
+              <svg viewBox="0 0 120 56" class="w-full h-full">
+                <rect width="120" height="42" fill="#0284c7"/>
+                <rect y="42" width="120" height="14" fill="#d97706"/>
+                <ellipse cx="78" cy="22" rx="11" ry="6" fill="#facc15"/>
+                <polygon points="89,22 97,16 97,28" fill="#f97316"/>
+              </svg>
             </div>
             <p class="font-display font-bold text-xs text-white">🐠 Bawah Laut</p>
             <p class="text-[10px] text-slate-400 leading-tight">Terumbu & Ikan</p>
           </button>
+
+          <!-- Antariksa -->
           <button type="button" onclick="selectWorldTheme('angkasa')" id="worldCard-angkasa" class="world-theme-card text-left p-2 rounded-2xl border border-slate-700 bg-slate-900/70 hover:border-slate-500 transition">
             <div class="w-full h-14 rounded-xl overflow-hidden mb-1.5 bg-slate-950 relative">
-              <svg viewBox="0 0 120 56" class="w-full h-full"><rect width="120" height="56" fill="#090d1e"/><circle cx="42" cy="26" r="11" fill="#9333ea"/><ellipse cx="42" cy="26" rx="22" ry="5" stroke="#38bdf8" stroke-width="2.5" fill="none"/></svg>
+              <svg viewBox="0 0 120 56" class="w-full h-full">
+                <rect width="120" height="56" fill="#090d1e"/>
+                <circle cx="42" cy="26" r="11" fill="#9333ea"/>
+                <ellipse cx="42" cy="26" rx="22" ry="5" stroke="#38bdf8" stroke-width="2.5" fill="none"/>
+              </svg>
             </div>
             <p class="font-display font-bold text-xs text-white">🚀 Antariksa</p>
             <p class="text-[10px] text-slate-400 leading-tight">Planet & UFO</p>
@@ -183,15 +279,20 @@
           <input id="inputAbsen" type="text" placeholder="Contoh: 01" class="w-full rounded-xl bg-slate-900 border border-slate-700 focus:border-amber-400 px-3.5 py-2.5 text-sm text-white" />
         </div>
       </div>
+
       <div class="mb-4">
         <label class="block text-xs font-bold text-slate-300 mb-1">Nama Lengkap</label>
         <input id="inputStudentName" type="text" placeholder="Ketik nama lengkap Anda..." class="w-full rounded-xl bg-slate-900 border border-slate-700 focus:border-amber-400 px-3.5 py-2.5 text-sm text-white" />
       </div>
+
       <button type="button" onclick="startStudentMode()" id="btnStartAdventure" class="w-full btn-3d-gold font-display font-bold text-base py-3.5 rounded-2xl flex items-center justify-center gap-2 cursor-pointer transition">
-        <i data-lucide="parachute" class="w-5 h-5"></i><span id="btnStartText">MULAI PETUALANGAN! (TERJUN PAYUNG)</span>
+        <i data-lucide="parachute" class="w-5 h-5"></i>
+        <span id="btnStartText">MULAI PETUALANGAN! (TERJUN PAYUNG)</span>
       </button>
+
       <div class="mt-3 flex justify-between gap-2 text-[11px] text-slate-400">
-        <span>📱 Auto-Landscape</span><span id="lobbyQuestionCountBadge" class="text-emerald-400 font-semibold">✓ Soal Siap</span>
+        <span>📱 Auto-Landscape</span>
+        <span id="lobbyQuestionCountBadge" class="text-emerald-400 font-semibold">✓ Soal Siap</span>
       </div>
     </div>
   </section>
@@ -208,18 +309,22 @@
           <p id="hudPlayerAbsen" class="text-[11px] text-amber-300">Absen 01</p>
         </div>
       </div>
+
       <div class="flex items-center gap-2 pointer-events-auto">
         <div class="glass-panel rounded-2xl px-3 py-1.5 text-center border border-amber-400/30">
           <p class="text-[10px] uppercase text-slate-400 font-bold">Skor</p>
           <p id="hudScoreText" class="font-display font-bold text-lg text-amber-400">0</p>
         </div>
+
         <div class="glass-panel rounded-2xl px-3 py-1.5 text-center border border-sky-400/30">
           <p class="text-[10px] uppercase text-slate-400 font-bold">Misi Soal</p>
           <p id="hudMissionText" class="font-display font-bold text-lg text-sky-300">0 / 0</p>
         </div>
+
         <button onclick="openMiniLeaderboard()" class="glass-panel w-11 h-11 flex items-center justify-center text-amber-400 transition hover:bg-slate-800">
           <i data-lucide="trophy" class="w-5 h-5"></i>
         </button>
+
         <button onclick="confirmFinishEarly()" class="bg-rose-600 hover:bg-rose-500 text-white font-display font-bold px-3 py-2 rounded-2xl shadow-lg flex items-center gap-1.5">
           <i data-lucide="log-out" class="w-4 h-4"></i> Keluar
         </button>
@@ -229,7 +334,8 @@
     <!-- Center Interaction Prompt -->
     <div id="interactPrompt" class="hidden absolute bottom-24 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
       <button onclick="interactWithNearestCrystal()" class="btn-3d-gold font-display font-bold px-6 py-3 rounded-2xl flex items-center gap-2 shadow-2xl">
-        <i data-lucide="sparkles"></i><span id="interactPromptText">KLIK / TEKAN E UNTUK JAWAB</span>
+        <i data-lucide="sparkles"></i>
+        <span id="interactPromptText">KLIK / TEKAN E UNTUK JAWAB</span>
       </button>
     </div>
 
@@ -251,6 +357,7 @@
         <div id="joystickZone" class="w-28 h-28 rounded-full bg-slate-900/65 border-2 border-white/25 backdrop-blur-md pointer-events-auto touch-none flex items-center justify-center relative shadow-2xl">
           <div id="joystickKnob" class="absolute w-12 h-12 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 shadow-lg border-2 border-white pointer-events-none transform transition-transform duration-75"></div>
         </div>
+
         <!-- Jump -->
         <button id="btnMobileJump" class="w-20 h-20 rounded-full bg-gradient-to-b from-sky-400 to-blue-600 border-2 border-white/40 text-white font-display font-bold text-xs shadow-2xl pointer-events-auto touch-none active:scale-95">
           <div class="flex flex-col items-center"><i data-lucide="arrow-up" class="w-6 h-6"></i> LOMPAT</div>
@@ -283,6 +390,7 @@
         <p id="quizFeedbackTitle" class="font-bold"></p>
         <p id="quizFeedbackDesc" class="text-sm mt-1"></p>
       </div>
+
       <div class="flex justify-end gap-3 mt-4">
         <button onclick="closeQuizModal()" id="btnQuizCancel" class="px-4 py-3 bg-slate-800 rounded-2xl text-white font-bold text-sm">Tutup Dulu</button>
         <button onclick="submitCurrentAnswer()" id="btnQuizSubmit" class="btn-3d-gold px-6 py-3 rounded-2xl font-bold text-sm flex gap-2"><i data-lucide="send" class="w-4 h-4"></i>KIRIM</button>
@@ -315,7 +423,7 @@
     </div>
   </div>
 
-  <!-- TEACHER DASHBOARD VIEW -->
+  <!-- TEACHER DASHBOARD VIEW (Keringkasan - Kontrol Sama) -->
   <main id="teacherDashboard" class="relative z-30 hidden min-h-screen pt-20 pb-12 px-3 sm:px-6 max-w-6xl mx-auto">
     <div class="glass-panel rounded-3xl p-6 mb-5 flex flex-col md:flex-row justify-between items-center gap-4">
       <div>
@@ -323,7 +431,6 @@
         <p class="text-slate-300 text-sm">Sinkronisasi Soal & Nilai Secara Real-Time.</p>
       </div>
       <div class="flex gap-3">
-        <button onclick="document.getElementById('importModal').classList.remove('hidden')" class="btn-3d-green px-4 py-2 rounded-xl font-bold text-sm">Impor Word/Excel</button>
         <button onclick="fetchGradesFromCloud()" class="btn-3d-blue px-4 py-2 rounded-xl font-bold text-sm">Refresh Cloud</button>
         <button onclick="switchMainView('lobby')" class="bg-rose-600 px-4 py-2 rounded-xl font-bold text-sm text-white">Keluar Studio</button>
       </div>
@@ -334,6 +441,8 @@
       <div class="glass-panel p-4 rounded-2xl"><p class="text-xs text-slate-400">Siswa Terdaftar</p><p id="tdash-siswa" class="text-2xl font-bold text-emerald-400 mt-1">0</p></div>
       <div class="glass-panel p-4 rounded-2xl"><p class="text-xs text-slate-400">Rata-Rata Nilai</p><p id="tdash-rata" class="text-2xl font-bold text-amber-400 mt-1">0</p></div>
     </div>
+
+    <!-- UI List Rekap Nilai yang Disederhanakan -->
     <div class="glass-panel p-6 rounded-2xl border">
       <h3 class="font-bold text-lg text-white mb-4">Daftar Rekap Nilai</h3>
       <div class="overflow-x-auto">
@@ -352,35 +461,15 @@
     </div>
   </main>
 
-  <!-- IMPORT WORD / EXCEL MODAL -->
-  <div id="importModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 p-4 flex items-center justify-center overflow-y-auto">
-    <div class="w-full max-w-2xl glass-panel rounded-3xl p-6 border border-emerald-500/40 shadow-2xl my-auto">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="font-display font-bold text-xl text-white">Impor Soal dari Word (.docx) atau Excel (.xlsx)</h3>
-        <button onclick="document.getElementById('importModal').classList.add('hidden')" class="w-9 h-9 rounded-xl bg-slate-800 text-slate-300 flex items-center justify-center">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <label class="block border-2 border-dashed border-emerald-500/40 hover:border-emerald-400 rounded-2xl p-6 text-center cursor-pointer bg-slate-900/70 mb-4 transition">
-        <input id="importFileInput" type="file" accept=".xlsx,.xls,.csv,.docx" onchange="handleImportFileUpload(event)" class="hidden" />
-        <i data-lucide="upload-cloud" class="w-9 h-9 text-emerald-400 mx-auto mb-2"></i>
-        <p class="font-display font-bold text-sm text-white">Klik untuk Memilih File Word (.docx) atau Excel (.xlsx)</p>
-      </label>
-      <div id="importPreviewBox" class="hidden mb-4">
-        <p id="importPreviewCount" class="text-xs font-bold text-emerald-400 mb-2">0 Soal Siap Diimpor</p>
-        <div id="importPreviewList" class="max-h-52 overflow-y-auto space-y-2 pr-1"></div>
-      </div>
-      <div class="flex justify-end gap-2">
-        <button onclick="document.getElementById('importModal').classList.add('hidden')" class="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs">Batal</button>
-        <button onclick="commitImportedQuestions(false)" id="btnImportAppend" class="hidden px-4 py-2.5 rounded-xl bg-sky-500 text-slate-950 font-display font-bold text-xs">Tambahkan ke Bank Soal</button>
-        <button onclick="commitImportedQuestions(true)" id="btnImportReplace" class="hidden btn-3d-green px-4 py-2.5 rounded-xl font-display font-bold text-xs">Ganti Semua Soal & Terbitkan</button>
-      </div>
-    </div>
-  </div>
 
-  <!-- JAVASCRIPT LOGIC -->
+  <!-- JAVASCRIPT LOGIC (Termasuk Multiplayer & Safe Sync) -->
   <script>
-    const STORAGE_KEYS = { QUESTIONS: 'pb3d_q', GRADEBOOK: 'pb3d_g', SUPABASE: 'pb3d_supa', CLASS_CODE: 'pb3d_code', TEACHER_PIN: 'pb3d_pin' };
+    // ==================
+    // 1. DATA & STATE
+    // ==================
+    const STORAGE_KEYS = {
+      QUESTIONS: 'pb3d_q', GRADEBOOK: 'pb3d_g', SUPABASE: 'pb3d_supa', CLASS_CODE: 'pb3d_code', TEACHER_PIN: 'pb3d_pin'
+    };
 
     const STATE = {
       view: 'lobby',
@@ -390,12 +479,12 @@
       audioEnabled: true,
       simulatedOffline: false,
       questions: [
-        { id: '1', type: 'pg', text: 'Planet "Planet Merah" adalah?', options: ['Venus', 'Mars', 'Jupiter', 'Saturnus'], answer: 'B' }
+        { id: '1', type: 'pg', text: 'Planet "Planet Merah" adalah?', options: ['Venus', 'Mars', 'Jupiter', 'Saturnus'], answer: 'B' },
+        { id: '2', type: 'bs', text: 'Matahari adalah bintang.', options: ['BENAR','SALAH'], answer: 'BENAR' }
       ],
       gradebook: [
         { absen: '01', name: 'Fadil', score: 0, completed: 0, accuracy: '0%', syncStatus: 'synced' }
       ],
-      stagedImportQuestions: [],
       supabaseConfig: {
         url: 'https://qojqivnzkqexkquqitgq.supabase.co',
         key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvamFpdnZ6a3FleGtxdXFpdGdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE1OTg0MDAsImV4cCI6MjA1NzE3NDQwMH0.placeholder'
@@ -407,11 +496,15 @@
       return `${String(absen||'').trim().padStart(2,'0')}::${String(name||'').trim().toLowerCase()}`;
     }
 
+    // ==================
+    // 2. UI & TOAST
+    // ==================
     let toastTimer = null;
     function showToast(title, msg, isError = false) {
       const banner = document.getElementById('toastBanner');
       document.getElementById('toastTitle').textContent = title;
       document.getElementById('toastMsg').textContent = msg;
+      
       const card = document.getElementById('toastCard');
       const icon = document.getElementById('toastIconWrap');
       if(isError) {
@@ -421,6 +514,7 @@
         card.className = "glass-panel rounded-2xl px-4 py-3.5 shadow-2xl border border-emerald-500/40 flex items-center gap-3";
         icon.className = "w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0";
       }
+
       banner.classList.remove('-translate-y-[260%]', 'opacity-0');
       banner.classList.add('translate-y-0', 'opacity-100');
       clearTimeout(toastTimer);
@@ -451,159 +545,20 @@
       lucide.createIcons();
     }
 
-    // ==========================================
-    // PARSER SOAL (Diperbaiki agar deteksi PG dari baris baru / <br>)
-    // ==========================================
-    function parseWordHtmlToQuestions(html) {
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      const parsed = [];
-      const rows = Array.from(doc.querySelectorAll('table tr'));
-
-      if (rows.length > 0) {
-        rows.forEach((tr, rIdx) => {
-          const cellsHtml = Array.from(tr.querySelectorAll('td, th'));
-          if (cellsHtml.length < 2) return;
-          const leftCell = cellsHtml[0];
-          const rightText = cellsHtml[1].innerText.trim();
-
-          if (/soal|pilihan|ganda|pertanyaan/i.test(leftCell.innerText) && /kunci/i.test(rightText)) return;
-
-          let qStem = "";
-          let opts = [];
-
-          // Coba ekstrak dari elemen <ol> atau <ul> bawaan
-          const lists = leftCell.querySelectorAll('ol, ul');
-          if (lists.length > 0) {
-            const clone = leftCell.cloneNode(true);
-            clone.querySelectorAll('ol, ul').forEach(n => n.remove());
-            qStem = clone.innerText.replace(/^\d+[\.\)]\s*/, '').trim();
-            lists.forEach(list => {
-              list.querySelectorAll('li').forEach(li => opts.push(li.innerText.trim()));
-            });
-          } else {
-            // Gunakan metode pisah berdasarkan tag <br> atau karakter \n (baris baru)
-            let leftHtmlText = leftCell.innerHTML;
-            // Ubah tag pembatas umum jadi newline
-            leftHtmlText = leftHtmlText.replace(/<(br|p|div)[^>]*>/gi, '\n').replace(/<[^>]+>/g, '').trim();
-            const lines = leftHtmlText.split(/\n+/).map(l => l.trim()).filter(Boolean);
-            
-            if(lines.length > 0) {
-               // Baris pertama (atau gabungan baris yang tidak diawali a/b/c) adalah soal
-               const optLines = [];
-               const stemLines = [];
-               lines.forEach(l => {
-                 if (/^[a-eA-E][\.\)]\s+/.test(l)) {
-                   optLines.push(l.replace(/^[a-eA-E][\.\)]\s+/, '').trim());
-                 } else {
-                   if(optLines.length === 0) stemLines.push(l);
-                 }
-               });
-
-               if(optLines.length > 1) {
-                  qStem = stemLines.join('\n').replace(/^\d+[\.\)]\s*/, '').trim();
-                  opts = optLines;
-               } else {
-                  // Fallback ke regex lama jika benar-benar dalam 1 baris
-                  const optSplit = leftHtmlText.split(/\s+(?=[a-dA-D][\.\)]\s)/);
-                  qStem = optSplit[0].replace(/^\d+[\.\)]\s*/, '').trim();
-                  opts = optSplit.slice(1).map(o => o.replace(/^[a-dA-D][\.\)]\s*/, '').trim()).filter(Boolean);
-               }
-            }
-          }
-
-          const keyLetterMatch = rightText.match(/^([a-dA-D])[\.\)]?/i);
-          let answerKey = keyLetterMatch ? keyLetterMatch[1].toUpperCase() : rightText.toUpperCase();
-
-          if (opts.length > 0 && !keyLetterMatch) {
-             const matchIdx = opts.findIndex(o => o.toLowerCase() === rightText.toLowerCase());
-             if (matchIdx === 0) answerKey = 'A';
-             else if (matchIdx === 1) answerKey = 'B';
-             else if (matchIdx === 2) answerKey = 'C';
-             else if (matchIdx === 3) answerKey = 'D';
-          }
-
-          if (qStem) {
-            parsed.push({
-              id: `q_imp_${Date.now()}_${rIdx}`,
-              type: opts.length >= 2 ? 'pg' : 'isian',
-              text: qStem,
-              options: opts.slice(0, 4), // Ambil max 4 opsi
-              answer: answerKey
-            });
-          }
-        });
-      }
-      return parsed;
-    }
-
-    async function handleImportFileUpload(event) {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      const ext = file.name.split('.').pop().toLowerCase();
-      try {
-        let imported = [];
-        if (ext === 'docx') {
-          const arrayBuffer = await file.arrayBuffer();
-          const result = await mammoth.convertToHtml({ arrayBuffer });
-          imported = parseWordHtmlToQuestions(result.value);
-        } else {
-          // Excel
-          const data = await file.arrayBuffer();
-          const wb = XLSX.read(data, { type: 'array' });
-          const sheet = wb.Sheets[wb.SheetNames[0]];
-          const jsonRows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-          imported = jsonRows.map((row, idx) => {
-            const qText = row.Pertanyaan || row.Soal || Object.values(row)[0] || '';
-            const opts = [row.OpsiA || row.A, row.OpsiB || row.B, row.OpsiC || row.C, row.OpsiD || row.D].filter(Boolean);
-            const ans = String(row.Kunci || row.Jawaban || Object.values(row)[1] || 'A').trim().toUpperCase();
-            return {
-              id: `q_xls_${Date.now()}_${idx}`,
-              type: opts.length >= 2 ? 'pg' : 'isian',
-              text: String(qText).trim(),
-              options: opts.map(String),
-              answer: ans
-            };
-          }).filter(q => q.text);
-        }
-
-        if (imported.length === 0) return showToast('Format Tidak Terbaca', 'Pastikan ada kolom Kunci Jawaban.', true);
-
-        STATE.stagedImportQuestions = imported;
-        document.getElementById('importPreviewBox').classList.remove('hidden');
-        document.getElementById('importPreviewCount').textContent = `✓ ${imported.length} Soal Berhasil Dibaca:`;
-        document.getElementById('importPreviewList').innerHTML = imported.map((q, i) => `
-          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs">
-            <p class="font-bold text-white">#${i + 1}. ${q.text}</p>
-            <p class="text-emerald-400 mt-0.5">Kunci: ${q.answer} ${q.options.length ? `(PG)` : `(Esai)`}</p>
-          </div>
-        `).join('');
-        document.getElementById('btnImportAppend').classList.remove('hidden');
-        document.getElementById('btnImportReplace').classList.remove('hidden');
-      } catch (err) {
-        showToast('Gagal Membaca File', 'Pastikan file tidak rusak.', true);
-      }
-    }
-
-    function commitImportedQuestions(replaceAll = false) {
-      if (STATE.stagedImportQuestions.length === 0) return;
-      if (replaceAll) STATE.questions = [...STATE.stagedImportQuestions];
-      else STATE.questions = [...STATE.questions, ...STATE.stagedImportQuestions];
-      document.getElementById('importModal').classList.add('hidden');
-      if (typeof spawnQuestionCrystals === 'function') spawnQuestionCrystals();
-      renderTeacherView();
-      showToast('Impor Berhasil', `${STATE.stagedImportQuestions.length} soal tersimpan!`);
-    }
-
-    // ==========================================
-    // CLOUD & MULTIPLAYER
-    // ==========================================
+    // ==================
+    // 3. CLOUD SYNC & LOGIN (SAFE ASYNC)
+    // ==================
     async function fetchQuestionsFromCloud(code) {
       if (!navigator.onLine || STATE.simulatedOffline) return false;
       const baseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '');
       const key = STATE.supabaseConfig.key;
       const c = String(code || STATE.classCode).trim().toUpperCase();
+
       try {
-        const r1 = await fetch(`${baseUrl}/rest/v1/bank_soal_3d?kode_kelas=ilike.${c}`, { headers: { 'apikey': key, 'Authorization': `Bearer ${key}` } });
+        // Coba baca dari bank_soal_3d
+        const r1 = await fetch(`${baseUrl}/rest/v1/bank_soal_3d?kode_kelas=ilike.${c}`, {
+          headers: { 'apikey': key, 'Authorization': `Bearer ${key}` }
+        });
         if(r1.ok) {
           const rows = await r1.json();
           if (rows && rows.length > 0 && rows[0].daftar_soal) {
@@ -614,10 +569,11 @@
             return true;
           }
         }
-      } catch(e) {}
+      } catch(e) { console.log(e) }
       return false;
     }
 
+    // PERBAIKAN: Fungsi async penuh dengan 'await' agar sinkronisasi data mutlak sebelum masuk 3D
     async function startStudentMode() {
       const codeInput = document.getElementById('inputClassCode').value.trim().toUpperCase();
       const absenInput = document.getElementById('inputAbsen').value.trim();
@@ -625,67 +581,128 @@
       const btn = document.getElementById('btnStartAdventure');
       const btnText = document.getElementById('btnStartText');
 
-      if (!codeInput || !absenInput || !nameInput) return showToast('Peringatan', 'Harap isi data dengan lengkap!', true);
-
-      btn.disabled = true; btnText.textContent = "MENYINKRONKAN DATA...";
-      STATE.classCode = codeInput;
-      
-      await fetchQuestionsFromCloud(codeInput);
-
-      const registered = STATE.gradebook.find(s => String(s.absen).padStart(2,'0') === absenInput.padStart(2,'0') && s.name.toLowerCase() === nameInput.toLowerCase());
-      if(!registered) {
-        btn.disabled = false; btnText.textContent = "MULAI PETUALANGAN! (TERJUN PAYUNG)";
-        return showToast('Akses Ditolak', `Nama ${nameInput} belum terdaftar.`, true);
+      if (!codeInput || !absenInput || !nameInput) {
+        return showToast('Peringatan', 'Harap lengkapi Kode Kelas, Nomor Absen, dan Nama', true);
       }
 
-      STATE.session = { active: true, name: registered.name, absen: registered.absen, score: registered.score || 0, answeredCount: 0, correctCount: 0, answeredMap: {}, activeQuestionIndex: -1 };
+      btn.disabled = true;
+      btnText.textContent = "MENYINKRONKAN DATA CLOUD...";
 
+      STATE.classCode = codeInput;
+      
+      // Tunggu hasil data dari Supabase (jika online)
+      await fetchQuestionsFromCloud(codeInput);
+
+      const registered = STATE.gradebook.find(s => 
+        String(s.absen).padStart(2,'0') === absenInput.padStart(2,'0') && 
+        s.name.toLowerCase() === nameInput.toLowerCase()
+      );
+
+      if(!registered) {
+        btn.disabled = false;
+        btnText.textContent = "MULAI PETUALANGAN! (TERJUN PAYUNG)";
+        return showToast('Akses Ditolak', `Nama ${nameInput} belum didaftarkan Guru.`, true);
+      }
+
+      // Berhasil
+      STATE.session = {
+        active: true, name: registered.name, absen: registered.absen,
+        score: registered.score || 0, answeredCount: 0, correctCount: 0, answeredMap: {}, activeQuestionIndex: -1
+      };
+
+      // Tampilkan Kanvas dan Sembunyikan Lobi (Mencegah engine merender ukuran 0x0)
       document.getElementById('lobbyScreen').classList.add('hidden');
       document.getElementById('mainTopBar').classList.add('hidden');
       document.getElementById('gameHud').classList.remove('hidden');
       document.getElementById('gameCanvasContainer').classList.remove('hidden');
 
-      if ('ontouchstart' in window || navigator.maxTouchPoints > 0) document.getElementById('mobileControls').style.display = 'block';
+      // Tampilkan HUD Mobile secara paksa
+      if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        document.getElementById('mobileControls').style.display = 'block';
+      }
 
       document.getElementById('hudPlayerName').textContent = STATE.session.name;
       document.getElementById('hudPlayerAbsen').textContent = `Absen ${STATE.session.absen}`;
       document.getElementById('hudScoreText').textContent = STATE.session.score;
       document.getElementById('hudMissionText').textContent = `0 / ${STATE.questions.length}`;
 
+      // Inisialisasi engine ThreeJS secara utuh
       initThreeEngine();
       spawnQuestionCrystals();
       
-      if(playerGroup) { playerGroup.position.set(0, 35, 0); isParachuting = true; }
+      if(playerGroup) {
+        playerGroup.position.set(0, 35, 0);
+        isParachuting = true;
+      }
       playTone(550, 0.2);
+
       forceLandscapeLock();
-      btn.disabled = false; btnText.textContent = "MULAI PETUALANGAN! (TERJUN PAYUNG)";
+      btn.disabled = false;
+      btnText.textContent = "MULAI PETUALANGAN! (TERJUN PAYUNG)";
     }
 
-    // ==========================================
-    // THREEJS ENGINE & TATA LETAK LEBIH PADAT (KOTA)
-    // ==========================================
-    let scene, camera, renderer, playerGroup, parachuteGroup, worldObjectsGroup;
-    let crystalMeshes = [], solidObstacles = [], closestCrystalObj = null;
+    async function submitScoreToCloud() {
+      if(!navigator.onLine || STATE.simulatedOffline) return;
+      const baseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '');
+      const key = STATE.supabaseConfig.key;
+      
+      try {
+        await fetch(`${baseUrl}/rest/v1/hasil_belajar_3d`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': key, 'Prefer': 'resolution=merge-duplicates' },
+          body: JSON.stringify({
+            kode_kelas: STATE.classCode,
+            no_absen: STATE.session.absen,
+            nama_siswa: STATE.session.name,
+            skor: STATE.session.score,
+            waktu_selesai: new Date().toISOString()
+          })
+        });
+      } catch(e) {}
+    }
+
+    async function fetchGradesFromCloud() {
+      if(!navigator.onLine) return;
+      const baseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '');
+      const key = STATE.supabaseConfig.key;
+      try {
+        const res = await fetch(`${baseUrl}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${STATE.classCode}&order=waktu_selesai.desc`, {
+          headers: { 'apikey': key }
+        });
+        if(res.ok) {
+          const rows = await res.json();
+          rows.forEach(r => {
+            const idx = STATE.gradebook.findIndex(g => getStudentKey(g.absen, g.name) === getStudentKey(r.no_absen, r.nama_siswa));
+            if(idx > -1 && Number(r.skor) > STATE.gradebook[idx].score) {
+              STATE.gradebook[idx].score = Number(r.skor);
+              STATE.gradebook[idx].completed = STATE.questions.length;
+            }
+          });
+          renderTeacherView();
+        }
+      } catch(e){}
+    }
+
+    // ==================
+    // 4. THREEJS & MULTIPLAYER
+    // ==================
+    let scene, camera, renderer, playerGroup, parachuteGroup;
+    let crystalMeshes = [], closestCrystalObj = null;
     let cameraAngle = 0, cameraPitch = 0.3;
     let joystickVector = {x: 0, y: 0};
     let isParachuting = false, isGrounded = true, playerVelocityY = 0;
-
-    function addSolidBoxCollider(cx, cz, halfW, halfD, topY = 12) {
-      solidObstacles.push({ minX: cx - halfW, maxX: cx + halfW, minZ: cz - halfD, maxZ: cz + halfD, topY });
-    }
 
     function initThreeEngine() {
       const container = document.getElementById('gameCanvasContainer');
       container.innerHTML = '';
       
       scene = new THREE.Scene();
-      worldObjectsGroup = new THREE.Group();
-      scene.add(worldObjectsGroup);
+      scene.background = new THREE.Color(0x0ea5e9);
       
       camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
       camera.position.set(0, 10, 20);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+      renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(container.clientWidth, container.clientHeight);
       renderer.shadowMap.enabled = true;
       container.appendChild(renderer.domElement);
@@ -699,139 +716,48 @@
       dirLight.castShadow = true;
       scene.add(dirLight);
 
+      // Simple Plane
+      const ground = new THREE.Mesh(new THREE.PlaneGeometry(1800, 1800), new THREE.MeshStandardMaterial({color: 0x22c55e}));
+      ground.rotation.x = -Math.PI / 2;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
       // Player Avatar
       playerGroup = new THREE.Group();
       const torso = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.5, 0.8), new THREE.MeshStandardMaterial({color: 0x3b82f6}));
       torso.position.y = 1.5;
       playerGroup.add(torso);
-      parachuteGroup = new THREE.Mesh(new THREE.SphereGeometry(3.5, 8, 8, 0, Math.PI*2, 0, Math.PI*0.5), new THREE.MeshStandardMaterial({color: 0xf59e0b, side: THREE.DoubleSide}));
-      parachuteGroup.position.y = 5.5; parachuteGroup.visible = false;
+      
+      parachuteGroup = new THREE.Mesh(
+        new THREE.SphereGeometry(3.5, 8, 8, 0, Math.PI*2, 0, Math.PI*0.5),
+        new THREE.MeshStandardMaterial({color: 0xf59e0b, side: THREE.DoubleSide})
+      );
+      parachuteGroup.position.y = 5.5;
+      parachuteGroup.visible = false;
       playerGroup.add(parachuteGroup);
+      
       scene.add(playerGroup);
 
-      loadWorldEnvironment(STATE.currentWorld);
       setupControls();
       animate();
-    }
-
-    function buildCartoonTree(x, z, scale = 1) {
-      const tree = new THREE.Group();
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.45*scale, 0.65*scale, 3.2*scale, 8), new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.85 }));
-      trunk.position.y = 1.6 * scale;
-      const foliage = new THREE.Mesh(new THREE.DodecahedronGeometry(2.2*scale, 1), new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.65 }));
-      foliage.position.y = 4.1 * scale;
-      tree.add(trunk, foliage);
-      tree.position.set(x, 0, z);
-      worldObjectsGroup.add(tree);
-      addSolidBoxCollider(x, z, 0.9*scale, 0.9*scale, 6);
-    }
-
-    function buildCartoonHouse(x, z, wallColor, roofColor) {
-      const house = new THREE.Group();
-      const walls = new THREE.Mesh(new THREE.BoxGeometry(6.8, 4.4, 5.8), new THREE.MeshStandardMaterial({ color: wallColor }));
-      walls.position.y = 2.2;
-      const roof = new THREE.Mesh(new THREE.ConeGeometry(5.3, 3.0, 4), new THREE.MeshStandardMaterial({ color: roofColor }));
-      roof.position.y = 5.9; roof.rotation.y = Math.PI / 4;
-      house.add(walls, roof);
-      house.position.set(x, 0, z);
-      worldObjectsGroup.add(house);
-      addSolidBoxCollider(x, z, 3.8, 3.3, 10);
-    }
-
-    function buildCitySkyscraper(x, z, w, h, d, color) {
-      const bld = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color: color }));
-      bld.position.set(x, h/2, z);
-      worldObjectsGroup.add(bld);
-      addSolidBoxCollider(x, z, w/2+0.5, d/2+0.5, h+2);
-    }
-
-    function loadWorldEnvironment(worldType) {
-      while (worldObjectsGroup.children.length > 0) worldObjectsGroup.remove(worldObjectsGroup.children[0]);
-      solidObstacles = [];
-      
-      const isKota = worldType === 'kota';
-      const ground = new THREE.Mesh(new THREE.PlaneGeometry(1800, 1800), new THREE.MeshStandardMaterial({color: isKota?0x9ca3af:(worldType==='laut'?0xd97706:0x15803d)}));
-      ground.rotation.x = -Math.PI / 2;
-      worldObjectsGroup.add(ground);
-      scene.background = new THREE.Color(isKota?0x0ea5e9:(worldType==='laut'?0x0369a1:0x38bdf8));
-
-      // PENINGKATAN: JUMLAH OBYEK JAUH LEBIH BANYAK (Ratusan Bangunan & Pohon)
-      for (let i = 0; i < 900; i++) {
-        const ang = (i / 900) * Math.PI * 2 * 32; 
-        const dist = 35 + i * 0.9; // Lebar Radius hingga ~850 unit
-        const px = Math.cos(ang) * dist;
-        const pz = Math.sin(ang) * dist;
-        const nearCenter = Math.abs(px) < 30 && Math.abs(pz) < 30;
-
-        if (!nearCenter) {
-          const rand = (i * 17) % 100;
-          
-          if (isKota) {
-            if (rand < 50) buildCartoonTree(px, pz, 0.9 + (i % 3) * 0.3); // 50% Pohon
-            else if (rand < 85) { // 35% Rumah
-              const c = [[0xfef08a, 0xef4444], [0xbae6fd, 0x2563eb], [0xfed7aa, 0xea580c], [0xfbcfe8, 0xbe185d]][i % 4];
-              buildCartoonHouse(px, pz, c[0], c[1]);
-            } else { // 15% Gedung Tinggi
-              const bCol = [0x3b82f6, 0x6366f1, 0x0ea5e9, 0x1d4ed8][i % 4];
-              buildCitySkyscraper(px, pz, 10+(i%3)*2, 18+(i%6)*5, 10+(i%3)*2, bCol);
-            }
-          } else if (worldType === 'nusantara') {
-            if (rand < 65) buildCartoonTree(px, pz, 1.0 + (i % 4) * 0.25);
-            else if (rand < 85) {
-              const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(2.6 + (i%3), 0), new THREE.MeshStandardMaterial({color:0x78716c}));
-              rock.position.set(px, 1.3, pz); worldObjectsGroup.add(rock);
-              addSolidBoxCollider(px, pz, 2, 2, 4);
-            } else buildCartoonHouse(px, pz, 0xd97706, 0x78350f);
-          } else if (worldType === 'laut') {
-            if (rand < 50) {
-              const kelpH = 6 + (i % 5) * 3;
-              const kelp = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, kelpH, 7), new THREE.MeshStandardMaterial({color:0x10b981}));
-              kelp.position.set(px, kelpH / 2, pz); worldObjectsGroup.add(kelp);
-              addSolidBoxCollider(px, pz, 0.6, 0.6, kelpH);
-            } else {
-              const scale = 2.0 + (i % 5) * 1.2;
-              const col = [0xec4899, 0xa855f7, 0xf97316, 0x14b8a6, 0xfacc15][i % 5];
-              const coral = new THREE.Mesh(new THREE.DodecahedronGeometry(scale, 1), new THREE.MeshStandardMaterial({color:col}));
-              coral.position.set(px, scale*0.65, pz); worldObjectsGroup.add(coral);
-              addSolidBoxCollider(px, pz, scale, scale, 6);
-            }
-          } else { // Angkasa
-            if (rand < 65) {
-              const crater = new THREE.Mesh(new THREE.DodecahedronGeometry(2.5 + (i%3)*1.5, 0), new THREE.MeshStandardMaterial({color:0x475569}));
-              crater.position.set(px, 1.35, pz); worldObjectsGroup.add(crater);
-              addSolidBoxCollider(px, pz, 2, 2, 5);
-            } else buildCitySkyscraper(px, pz, 12, 16+(i%3)*4, 12, 0x4f46e5);
-          }
-        }
-      }
-    }
-
-    function checkCollisionAt(nx, nz) {
-      if (Math.abs(nx) > 860 || Math.abs(nz) > 860) return true;
-      for (const box of solidObstacles) {
-        if (nx + 0.85 > box.minX && nx - 0.85 < box.maxX && nz + 0.85 > box.minZ && nz - 0.85 < box.maxZ) return true;
-      }
-      return false;
     }
 
     function spawnQuestionCrystals() {
       if(!scene) return;
       crystalMeshes.forEach(c => scene.remove(c.group));
       crystalMeshes = [];
-      const goldenAngle = 2.39996323;
+      
       STATE.questions.forEach((q, i) => {
         const grp = new THREE.Group();
         const cry = new THREE.Mesh(new THREE.OctahedronGeometry(1.2), new THREE.MeshStandardMaterial({color: 0xfbbf24, emissive: 0xfbbf24, emissiveIntensity: 0.4}));
-        cry.position.y = 2.5; grp.add(cry);
-        
-        let radius = 40 + i*6; let angle = i * goldenAngle;
-        let cx = Math.cos(angle)*radius; let cz = Math.sin(angle)*radius;
-        while(checkCollisionAt(cx, cz)) { angle += 0.35; radius += 4; cx = Math.cos(angle)*radius; cz = Math.sin(angle)*radius; }
-        
-        grp.position.set(cx, 0, cz);
+        cry.position.y = 2.5;
+        grp.add(cry);
+
+        const r = 30 + (i*15);
+        const a = i * 2.4;
+        grp.position.set(Math.cos(a)*r, 0, Math.sin(a)*r);
         scene.add(grp);
-        addSolidBoxCollider(cx, cz, 1.3, 1.3, 4);
-        crystalMeshes.push({group: grp, crystal: cry, index: i, question: q});
+        crystalMeshes.push({group: grp, crystal: cry, index: i});
       });
     }
 
@@ -848,49 +774,100 @@
       pad.addEventListener('pointerup', e => { if(e.pointerId === pId) pId = null; });
       pad.addEventListener('pointercancel', e => { if(e.pointerId === pId) pId = null; });
 
-      const zone = document.getElementById('joystickZone'), knob = document.getElementById('joystickKnob');
+      // Analog
+      const zone = document.getElementById('joystickZone');
+      const knob = document.getElementById('joystickKnob');
       let jId = null;
       const updateJ = (ex, ey) => {
         const r = zone.getBoundingClientRect();
-        let dx = ex - (r.left + r.width/2), dy = ey - (r.top + r.height/2);
-        const max = r.width*0.35; const dist = Math.hypot(dx, dy);
+        const cx = r.left + r.width/2;
+        const cy = r.top + r.height/2;
+        let dx = ex - cx; let dy = ey - cy;
+        const max = r.width*0.35;
+        const dist = Math.hypot(dx, dy);
         if(dist > max) { dx = (dx/dist)*max; dy = (dy/dist)*max; }
         knob.style.transform = `translate(${dx}px, ${dy}px)`;
         joystickVector = {x: dx/max, y: dy/max};
       };
+      
       zone.addEventListener('pointerdown', e => { e.stopPropagation(); jId = e.pointerId; zone.setPointerCapture(jId); updateJ(e.clientX, e.clientY); });
       zone.addEventListener('pointermove', e => { if(e.pointerId === jId) updateJ(e.clientX, e.clientY); });
       const resetJ = e => { if(e.pointerId === jId) { jId = null; joystickVector = {x:0,y:0}; knob.style.transform = `translate(0px,0px)`; }};
-      zone.addEventListener('pointerup', resetJ); zone.addEventListener('pointercancel', resetJ);
+      zone.addEventListener('pointerup', resetJ);
+      zone.addEventListener('pointercancel', resetJ);
+
       document.getElementById('btnMobileJump').addEventListener('pointerdown', e => {
-        e.stopPropagation(); if(isGrounded && !isParachuting) { playerVelocityY = 12; isGrounded = false; }
+        e.stopPropagation();
+        if(isGrounded && !isParachuting) { playerVelocityY = 12; isGrounded = false; }
       });
     }
 
+    // MULTIPLAYER MODUL (Sinkronisasi & Render Teman)
     const MultiplayerManager = {
-      players: {}, lastSync: 0,
+      players: {},
+      lastSync: 0,
       async tick(px, py, pz, pyaw) {
-        if (Date.now() - this.lastSync < 2500 || !navigator.onLine) return;
-        this.lastSync = Date.now();
-        const base = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, ''); const key = STATE.supabaseConfig.key;
+        const now = Date.now();
+        if (now - this.lastSync < 2500) return;
+        this.lastSync = now;
+
+        const base = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '');
+        const key = STATE.supabaseConfig.key;
+        if(!base || !key || !navigator.onLine) return;
+
         try {
-          await fetch(`${base}/rest/v1/room_players_3d`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': key, 'Prefer': 'resolution=merge-duplicates' }, body: JSON.stringify({ kode_kelas: STATE.classCode, no_absen: STATE.session.absen, nama_siswa: STATE.session.name, alam: STATE.currentWorld, pos_x: px, pos_y: py, pos_z: pz, rot_y: pyaw, last_seen: new Date().toISOString() }) });
-          const res = await fetch(`${base}/rest/v1/room_players_3d?kode_kelas=eq.${STATE.classCode}&alam=eq.${STATE.currentWorld}`, { headers: { 'apikey': key } });
+          // Kirim Posisi
+          await fetch(`${base}/rest/v1/room_players_3d`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': key, 'Prefer': 'resolution=merge-duplicates' },
+            body: JSON.stringify({
+              kode_kelas: STATE.classCode, no_absen: STATE.session.absen, nama_siswa: STATE.session.name,
+              alam: STATE.currentWorld, pos_x: px, pos_y: py, pos_z: pz, rot_y: pyaw, last_seen: new Date().toISOString()
+            })
+          });
+
+          // Tarik Teman
+          const res = await fetch(`${base}/rest/v1/room_players_3d?kode_kelas=eq.${STATE.classCode}&alam=eq.${STATE.currentWorld}`, {
+            headers: { 'apikey': key }
+          });
           const data = await res.json();
           const activeSet = new Set();
+          const cutoff = new Date(Date.now() - 15000);
+
           data.forEach(p => {
-            if(p.no_absen === STATE.session.absen || new Date(p.last_seen) < new Date(Date.now() - 15000)) return;
+            if(p.no_absen === STATE.session.absen) return;
+            if(new Date(p.last_seen) < cutoff) return;
             activeSet.add(p.no_absen);
+
             if(!this.players[p.no_absen]) {
-              const m = new THREE.Mesh(new THREE.BoxGeometry(1.2,1.5,0.8), new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff }));
-              const cvs = document.createElement('canvas'); cvs.width = 256; cvs.height = 64;
-              const ctx = cvs.getContext('2d'); ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0,0,256,64); ctx.fillStyle = 'white'; ctx.font = '24px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(p.nama_siswa, 128, 40);
-              const spr = new THREE.Sprite(new THREE.SpriteMaterial({map: new THREE.CanvasTexture(cvs)}));
-              spr.position.y = 2.5; spr.scale.set(4,1,1); m.add(spr); scene.add(m); this.players[p.no_absen] = m;
+              // Buat avatar
+              const mat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
+              const m = new THREE.Mesh(new THREE.BoxGeometry(1.2,1.5,0.8), mat);
+              
+              // Nama Canvas
+              const cvs = document.createElement('canvas');
+              cvs.width = 256; cvs.height = 64;
+              const ctx = cvs.getContext('2d');
+              ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0,0,256,64);
+              ctx.fillStyle = 'white'; ctx.font = '24px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(p.nama_siswa, 128, 40);
+              const tex = new THREE.CanvasTexture(cvs);
+              const spr = new THREE.Sprite(new THREE.SpriteMaterial({map: tex}));
+              spr.position.y = 2.5; spr.scale.set(4,1,1);
+              m.add(spr);
+              
+              scene.add(m);
+              this.players[p.no_absen] = m;
             }
-            this.players[p.no_absen].position.set(p.pos_x, p.pos_y, p.pos_z); this.players[p.no_absen].rotation.y = p.rot_y;
+
+            const fm = this.players[p.no_absen];
+            fm.position.set(p.pos_x, p.pos_y, p.pos_z);
+            fm.rotation.y = p.rot_y;
           });
-          Object.keys(this.players).forEach(k => { if(!activeSet.has(k)) { scene.remove(this.players[k]); delete this.players[k]; } });
+
+          Object.keys(this.players).forEach(k => {
+            if(!activeSet.has(k)) { scene.remove(this.players[k]); delete this.players[k]; }
+          });
+
         } catch(e){}
       }
     }
@@ -900,33 +877,46 @@
       if(!scene || !camera) return;
 
       if(STATE.session.active && playerGroup) {
+        // Logika Gerak
         const speed = isParachuting ? 8 : 12;
         let mvX = joystickVector.x, mvZ = -joystickVector.y;
         if(mvX!==0 || mvZ!==0) {
           const yaw = Math.atan2(mvX, mvZ) + cameraAngle;
-          const nx = playerGroup.position.x + Math.sin(yaw) * speed * 0.016;
-          const nz = playerGroup.position.z + Math.cos(yaw) * speed * 0.016;
-          if(!checkCollisionAt(nx, playerGroup.position.z)) playerGroup.position.x = nx;
-          if(!checkCollisionAt(playerGroup.position.x, nz)) playerGroup.position.z = nz;
+          playerGroup.position.x += Math.sin(yaw) * speed * 0.016;
+          playerGroup.position.z += Math.cos(yaw) * speed * 0.016;
           playerGroup.rotation.y = yaw;
         }
 
+        // Jatuh / Lompat
         if(isParachuting) {
-          parachuteGroup.visible = true; playerGroup.position.y -= 5 * 0.016;
+          parachuteGroup.visible = true;
+          playerGroup.position.y -= 5 * 0.016;
           if(playerGroup.position.y <= 0) { playerGroup.position.y=0; isParachuting=false; isGrounded=true; }
         } else {
-          parachuteGroup.visible = false; playerVelocityY -= 25 * 0.016; playerGroup.position.y += playerVelocityY * 0.016;
+          parachuteGroup.visible = false;
+          playerVelocityY -= 25 * 0.016;
+          playerGroup.position.y += playerVelocityY * 0.016;
           if(playerGroup.position.y <= 0) { playerGroup.position.y = 0; playerVelocityY = 0; isGrounded = true; }
         }
 
-        camera.position.set(playerGroup.position.x + Math.sin(cameraAngle)*14, playerGroup.position.y + 5 + cameraPitch*10, playerGroup.position.z + Math.cos(cameraAngle)*14);
+        // Kamera Ngikutin
+        const cd = 14;
+        camera.position.set(
+          playerGroup.position.x + Math.sin(cameraAngle)*cd,
+          playerGroup.position.y + 5 + cameraPitch*10,
+          playerGroup.position.z + Math.cos(cameraAngle)*cd
+        );
         camera.lookAt(playerGroup.position.x, playerGroup.position.y+2, playerGroup.position.z);
+
+        // Multiplayer Panggil Tick
         MultiplayerManager.tick(playerGroup.position.x, playerGroup.position.y, playerGroup.position.z, playerGroup.rotation.y);
 
+        // Cek Dekat Soal
         let near = null, md = 5;
         crystalMeshes.forEach(c => {
           c.crystal.rotation.y += 0.02;
-          if(Math.hypot(c.group.position.x - playerGroup.position.x, c.group.position.z - playerGroup.position.z) < md) { md = Math.hypot(c.group.position.x - playerGroup.position.x, c.group.position.z - playerGroup.position.z); near = c; }
+          const dist = Math.hypot(c.group.position.x - playerGroup.position.x, c.group.position.z - playerGroup.position.z);
+          if(dist < md) { md = dist; near = c; }
         });
         closestCrystalObj = near;
         const prompt = document.getElementById('interactPrompt');
@@ -947,16 +937,15 @@
         
         const optsDiv = document.getElementById('quizOptionsContainer');
         optsDiv.innerHTML = '';
-        document.getElementById('quizTypeBadge').textContent = q.type === 'pg' ? 'PILIHAN GANDA' : (q.type === 'bs' ? 'BENAR/SALAH' : 'ISIAN');
-        
         if(q.type === 'pg' || q.type === 'bs') {
           const opsi = q.type === 'bs' ? ['BENAR', 'SALAH'] : q.options;
           opsi.forEach((o, i) => {
             const label = q.type==='bs'?o:`${['A','B','C','D'][i]}`;
-            optsDiv.innerHTML += `<label class="block p-3 rounded-xl border-2 border-slate-700 bg-slate-900 mb-2 cursor-pointer flex items-center gap-3"><input type="radio" name="qzAns" value="${label}" class="w-4 h-4" /> <span>${label}. ${o}</span></label>`;
+            optsDiv.innerHTML += `
+              <label class="block p-3 rounded-xl border-2 border-slate-700 bg-slate-900 mb-2 cursor-pointer flex items-center gap-3">
+                <input type="radio" name="qzAns" value="${label}" class="w-4 h-4" /> <span>${label}. ${o}</span>
+              </label>`;
           });
-        } else {
-          optsDiv.innerHTML = `<input id="qzEsai" type="text" placeholder="Ketik jawaban di sini..." class="w-full rounded-xl bg-slate-900 border px-4 py-3 text-white" />`;
         }
         document.getElementById('quizModal').classList.remove('hidden');
       }
@@ -966,78 +955,88 @@
     
     function submitCurrentAnswer() {
       const q = STATE.questions[STATE.session.activeQuestionIndex];
-      let userAns = '';
-      if (q.type === 'pg' || q.type === 'bs') {
-        const sel = document.querySelector('input[name="qzAns"]:checked');
-        if(!sel) return alert("Pilih jawaban!");
-        userAns = sel.value;
-      } else {
-        userAns = document.getElementById('qzEsai').value.trim();
-        if(!userAns) return alert("Ketik jawaban!");
-      }
+      const sel = document.querySelector('input[name="qzAns"]:checked');
+      if(!sel) return alert("Pilih jawaban!");
       
-      if(userAns.toLowerCase() === q.answer.toLowerCase()) { STATE.session.correctCount++; playTone(600,0.2); closestCrystalObj.crystal.material.color.setHex(0x22c55e); }
-      else { closestCrystalObj.crystal.material.color.setHex(0xef4444); playTone(200,0.3); }
+      if(sel.value === q.answer) {
+        STATE.session.correctCount++;
+        playTone(600,0.2);
+        closestCrystalObj.crystal.material.color.setHex(0x22c55e);
+      } else {
+        closestCrystalObj.crystal.material.color.setHex(0xef4444);
+        playTone(200,0.3);
+      }
       
       STATE.session.answeredCount++;
       STATE.session.score = Math.round((STATE.session.correctCount / STATE.questions.length)*100);
+      
       document.getElementById('hudScoreText').textContent = STATE.session.score;
       document.getElementById('hudMissionText').textContent = `${STATE.session.answeredCount} / ${STATE.questions.length}`;
       
-      submitScoreToCloud(); closeQuizModal();
+      submitScoreToCloud();
+      closeQuizModal();
+      
       if(STATE.session.answeredCount >= STATE.questions.length) showToast('Selesai!', `Misi rampung. Skor akhir: ${STATE.session.score}`);
     }
 
-    async function submitScoreToCloud() {
-      if(!navigator.onLine || STATE.simulatedOffline) return;
-      const base = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, ''); const key = STATE.supabaseConfig.key;
-      try { await fetch(`${base}/rest/v1/hasil_belajar_3d`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': key, 'Prefer': 'resolution=merge-duplicates' }, body: JSON.stringify({ kode_kelas: STATE.classCode, no_absen: STATE.session.absen, nama_siswa: STATE.session.name, skor: STATE.session.score, waktu_selesai: new Date().toISOString() }) }); } catch(e) {}
-    }
-
     function confirmFinishEarly() {
-      if(confirm('Keluar dari arena 3D? Skor Anda sudah terkirim.')){
-        STATE.session.active = false; document.getElementById('gameHud').classList.add('hidden'); document.getElementById('gameCanvasContainer').classList.add('hidden');
-        document.getElementById('mainTopBar').classList.remove('hidden'); document.getElementById('lobbyScreen').classList.remove('hidden');
+      if(confirm('Keluar dari arena 3D? Skor Anda sudah terkirim ke Guru.')){
+        STATE.session.active = false;
+        document.getElementById('gameHud').classList.add('hidden');
+        document.getElementById('gameCanvasContainer').classList.add('hidden');
+        document.getElementById('mainTopBar').classList.remove('hidden');
+        document.getElementById('lobbyScreen').classList.remove('hidden');
       }
     }
 
-    function forceLandscapeLock() { try { screen.orientation.lock('landscape').catch(()=>{}); }catch(e){} }
+    function forceLandscapeLock() {
+      try { screen.orientation.lock('landscape').catch(()=>{}); }catch(e){}
+    }
 
+    // ==================
+    // 6. GURU DASHBOARD
+    // ==================
     function requestTeacherAccess() { document.getElementById('teacherPinModal').classList.remove('hidden'); }
     function verifyTeacherPin() {
       if(document.getElementById('inputTeacherPin').value === STATE.teacherPin) {
-        document.getElementById('teacherPinModal').classList.add('hidden'); document.getElementById('lobbyScreen').classList.add('hidden');
-        document.getElementById('teacherDashboard').classList.remove('hidden'); renderTeacherView();
+        document.getElementById('teacherPinModal').classList.add('hidden');
+        document.getElementById('lobbyScreen').classList.add('hidden');
+        document.getElementById('teacherDashboard').classList.remove('hidden');
+        renderTeacherView();
       } else alert("PIN Salah");
     }
-    function switchMainView(v) { if(v === 'lobby') { document.getElementById('teacherDashboard').classList.add('hidden'); document.getElementById('lobbyScreen').classList.remove('hidden'); } }
-    
+    function switchMainView(v) {
+      if(v === 'lobby') {
+        document.getElementById('teacherDashboard').classList.add('hidden');
+        document.getElementById('lobbyScreen').classList.remove('hidden');
+      }
+    }
     function renderTeacherView() {
       document.getElementById('tdash-soal').textContent = STATE.questions.length;
       document.getElementById('tdash-siswa').textContent = STATE.gradebook.length;
-      document.getElementById('tdash-rata').textContent = STATE.gradebook.length ? Math.round(STATE.gradebook.reduce((a,b)=>a+(b.score||0), 0)/STATE.gradebook.length) : 0;
-      document.getElementById('tdash-tbody').innerHTML = STATE.gradebook.map(g => `<tr class="hover:bg-slate-800"><td class="px-3 py-2 font-bold text-amber-300">${g.absen}</td><td class="px-3 py-2">${g.name}</td><td class="px-3 py-2 text-amber-400 font-bold">${g.score}</td><td class="px-3 py-2">${g.completed}/${STATE.questions.length}</td></tr>`).join('');
+      
+      const sum = STATE.gradebook.reduce((a,b)=>a+(b.score||0), 0);
+      document.getElementById('tdash-rata').textContent = STATE.gradebook.length ? Math.round(sum/STATE.gradebook.length) : 0;
+      
+      const tbody = document.getElementById('tdash-tbody');
+      tbody.innerHTML = STATE.gradebook.map(g => `
+        <tr class="hover:bg-slate-800">
+          <td class="px-3 py-2 font-bold text-amber-300">${g.absen}</td>
+          <td class="px-3 py-2">${g.name}</td>
+          <td class="px-3 py-2 text-amber-400 font-bold">${g.score}</td>
+          <td class="px-3 py-2">${g.completed}/${STATE.questions.length}</td>
+        </tr>
+      `).join('');
     }
 
-    async function fetchGradesFromCloud() {
-      if(!navigator.onLine) return;
-      const base = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, ''); const key = STATE.supabaseConfig.key;
-      try {
-        const res = await fetch(`${base}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${STATE.classCode}&order=waktu_selesai.desc`, { headers: { 'apikey': key } });
-        if(res.ok) {
-          const rows = await res.json();
-          rows.forEach(r => {
-            const idx = STATE.gradebook.findIndex(g => getStudentKey(g.absen, g.name) === getStudentKey(r.no_absen, r.nama_siswa));
-            if(idx > -1 && Number(r.skor) > STATE.gradebook[idx].score) { STATE.gradebook[idx].score = Number(r.skor); STATE.gradebook[idx].completed = STATE.questions.length; }
-          });
-          renderTeacherView();
-        }
-      } catch(e){}
-    }
-    
-    function selectWorldTheme(theme) { STATE.currentWorld = theme; loadWorldEnvironment(theme); spawnQuestionCrystals(); }
     function openMiniLeaderboard() {
-      document.getElementById('miniLeaderboardList').innerHTML = STATE.gradebook.sort((a,b)=>b.score-a.score).map((s, i) => `<div class="p-3 bg-slate-900 border border-slate-700 rounded-xl mb-2 flex justify-between items-center"><div><span class="font-bold text-amber-400 mr-2">#${i+1}</span> ${s.name}</div><div class="font-bold text-lg">${s.score}</div></div>`).join('');
+      const list = document.getElementById('miniLeaderboardList');
+      list.innerHTML = STATE.gradebook.sort((a,b)=>b.score-a.score).map((s, i) => `
+        <div class="p-3 bg-slate-900 border border-slate-700 rounded-xl mb-2 flex justify-between items-center">
+          <div><span class="font-bold text-amber-400 mr-2">#${i+1}</span> ${s.name}</div>
+          <div class="font-bold text-lg">${s.score}</div>
+        </div>
+      `).join('');
       document.getElementById('miniLeaderboardModal').classList.remove('hidden');
     }
     function openProjectorLeaderboard() { openMiniLeaderboard(); }

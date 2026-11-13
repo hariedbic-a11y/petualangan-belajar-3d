@@ -119,7 +119,7 @@
     </div>
   </header>
 
-  <!-- 3D GAMEPLAY CANVAS CONTAINER (AWALNYA TERSEMBUNYI HIDDEN) -->
+  <!-- 3D GAMEPLAY CANVAS CONTAINER (AWALNYA TERSEMBUNYI) -->
   <div id="gameCanvasContainer" class="fixed inset-0 z-0 bg-[#070b14] hidden"></div>
 
   <!-- STUDENT LOBBY OVERLAY -->
@@ -452,7 +452,7 @@
     }
 
     // ==========================================
-    // PARSER SOAL (Diperbaiki secara utuh agar mendeteksi spasi & baris baru untuk Opsi A, B, C, D)
+    // PARSER SOAL (Diperbaiki Tuntas Untuk Spasi/Baris Baru dari Word)
     // ==========================================
     function parseWordHtmlToQuestions(html) {
       const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -472,47 +472,30 @@
           let qStem = "";
           let opts = [];
 
-          const lists = leftCell.querySelectorAll('ol, ul');
-          if (lists.length > 0) {
-            const clone = leftCell.cloneNode(true);
-            clone.querySelectorAll('ol, ul').forEach(n => n.remove());
-            qStem = clone.innerText.replace(/^\d+[\.\)]\s*/, '').trim();
-            lists.forEach(list => {
-              list.querySelectorAll('li').forEach(li => opts.push(li.innerText.trim()));
-            });
+          // Mengganti semua elemen <br>, <p>, <div>, <li> menjadi penanda baris baru sesungguhnya (\n)
+          // Ini mencegah menyatunya baris opsi saat mammoth mengonversi Word.
+          let leftHtmlText = leftCell.innerHTML.replace(/<br\s*[\/]?>/gi, '\n')
+                                              .replace(/<\/p>|<\/div>|<\/li>/gi, '\n')
+                                              .replace(/<[^>]+>/g, '').trim();
+          
+          // Pecah teks berdasarkan Opsi a. b. c. d. (Mendukung pola A., B., C., D.) dengan regex yang aman
+          const parts = leftHtmlText.split(/(?:\n|\s|^)([a-eA-E][\.\)])\s+/);
+          
+          if (parts.length >= 3) { // Berarti dia berhasil memecah Soal dan Opsi (minimal ada A. dan teksnya)
+              qStem = parts[0].replace(/^\d+[\.\)]\s*/, '').trim(); // Hapus nomor soal (contoh "1.")
+              for(let i = 2; i < parts.length; i+=2) {
+                  opts.push(parts[i].trim());
+              }
           } else {
-            // Ubah tag pembatas (<br>, <p>, <div>) jadi baris baru agar bisa memisahkan per baris
-            let leftHtmlText = leftCell.innerHTML;
-            leftHtmlText = leftHtmlText.replace(/<(br|p|div)[^>]*>/gi, '\n').replace(/<[^>]+>/g, '').trim();
-            const lines = leftHtmlText.split(/\n+/).map(l => l.trim()).filter(Boolean);
-            
-            if(lines.length > 0) {
-               const optLines = [];
-               const stemLines = [];
-               lines.forEach(l => {
-                 if (/^[a-eA-E][\.\)]\s+/.test(l)) {
-                   optLines.push(l.replace(/^[a-eA-E][\.\)]\s+/, '').trim());
-                 } else {
-                   if(optLines.length === 0) stemLines.push(l);
-                 }
-               });
-
-               if(optLines.length >= 2) {
-                  qStem = stemLines.join(' ').replace(/^\d+[\.\)]\s*/, '').trim();
-                  opts = optLines;
-               } else {
-                  // Fallback jika diketik nyambung dalam satu baris tanpa enter (pakai regex lookahead)
-                  const fallbackText = leftCell.innerText.replace(/\r?\n/g, '  ');
-                  const optSplit = fallbackText.split(/\s+(?=[a-eA-E][\.\)]\s)/);
-                  qStem = optSplit[0].replace(/^\d+[\.\)]\s*/, '').trim();
-                  opts = optSplit.slice(1).map(o => o.replace(/^[a-eA-E][\.\)]\s*/, '').trim()).filter(Boolean);
-               }
-            }
+              // Jika benar-benar tidak ada pola a.b.c.d, jadikan Isian Singkat
+              qStem = leftHtmlText.replace(/^\d+[\.\)]\s*/, '').trim();
           }
 
+          // Pencocokan Kunci Jawaban
           const keyLetterMatch = rightText.match(/^([a-eA-E])[\.\)]?/i);
           let answerKey = keyLetterMatch ? keyLetterMatch[1].toUpperCase() : rightText.toUpperCase();
 
+          // Koreksi Kunci Jawaban Jika Guru Mengisi Teks Penuh Alih-alih Huruf
           if (opts.length > 0 && !keyLetterMatch) {
              const matchIdx = opts.findIndex(o => o.toLowerCase() === rightText.toLowerCase());
              if (matchIdx === 0) answerKey = 'A';
@@ -526,7 +509,7 @@
               id: `q_imp_${Date.now()}_${rIdx}`,
               type: opts.length >= 2 ? 'pg' : 'isian',
               text: qStem,
-              options: opts.slice(0, 4), // Batasi ke 4 opsi (A,B,C,D)
+              options: opts.slice(0, 4), // Ambil maksimal 4 opsi untuk A,B,C,D
               answer: answerKey
             });
           }
@@ -546,7 +529,7 @@
           const result = await mammoth.convertToHtml({ arrayBuffer });
           imported = parseWordHtmlToQuestions(result.value);
         } else {
-          // Excel
+          // Excel Import
           const data = await file.arrayBuffer();
           const wb = XLSX.read(data, { type: 'array' });
           const sheet = wb.Sheets[wb.SheetNames[0]];
@@ -661,7 +644,7 @@
     }
 
     // ==========================================
-    // THREEJS ENGINE & TATA LETAK LEBIH PADAT 
+    // THREEJS ENGINE & KEPADATAN KOTA (Aman dari Crash)
     // ==========================================
     let scene, camera, renderer, playerGroup, parachuteGroup, worldObjectsGroup;
     let crystalMeshes = [], solidObstacles = [], closestCrystalObj = null;
@@ -754,23 +737,23 @@
       worldObjectsGroup.add(ground);
       scene.background = new THREE.Color(isKota?0x0ea5e9:(worldType==='laut'?0x0369a1:0x38bdf8));
 
-      // GENERATOR LINGKUNGAN YANG SANGAT PADAT (Seperti Kota Asli)
-      for (let i = 0; i < 900; i++) {
-        const ang = (i / 900) * Math.PI * 2 * 32; 
-        const dist = 35 + i * 0.9;
+      // KEPADATAN AMAN: 350 Objek (Cukup Ramai tapi Tidak Crash)
+      for (let i = 0; i < 350; i++) {
+        const ang = (i / 350) * Math.PI * 2 * 21; 
+        const dist = 30 + i * 1.5; // Menyebar hingga radius aman ~550 unit
         const px = Math.cos(ang) * dist;
         const pz = Math.sin(ang) * dist;
-        const nearCenter = Math.abs(px) < 30 && Math.abs(pz) < 30;
+        const nearCenter = Math.abs(px) < 30 && Math.abs(pz) < 30; // Biarkan titik tengah kosong untuk pemain mendarat
 
         if (!nearCenter) {
           const rand = (i * 17) % 100;
           
           if (isKota) {
-            if (rand < 50) buildCartoonTree(px, pz, 0.9 + (i % 3) * 0.3); // 50% Pohon Rindang
-            else if (rand < 85) { // 35% Rumah
+            if (rand < 55) buildCartoonTree(px, pz, 0.9 + (i % 3) * 0.3); // 55% Pohon Rindang
+            else if (rand < 85) { // 30% Perumahan
               const c = [[0xfef08a, 0xef4444], [0xbae6fd, 0x2563eb], [0xfed7aa, 0xea580c], [0xfbcfe8, 0xbe185d]][i % 4];
               buildCartoonHouse(px, pz, c[0], c[1]);
-            } else { // 15% Gedung
+            } else { // 15% Gedung Bertingkat
               const bCol = [0x3b82f6, 0x6366f1, 0x0ea5e9, 0x1d4ed8][i % 4];
               buildCitySkyscraper(px, pz, 10+(i%3)*2, 18+(i%6)*5, 10+(i%3)*2, bCol);
             }
@@ -950,7 +933,7 @@
         
         const optsDiv = document.getElementById('quizOptionsContainer');
         optsDiv.innerHTML = '';
-        document.getElementById('quizTypeBadge').textContent = q.type === 'pg' ? 'PILIHAN GANDA' : (q.type === 'bs' ? 'BENAR/SALAH' : 'ISIAN');
+        document.getElementById('quizTypeBadge').textContent = q.type === 'pg' ? 'PILIHAN GANDA' : (q.type === 'bs' ? 'BENAR/SALAH' : 'ISIAN SINGKAT');
         
         if(q.type === 'pg' || q.type === 'bs') {
           const opsi = q.type === 'bs' ? ['BENAR', 'SALAH'] : q.options;
@@ -962,7 +945,7 @@
               </label>`;
           });
         } else {
-          optsDiv.innerHTML = `<input id="qzEsai" type="text" placeholder="Ketik jawaban di sini..." class="w-full rounded-xl bg-slate-900 border px-4 py-3 text-white" />`;
+          optsDiv.innerHTML = `<input id="qzEsai" type="text" placeholder="Ketik jawaban di sini..." class="w-full rounded-xl bg-slate-900 border border-slate-700 focus:border-amber-400 px-4 py-3 text-white" />`;
         }
         document.getElementById('quizModal').classList.remove('hidden');
       }
@@ -975,11 +958,11 @@
       let userAns = '';
       if (q.type === 'pg' || q.type === 'bs') {
         const sel = document.querySelector('input[name="qzAns"]:checked');
-        if(!sel) return alert("Pilih jawaban!");
+        if(!sel) return alert("Pilih jawaban terlebih dahulu!");
         userAns = sel.value;
       } else {
         userAns = document.getElementById('qzEsai').value.trim();
-        if(!userAns) return alert("Ketik jawaban!");
+        if(!userAns) return alert("Ketik jawaban terlebih dahulu!");
       }
       
       if(userAns.toLowerCase() === q.answer.toLowerCase()) { STATE.session.correctCount++; playTone(600,0.2); closestCrystalObj.crystal.material.color.setHex(0x22c55e); }

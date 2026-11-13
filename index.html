@@ -1024,14 +1024,14 @@
         try {
           await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${encodeURIComponent(cleanCode)}&no_absen=eq.__PKG_CLASS__`, {
             method: 'DELETE',
-            headers: { 'apikey': STATE.supabaseConfig.key, 'Authorization': `Bearer ${STATE.supabaseConfig.key}` }
+            headers: { 'apikey': STATE.supabaseConfig.key,  }
           });
           const r2 = await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'apikey': STATE.supabaseConfig.key,
-              'Authorization': `Bearer ${STATE.supabaseConfig.key}`
+              
             },
             body: JSON.stringify({
               kode_kelas: cleanCode,
@@ -1153,7 +1153,7 @@
             headers: {
               'Content-Type': 'application/json',
               'apikey': STATE.supabaseConfig.key,
-              'Authorization': `Bearer ${STATE.supabaseConfig.key}`
+              
             },
             body: JSON.stringify(item)
           });
@@ -2533,7 +2533,7 @@
               const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
               await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${encodeURIComponent(STATE.classCode)}&nama_siswa=ilike.${encodeURIComponent(target.name)}`, {
                 method: 'DELETE',
-                headers: { 'apikey': STATE.supabaseConfig.key, 'Authorization': `Bearer ${STATE.supabaseConfig.key}` }
+                headers: { 'apikey': STATE.supabaseConfig.key,  }
               });
             } catch (_) {}
           }

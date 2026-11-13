@@ -5,24 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Petualangan Belajar 3D — Dunia Ilmu & Studio Guru</title>
 
-  <!-- Google Fonts: Fredoka & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-
-  <!-- Three.js (3D Engine) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-  <!-- SheetJS (Excel Import & Export) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-  <!-- Mammoth.js (Word .docx Import) -->
   <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
 
   <script>
@@ -40,16 +30,8 @@
   </script>
 
   <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-
-    input, textarea, select {
-      user-select: text;
-    }
-
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+    input, textarea, select { user-select: text; }
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
       background-color: #070b14;
@@ -57,12 +39,8 @@
       margin: 0;
       padding: 0;
       overflow-x: hidden;
-      touch-action: none;
     }
-
-    .font-display {
-      font-family: 'Fredoka', sans-serif;
-    }
+    .font-display { font-family: 'Fredoka', sans-serif; }
 
     .btn-3d-gold {
       background: linear-gradient(180deg, #fde047 0%, #f59e0b 100%);
@@ -70,10 +48,7 @@
       box-shadow: 0 5px 0 #b45309, 0 10px 20px rgba(245, 158, 11, 0.35);
       transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
-    .btn-3d-gold:active {
-      transform: translateY(4px);
-      box-shadow: 0 1px 0 #b45309, 0 4px 10px rgba(245, 158, 11, 0.25);
-    }
+    .btn-3d-gold:active { transform: translateY(4px); box-shadow: 0 1px 0 #b45309, 0 4px 10px rgba(245, 158, 11, 0.25); }
 
     .btn-3d-blue {
       background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
@@ -81,10 +56,7 @@
       box-shadow: 0 5px 0 #0369a1, 0 10px 20px rgba(2, 132, 199, 0.35);
       transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
-    .btn-3d-blue:active {
-      transform: translateY(4px);
-      box-shadow: 0 1px 0 #0369a1;
-    }
+    .btn-3d-blue:active { transform: translateY(4px); box-shadow: 0 1px 0 #0369a1; }
 
     .btn-3d-green {
       background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
@@ -92,10 +64,7 @@
       box-shadow: 0 5px 0 #15803d, 0 10px 20px rgba(22, 163, 74, 0.35);
       transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
-    .btn-3d-green:active {
-      transform: translateY(4px);
-      box-shadow: 0 1px 0 #15803d;
-    }
+    .btn-3d-green:active { transform: translateY(4px); box-shadow: 0 1px 0 #15803d; }
 
     .glass-panel {
       background: rgba(15, 23, 42, 0.86);
@@ -111,7 +80,6 @@
       touch-action: none;
     }
 
-    /* Memaksa kontrol seluler muncul di HP, menangani bug tailwind */
     @media (pointer: coarse), (hover: none) {
       #mobileControls {
         display: block !important;
@@ -124,22 +92,20 @@
       0%, 100% { transform: scale(1); opacity: 0.9; }
       50% { transform: scale(1.22); opacity: 0.4; }
     }
-    .radar-pulse {
-      animation: pulseBeacon 1.6s infinite ease-in-out;
-    }
+    .radar-pulse { animation: pulseBeacon 1.6s infinite ease-in-out; }
   </style>
 </head>
 <body class="min-h-screen bg-[#070b14] text-slate-100">
 
   <!-- TOAST NOTIFICATION -->
   <div id="toastBanner" class="fixed top-4 left-1/2 -translate-x-1/2 z-[120] -translate-y-[260%] opacity-0 pointer-events-none transition-all duration-300 ease-out w-[92%] max-w-md">
-    <div id="toastCard" class="glass-panel rounded-2xl px-4 py-3.5 shadow-2xl border flex items-center gap-3">
-      <div id="toastIconWrap" class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0">
-        <i data-lucide="info" class="w-5 h-5"></i>
+    <div id="toastCard" class="glass-panel rounded-2xl px-4 py-3.5 shadow-2xl border border-emerald-500/40 flex items-center gap-3">
+      <div id="toastIconWrap" class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
       </div>
       <div class="min-w-0 flex-1">
-        <p id="toastTitle" class="font-display font-bold text-sm text-white truncate"></p>
-        <p id="toastMsg" class="text-xs text-slate-300 line-clamp-2"></p>
+        <p id="toastTitle" class="font-display font-bold text-sm text-white truncate">Berhasil</p>
+        <p id="toastMsg" class="text-xs text-slate-300 line-clamp-2">Perubahan telah disimpan.</p>
       </div>
     </div>
   </div>
@@ -189,7 +155,7 @@
   </header>
 
   <!-- 3D GAMEPLAY CANVAS CONTAINER -->
-  <div id="gameCanvasContainer" class="fixed inset-0 z-0 bg-[#070b14] hidden"></div>
+  <div id="gameCanvasContainer" class="fixed inset-0 z-0 bg-[#070b14]"></div>
 
   <!-- STUDENT LOBBY OVERLAY -->
   <section id="lobbyScreen" class="relative z-20 min-h-screen pt-20 pb-8 px-4 flex items-center justify-center bg-slate-950/65 backdrop-blur-sm">
@@ -204,13 +170,15 @@
             Masukkan <strong class="text-amber-300">Kode Kelas</strong>, <strong class="text-white">Nomor Absen</strong>, dan <strong class="text-white">Nama Siswa</strong> sesuai yang didaftarkan Bapak/Ibu Guru.
           </p>
         </div>
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center text-white shadow-lg shrink-0">
+          <i data-lucide="compass" class="w-6 h-6"></i>
+        </div>
       </div>
 
-      <!-- World Theme Selection with Custom Visual Illustrations -->
+      <!-- World Theme Selection -->
       <div class="mb-4">
         <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Pilih Alam Petualangan 3D:</label>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          <!-- Kota Ilmu -->
           <button type="button" onclick="selectWorldTheme('kota')" id="worldCard-kota" class="world-theme-card text-left p-2 rounded-2xl border-2 border-amber-400 bg-slate-900/90 transition">
             <div class="w-full h-14 rounded-xl overflow-hidden mb-1.5 bg-sky-500 relative">
               <svg viewBox="0 0 120 56" class="w-full h-full">
@@ -220,40 +188,43 @@
                 <rect x="10" y="16" width="16" height="22" rx="2" fill="#3b82f6"/>
                 <polygon points="34,24 46,13 58,24" fill="#ef4444"/>
                 <rect x="37" y="24" width="18" height="14" fill="#fef08a"/>
+                <circle cx="76" cy="24" r="8" fill="#16a34a"/>
+                <rect x="74" y="30" width="4" height="8" fill="#78350f"/>
+                <rect x="86" y="38" width="18" height="6" rx="2" fill="#f59e0b"/>
               </svg>
             </div>
             <p class="font-display font-bold text-xs text-white">🏙️ Kota Ilmu</p>
-            <p class="text-[10px] text-slate-400 leading-tight">Gedung & Jembatan</p>
+            <p class="text-[10px] text-slate-400 leading-tight">Gedung, Rumah & Mobil</p>
           </button>
 
-          <!-- Nusantara -->
           <button type="button" onclick="selectWorldTheme('nusantara')" id="worldCard-nusantara" class="world-theme-card text-left p-2 rounded-2xl border border-slate-700 bg-slate-900/70 hover:border-slate-500 transition">
             <div class="w-full h-14 rounded-xl overflow-hidden mb-1.5 bg-sky-400 relative">
               <svg viewBox="0 0 120 56" class="w-full h-full">
                 <rect width="120" height="38" fill="#7dd3fc"/>
                 <rect y="38" width="120" height="18" fill="#15803d"/>
                 <polygon points="36,38 60,12 84,38" fill="#64748b"/>
+                <polygon points="46,38 60,18 74,38" fill="#475569"/>
+                <circle cx="20" cy="34" r="5" fill="#78716c"/>
               </svg>
             </div>
             <p class="font-display font-bold text-xs text-white">🛕 Nusantara</p>
-            <p class="text-[10px] text-slate-400 leading-tight">Candi & Burung</p>
+            <p class="text-[10px] text-slate-400 leading-tight">Candi, Rumah Adat & Pohon</p>
           </button>
 
-          <!-- Bawah Laut -->
           <button type="button" onclick="selectWorldTheme('laut')" id="worldCard-laut" class="world-theme-card text-left p-2 rounded-2xl border border-slate-700 bg-slate-900/70 hover:border-slate-500 transition">
             <div class="w-full h-14 rounded-xl overflow-hidden mb-1.5 bg-sky-700 relative">
               <svg viewBox="0 0 120 56" class="w-full h-full">
                 <rect width="120" height="42" fill="#0284c7"/>
                 <rect y="42" width="120" height="14" fill="#d97706"/>
+                <circle cx="24" cy="38" r="7" fill="#ec4899"/>
                 <ellipse cx="78" cy="22" rx="11" ry="6" fill="#facc15"/>
                 <polygon points="89,22 97,16 97,28" fill="#f97316"/>
               </svg>
             </div>
             <p class="font-display font-bold text-xs text-white">🐠 Bawah Laut</p>
-            <p class="text-[10px] text-slate-400 leading-tight">Terumbu & Ikan</p>
+            <p class="text-[10px] text-slate-400 leading-tight">Terumbu Karang & Ikan</p>
           </button>
 
-          <!-- Antariksa -->
           <button type="button" onclick="selectWorldTheme('angkasa')" id="worldCard-angkasa" class="world-theme-card text-left p-2 rounded-2xl border border-slate-700 bg-slate-900/70 hover:border-slate-500 transition">
             <div class="w-full h-14 rounded-xl overflow-hidden mb-1.5 bg-slate-950 relative">
               <svg viewBox="0 0 120 56" class="w-full h-full">
@@ -263,7 +234,7 @@
               </svg>
             </div>
             <p class="font-display font-bold text-xs text-white">🚀 Antariksa</p>
-            <p class="text-[10px] text-slate-400 leading-tight">Planet & UFO</p>
+            <p class="text-[10px] text-slate-400 leading-tight">Planet, Stasiun & UFO</p>
           </button>
         </div>
       </div>
@@ -271,28 +242,29 @@
       <!-- Student Login Inputs -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Kode Kelas</label>
-          <input id="inputClassCode" type="text" value="JUARA2026" class="w-full rounded-xl bg-slate-900 border border-slate-700 focus:border-amber-400 px-3.5 py-2.5 text-sm font-display font-bold uppercase text-amber-300" />
+          <label class="block text-xs font-bold text-slate-300 mb-1">Kode Kelas dari Guru</label>
+          <input id="inputClassCode" type="text" value="JUARA2026" placeholder="Contoh: JUARA2026" class="w-full rounded-xl bg-slate-900/90 border border-slate-700 focus:border-amber-400 focus:outline-none px-3.5 py-2.5 text-sm font-display font-bold uppercase tracking-wider text-amber-300" />
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Nomor Absen</label>
-          <input id="inputAbsen" type="text" placeholder="Contoh: 01" class="w-full rounded-xl bg-slate-900 border border-slate-700 focus:border-amber-400 px-3.5 py-2.5 text-sm text-white" />
+          <input id="inputAbsen" type="text" placeholder="Contoh: 01" class="w-full rounded-xl bg-slate-900/90 border border-slate-700 focus:border-amber-400 focus:outline-none px-3.5 py-2.5 text-sm font-semibold text-white" />
         </div>
       </div>
 
       <div class="mb-4">
-        <label class="block text-xs font-bold text-slate-300 mb-1">Nama Lengkap</label>
-        <input id="inputStudentName" type="text" placeholder="Ketik nama lengkap Anda..." class="w-full rounded-xl bg-slate-900 border border-slate-700 focus:border-amber-400 px-3.5 py-2.5 text-sm text-white" />
+        <label class="block text-xs font-bold text-slate-300 mb-1">Nama Lengkap Siswa (Sesuai Daftar Guru)</label>
+        <input id="inputStudentName" type="text" placeholder="Ketik nama lengkap Anda..." class="w-full rounded-xl bg-slate-900/90 border border-slate-700 focus:border-amber-400 focus:outline-none px-3.5 py-2.5 text-sm font-semibold text-white" />
       </div>
 
-      <button type="button" onclick="startStudentMode()" id="btnStartAdventure" class="w-full btn-3d-gold font-display font-bold text-base py-3.5 rounded-2xl flex items-center justify-center gap-2 cursor-pointer transition">
+      <button type="button" onclick="handleStudentJoin()" id="btnStartAdventure" class="w-full btn-3d-gold font-display font-bold text-base sm:text-lg py-3.5 rounded-2xl flex items-center justify-center gap-2 cursor-pointer">
         <i data-lucide="parachute" class="w-5 h-5"></i>
         <span id="btnStartText">MULAI PETUALANGAN! (TERJUN PAYUNG)</span>
       </button>
 
-      <div class="mt-3 flex justify-between gap-2 text-[11px] text-slate-400">
-        <span>📱 Auto-Landscape</span>
-        <span id="lobbyQuestionCountBadge" class="text-emerald-400 font-semibold">✓ Soal Siap</span>
+      <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
+        <span>📱 Auto-Landscape HP</span>
+        <span>👥 Live Multiplayer 1 Room</span>
+        <span id="lobbyQuestionCountBadge" class="text-emerald-400 font-semibold">✓ 5 Soal Aktif Siap</span>
       </div>
     </div>
   </section>
@@ -300,748 +272,2714 @@
   <!-- ACTIVE 3D GAMEPLAY HUD -->
   <div id="gameHud" class="fixed inset-0 z-30 hidden pointer-events-none">
     <div id="cameraTouchPad" class="absolute inset-0 z-0 pointer-events-auto touch-none"></div>
-    
+
     <div class="relative z-20 px-3 sm:px-6 pt-3 flex items-center justify-between gap-2">
       <div class="glass-panel pointer-events-auto rounded-2xl px-3 py-2 flex items-center gap-2.5 shadow-lg">
-        <div id="hudAvatarInitial" class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 font-display font-bold flex items-center justify-center">S</div>
+        <div id="hudAvatarInitial" class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 font-display font-bold flex items-center justify-center text-base">
+          S
+        </div>
         <div class="hidden sm:block">
-          <p id="hudPlayerName" class="font-display font-bold text-sm text-white">Siswa</p>
-          <p id="hudPlayerAbsen" class="text-[11px] text-amber-300">Absen 01</p>
+          <p id="hudPlayerName" class="font-display font-bold text-sm text-white leading-tight">Siswa</p>
+          <p id="hudPlayerAbsen" class="text-[11px] text-amber-300 font-semibold">Absen 01</p>
         </div>
       </div>
 
       <div class="flex items-center gap-2 pointer-events-auto">
+        <div class="glass-panel rounded-2xl px-3 py-1.5 text-center border border-emerald-400/30 hidden sm:block">
+          <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Room Online</p>
+          <p id="hudOnlinePeersText" class="font-display font-bold text-base text-emerald-300 leading-tight">1 Siswa</p>
+        </div>
+
         <div class="glass-panel rounded-2xl px-3 py-1.5 text-center border border-amber-400/30">
-          <p class="text-[10px] uppercase text-slate-400 font-bold">Skor</p>
-          <p id="hudScoreText" class="font-display font-bold text-lg text-amber-400">0</p>
+          <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Skor</p>
+          <p id="hudScoreText" class="font-display font-bold text-base sm:text-lg text-amber-400 leading-tight">0</p>
         </div>
 
         <div class="glass-panel rounded-2xl px-3 py-1.5 text-center border border-sky-400/30">
-          <p class="text-[10px] uppercase text-slate-400 font-bold">Misi Soal</p>
-          <p id="hudMissionText" class="font-display font-bold text-lg text-sky-300">0 / 0</p>
+          <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Misi Soal</p>
+          <p id="hudMissionText" class="font-display font-bold text-base sm:text-lg text-sky-300 leading-tight">0 / 5</p>
         </div>
 
-        <button onclick="openMiniLeaderboard()" class="glass-panel w-11 h-11 flex items-center justify-center text-amber-400 transition hover:bg-slate-800">
+        <button onclick="openMiniLeaderboard()" title="Klasemen Room" class="glass-panel hover:bg-slate-800 rounded-2xl w-11 h-11 flex items-center justify-center text-amber-400 border border-amber-400/30 shadow-lg transition">
           <i data-lucide="trophy" class="w-5 h-5"></i>
         </button>
 
-        <button onclick="confirmFinishEarly()" class="bg-rose-600 hover:bg-rose-500 text-white font-display font-bold px-3 py-2 rounded-2xl shadow-lg flex items-center gap-1.5">
-          <i data-lucide="log-out" class="w-4 h-4"></i> Keluar
+        <button onclick="confirmFinishEarly()" class="bg-rose-600 hover:bg-rose-500 text-white font-display font-bold text-xs sm:text-sm px-3.5 py-2.5 rounded-2xl shadow-lg flex items-center gap-1.5 transition">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span>Selesai & Keluar</span>
         </button>
       </div>
     </div>
 
     <!-- Center Interaction Prompt -->
-    <div id="interactPrompt" class="hidden absolute bottom-24 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
-      <button onclick="interactWithNearestCrystal()" class="btn-3d-gold font-display font-bold px-6 py-3 rounded-2xl flex items-center gap-2 shadow-2xl">
-        <i data-lucide="sparkles"></i>
-        <span id="interactPromptText">KLIK / TEKAN E UNTUK JAWAB</span>
+    <div id="interactPrompt" class="hidden absolute bottom-28 sm:bottom-12 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
+      <button onclick="interactWithNearestCrystal()" id="interactPromptBtn" class="btn-3d-gold font-display font-bold text-sm sm:text-base px-6 py-3.5 rounded-2xl flex items-center gap-2 shadow-2xl cursor-pointer">
+        <i data-lucide="sparkles" class="w-5 h-5"></i>
+        <span id="interactPromptText">TEKAN 'E' ATAU KLIK UNTUK JAWAB SOAL!</span>
       </button>
     </div>
 
-    <!-- Mission Radar -->
-    <div class="absolute bottom-6 right-6 z-20 pointer-events-none flex flex-col items-center">
+    <!-- Bottom-Right Real-Time 360° Mission Radar -->
+    <div class="absolute bottom-28 sm:bottom-6 right-3 sm:right-6 z-20 pointer-events-none flex flex-col items-center">
       <div class="glass-panel rounded-2xl p-2 border border-sky-400/30 shadow-xl">
-        <div class="text-[9px] font-bold uppercase tracking-wider text-sky-300 text-center mb-1">Radar (↑)</div>
-        <div class="relative w-24 h-24 rounded-full bg-slate-950/90 border border-sky-500/40 overflow-hidden">
-          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white"></div>
+        <div class="text-[9px] font-bold uppercase tracking-wider text-sky-300 text-center mb-1">Radar Misi (Depan ↑)</div>
+        <div class="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-slate-950/90 border border-sky-500/40 overflow-hidden">
+          <div class="absolute inset-3 rounded-full border border-sky-500/20"></div>
+          <div class="absolute top-0 bottom-0 left-1/2 w-px bg-sky-500/20"></div>
+          <div class="absolute left-0 right-0 top-1/2 h-px bg-sky-500/20"></div>
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow"></div>
           <div id="radarDotsContainer" class="absolute inset-0"></div>
         </div>
       </div>
     </div>
 
-    <!-- Mobile Controls -->
-    <div id="mobileControls" class="hidden absolute bottom-5 left-0 right-0 w-full pointer-events-none px-5">
-      <div class="flex items-end justify-between w-full">
-        <!-- 360 Analog -->
-        <div id="joystickZone" class="w-28 h-28 rounded-full bg-slate-900/65 border-2 border-white/25 backdrop-blur-md pointer-events-auto touch-none flex items-center justify-center relative shadow-2xl">
-          <div id="joystickKnob" class="absolute w-12 h-12 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 shadow-lg border-2 border-white pointer-events-none transform transition-transform duration-75"></div>
-        </div>
+    <!-- Mobile Touch Controls: 360° Smooth Analog Joystick & Jump Button -->
+    <div id="mobileControls" class="md:hidden">
+      <div id="joystickZone" class="fixed bottom-5 left-5 z-20 w-28 h-28 rounded-full bg-slate-900/65 border-2 border-white/25 backdrop-blur-md pointer-events-auto touch-none flex items-center justify-center shadow-2xl">
+        <div class="w-16 h-16 rounded-full border border-white/15 pointer-events-none"></div>
+        <div id="joystickKnob" class="absolute w-12 h-12 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 shadow-lg border-2 border-white pointer-events-none"></div>
+      </div>
 
-        <!-- Jump -->
-        <button id="btnMobileJump" class="w-20 h-20 rounded-full bg-gradient-to-b from-sky-400 to-blue-600 border-2 border-white/40 text-white font-display font-bold text-xs shadow-2xl pointer-events-auto touch-none active:scale-95">
-          <div class="flex flex-col items-center"><i data-lucide="arrow-up" class="w-6 h-6"></i> LOMPAT</div>
+      <button id="btnMobileJump" type="button" class="fixed bottom-6 right-5 z-20 w-20 h-20 rounded-full bg-gradient-to-b from-sky-400 to-blue-600 border-2 border-white/40 text-white font-display font-bold text-xs shadow-2xl pointer-events-auto touch-none flex flex-col items-center justify-center active:scale-95">
+        <i data-lucide="arrow-up" class="w-6 h-6"></i>
+        <span>LOMPAT</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- LANDSCAPE ORIENTATION PROMPT FOR PHONES IN PORTRAIT -->
+  <div id="portraitWarningOverlay" class="fixed inset-0 z-[95] hidden bg-slate-950/95 backdrop-blur-lg flex-col items-center justify-center p-6 text-center">
+    <div class="w-16 h-16 rounded-2xl bg-amber-400/20 text-amber-400 flex items-center justify-center mb-4 animate-bounce">
+      <i data-lucide="smartphone" class="w-9 h-9 rotate-90"></i>
+    </div>
+    <h2 class="font-display font-bold text-2xl text-white mb-2">Putar Layar HP ke Mode Landscape</h2>
+    <p class="text-sm text-slate-300 max-w-sm mb-5">
+      Agar pandangan petualangan 3D lebih luas dan navigasi 360° nyaman digunakan, silakan miringkan ponsel Anda ke posisi mendatar (Landscape).
+    </p>
+    <button onclick="forceLandscapeLock()" class="btn-3d-gold font-display font-bold text-sm px-6 py-3 rounded-2xl">
+      Kunci Layar Landscape Sekarang
+    </button>
+  </div>
+
+  <!-- QUESTION MODAL -->
+  <div id="quizModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md p-4 flex items-center justify-center overflow-y-auto">
+    <div class="w-full max-w-xl glass-panel rounded-3xl p-5 sm:p-7 border-2 border-amber-400/70 shadow-2xl my-auto">
+      <div class="flex items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-700/80">
+        <div class="flex items-center gap-2">
+          <span id="quizTypeBadge" class="px-3 py-1 rounded-full bg-sky-500 text-slate-950 font-display font-bold text-xs uppercase">PILIHAN GANDA</span>
+          <span id="quizPosLabel" class="text-xs font-semibold text-slate-400">Pos #1</span>
+        </div>
+        <span id="quizLockStatusBadge" class="text-xs font-bold text-amber-300">Siap Dijawab</span>
+      </div>
+
+      <h3 id="quizQuestionText" class="font-display font-bold text-lg sm:text-xl text-white leading-snug mb-5">
+        Pertanyaan tampil di sini...
+      </h3>
+
+      <div id="quizOptionsContainer" class="space-y-2.5 mb-5"></div>
+
+      <div id="quizFeedbackBox" class="hidden rounded-2xl p-4 mb-5 border">
+        <p id="quizFeedbackTitle" class="font-display font-bold text-base mb-1"></p>
+        <p id="quizFeedbackDesc" class="text-xs sm:text-sm leading-relaxed"></p>
+      </div>
+
+      <div id="quizActionButtons" class="flex items-center justify-end gap-3">
+        <button type="button" onclick="closeQuizModal()" id="btnQuizCancel" class="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-display font-bold text-sm transition">
+          Tutup Dulu
+        </button>
+        <button type="button" onclick="submitCurrentAnswer()" id="btnQuizSubmit" class="btn-3d-gold px-6 py-3 rounded-2xl font-display font-bold text-sm flex items-center gap-2 cursor-pointer">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>KIRIM JAWABAN</span>
+        </button>
+        <button type="button" onclick="closeQuizModal()" id="btnQuizBackToGame" class="hidden btn-3d-green px-6 py-3 rounded-2xl font-display font-bold text-sm flex items-center gap-2 cursor-pointer">
+          <i data-lucide="gamepad-2" class="w-4 h-4"></i>
+          <span>KEMBALI KE PERMAINAN</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- PORTRAIT WARNING OVERLAY -->
-  <div id="portraitWarningOverlay" class="fixed inset-0 z-[95] hidden bg-slate-950/95 flex-col items-center justify-center p-6 text-center">
-    <div class="w-16 h-16 rounded-2xl bg-amber-400/20 text-amber-400 flex items-center justify-center mb-4 animate-bounce">
-      <i data-lucide="smartphone" class="w-9 h-9 rotate-90"></i>
-    </div>
-    <h2 class="font-display font-bold text-2xl text-white mb-2">Putar Layar HP</h2>
-    <p class="text-sm text-slate-300 mb-5">Mohon putar HP Anda (Landscape) agar layar bermain lebih maksimal.</p>
-    <button onclick="forceLandscapeLock()" class="btn-3d-gold px-6 py-3 rounded-2xl font-display font-bold">Kunci Layar Sekarang</button>
-  </div>
-
-  <!-- QUIZ MODAL -->
-  <div id="quizModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 p-4 flex items-center justify-center overflow-y-auto">
-    <div class="w-full max-w-xl glass-panel rounded-3xl p-6 border-2 border-amber-400/70 shadow-2xl">
-      <div class="flex justify-between items-center pb-3 border-b border-slate-700">
-        <span id="quizTypeBadge" class="px-3 py-1 rounded-full bg-sky-500 text-slate-950 font-bold text-xs">PILIHAN GANDA</span>
-        <span id="quizLockStatusBadge" class="text-xs font-bold text-amber-300">Siap Dijawab</span>
+  <!-- ROOM LEADERBOARD MODAL -->
+  <div id="miniLeaderboardModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md p-4 flex items-center justify-center">
+    <div class="w-full max-w-lg glass-panel rounded-3xl p-5 sm:p-6 border border-amber-400/40 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-400 flex items-center justify-center">
+            <i data-lucide="trophy" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-display font-bold text-lg text-white">Klasemen Room Kelas</h3>
+            <p class="text-xs text-slate-400">Urutan skor tertinggi & jawaban benar terbanyak</p>
+          </div>
+        </div>
+        <button onclick="document.getElementById('miniLeaderboardModal').classList.add('hidden')" class="w-9 h-9 rounded-xl bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
-      <h3 id="quizQuestionText" class="font-display font-bold text-lg text-white mt-4 mb-4">Pertanyaan...</h3>
-      <div id="quizOptionsContainer" class="space-y-2 mb-4"></div>
-      
-      <div id="quizFeedbackBox" class="hidden rounded-2xl p-4 mb-5 border">
-        <p id="quizFeedbackTitle" class="font-bold"></p>
-        <p id="quizFeedbackDesc" class="text-sm mt-1"></p>
-      </div>
-
-      <div class="flex justify-end gap-3 mt-4">
-        <button onclick="closeQuizModal()" id="btnQuizCancel" class="px-4 py-3 bg-slate-800 rounded-2xl text-white font-bold text-sm">Tutup Dulu</button>
-        <button onclick="submitCurrentAnswer()" id="btnQuizSubmit" class="btn-3d-gold px-6 py-3 rounded-2xl font-bold text-sm flex gap-2"><i data-lucide="send" class="w-4 h-4"></i>KIRIM</button>
-        <button onclick="closeQuizModal()" id="btnQuizBackToGame" class="hidden btn-3d-green px-6 py-3 rounded-2xl font-bold text-sm">KEMBALI KE GAME</button>
-      </div>
+      <div id="miniLeaderboardList" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
     </div>
   </div>
 
-  <!-- LEADERBOARD MODAL -->
-  <div id="miniLeaderboardModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 p-4 flex items-center justify-center">
-    <div class="w-full max-w-lg glass-panel rounded-3xl p-6 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-3 mb-3">
-        <h3 class="font-display font-bold text-lg text-white">Klasemen Ruangan</h3>
-        <button onclick="document.getElementById('miniLeaderboardModal').classList.add('hidden')" class="text-slate-400 hover:text-white"><i data-lucide="x"></i></button>
+  <!-- TEACHER PIN ACCESS MODAL -->
+  <div id="teacherPinModal" class="fixed inset-0 z-[70] hidden bg-slate-950/85 backdrop-blur-md p-4 flex items-center justify-center">
+    <div class="w-full max-w-sm glass-panel rounded-3xl p-6 border border-amber-400/40 shadow-2xl text-center">
+      <div class="w-12 h-12 rounded-2xl bg-amber-400/20 text-amber-400 flex items-center justify-center mx-auto mb-3">
+        <i data-lucide="shield-check" class="w-6 h-6"></i>
       </div>
-      <div id="miniLeaderboardList" class="space-y-2 max-h-72 overflow-y-auto"></div>
+      <h3 class="font-display font-bold text-xl text-white">Akses Studio Guru</h3>
+      <p class="text-xs text-slate-300 mt-1 mb-4">Masukkan PIN Keamanan Guru (Default: <strong class="text-amber-300">1234</strong>)</p>
+      <input id="inputTeacherPin" type="password" maxlength="10" placeholder="••••" class="w-full text-center tracking-[0.4em] font-display font-bold text-xl rounded-2xl bg-slate-900 border border-slate-700 focus:border-amber-400 focus:outline-none py-3 text-amber-300 mb-3" />
+      <div class="flex gap-2 mb-2">
+        <button onclick="document.getElementById('teacherPinModal').classList.add('hidden')" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs">Batal</button>
+        <button onclick="verifyTeacherPin()" class="flex-1 btn-3d-gold py-2.5 rounded-xl font-display font-bold text-xs">Masuk Studio</button>
+      </div>
+      <button onclick="document.getElementById('inputTeacherPin').value='1234'; verifyTeacherPin();" class="text-[11px] text-sky-400 hover:underline">
+        Gunakan PIN Default (1234)
+      </button>
     </div>
   </div>
 
-  <!-- TEACHER PIN MODAL -->
-  <div id="teacherPinModal" class="fixed inset-0 z-[70] hidden bg-slate-950/85 p-4 flex items-center justify-center">
-    <div class="w-full max-w-sm glass-panel rounded-3xl p-6 shadow-2xl text-center">
-      <h3 class="font-display font-bold text-xl text-white mb-2">Akses Guru</h3>
-      <p class="text-sm text-slate-300 mb-4">PIN Default: 1234</p>
-      <input id="inputTeacherPin" type="password" maxlength="10" placeholder="••••" class="w-full text-center text-xl font-bold rounded-2xl bg-slate-900 border px-3 py-3 mb-4 text-amber-300" />
-      <div class="flex gap-2">
-        <button onclick="document.getElementById('teacherPinModal').classList.add('hidden')" class="flex-1 py-2.5 bg-slate-800 text-slate-300 rounded-xl font-bold">Batal</button>
-        <button onclick="verifyTeacherPin()" class="flex-1 btn-3d-gold py-2.5 rounded-xl font-bold">Masuk</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TEACHER DASHBOARD VIEW (Keringkasan - Kontrol Sama) -->
+  <!-- TEACHER DASHBOARD VIEW (FULL 4 TABS RESTORED) -->
   <main id="teacherDashboard" class="relative z-30 hidden min-h-screen pt-20 pb-12 px-3 sm:px-6 max-w-6xl mx-auto">
-    <div class="glass-panel rounded-3xl p-6 mb-5 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="glass-panel rounded-3xl p-5 sm:p-6 border border-slate-700/80 mb-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
       <div>
-        <h2 class="font-display font-bold text-2xl text-white">Studio Guru 3D</h2>
-        <p class="text-slate-300 text-sm">Sinkronisasi Soal & Nilai Secara Real-Time.</p>
+        <div class="flex flex-wrap items-center gap-2 mb-1">
+          <span class="px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-bold">STUDIO GURU & ANALITIK</span>
+          <span id="cloudSyncBadgeTeacher" class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-semibold">✓ Tersinkron ke HP</span>
+        </div>
+        <h2 class="font-display font-bold text-2xl text-white">Kelola Kelas, Soal & Nilai Real-Time</h2>
+        <p class="text-xs text-slate-300 mt-0.5">Perubahan soal atau daftar anggota siswa otomatis dikirim ke seluruh HP murid pada Kode Kelas aktif.</p>
       </div>
-      <div class="flex gap-3">
-        <button onclick="fetchGradesFromCloud()" class="btn-3d-blue px-4 py-2 rounded-xl font-bold text-sm">Refresh Cloud</button>
-        <button onclick="switchMainView('lobby')" class="bg-rose-600 px-4 py-2 rounded-xl font-bold text-sm text-white">Keluar Studio</button>
+
+      <div class="flex flex-wrap items-center gap-2.5">
+        <div class="bg-slate-900/90 border border-amber-400/40 rounded-2xl px-3.5 py-2 flex items-center gap-2">
+          <div>
+            <p class="text-[10px] text-slate-400 font-bold uppercase">Kode Kelas Aktif</p>
+            <input id="teacherClassCodeInput" type="text" value="JUARA2026" class="bg-transparent font-display font-bold text-base text-amber-300 uppercase w-28 focus:outline-none" />
+          </div>
+          <button onclick="updateClassCodeFromTeacher()" class="px-2.5 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-bold text-xs">Simpan</button>
+        </div>
+
+        <button onclick="shareClassToWhatsApp()" class="px-3.5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-display font-bold text-xs flex items-center gap-1.5 shadow">
+          <i data-lucide="share-2" class="w-4 h-4"></i>
+          <span>Bagikan ke WA</span>
+        </button>
+
+        <button onclick="confirmResetGradesOnly()" class="px-3.5 py-3 rounded-2xl bg-slate-800 hover:bg-rose-900/60 border border-rose-500/30 text-rose-300 font-display font-bold text-xs flex items-center gap-1.5">
+          <i data-lucide="eraser" class="w-4 h-4"></i>
+          <span>Bersihkan Nilai</span>
+        </button>
       </div>
-    </div>
-    
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <div class="glass-panel p-4 rounded-2xl"><p class="text-xs text-slate-400">Total Soal Aktif</p><p id="tdash-soal" class="text-2xl font-bold text-sky-400 mt-1">0</p></div>
-      <div class="glass-panel p-4 rounded-2xl"><p class="text-xs text-slate-400">Siswa Terdaftar</p><p id="tdash-siswa" class="text-2xl font-bold text-emerald-400 mt-1">0</p></div>
-      <div class="glass-panel p-4 rounded-2xl"><p class="text-xs text-slate-400">Rata-Rata Nilai</p><p id="tdash-rata" class="text-2xl font-bold text-amber-400 mt-1">0</p></div>
     </div>
 
-    <!-- UI List Rekap Nilai yang Disederhanakan -->
-    <div class="glass-panel p-6 rounded-2xl border">
-      <h3 class="font-bold text-lg text-white mb-4">Daftar Rekap Nilai</h3>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm text-white">
-          <thead class="bg-slate-900 text-slate-400">
-            <tr>
-              <th class="px-3 py-2">No. Absen</th>
-              <th class="px-3 py-2">Nama</th>
-              <th class="px-3 py-2">Skor</th>
-              <th class="px-3 py-2">Progress</th>
-            </tr>
-          </thead>
-          <tbody id="tdash-tbody" class="divide-y divide-slate-800"></tbody>
-        </table>
+    <!-- Summary KPI Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+      <div class="glass-panel rounded-2xl p-4">
+        <p class="text-xs text-slate-400 font-semibold">Siswa Terdaftar</p>
+        <p id="statTotalStudents" class="font-display font-bold text-2xl sm:text-3xl text-white mt-1">0</p>
+        <p class="text-[11px] text-emerald-400 mt-1">✓ Tersinkron PC & HP</p>
+      </div>
+      <div class="glass-panel rounded-2xl p-4">
+        <p class="text-xs text-slate-400 font-semibold">Rata-rata Nilai</p>
+        <p id="statAvgScore" class="font-display font-bold text-2xl sm:text-3xl text-amber-400 mt-1">0.0</p>
+        <p class="text-[11px] text-slate-400 mt-1">Skala 0 – 100</p>
+      </div>
+      <div class="glass-panel rounded-2xl p-4">
+        <p class="text-xs text-slate-400 font-semibold">Total Butir Soal</p>
+        <p id="statTotalQuestions" class="font-display font-bold text-2xl sm:text-3xl text-sky-400 mt-1">5</p>
+        <p class="text-[11px] text-slate-400 mt-1">Tersebar di Peta 3D</p>
+      </div>
+      <div class="glass-panel rounded-2xl p-4">
+        <p class="text-xs text-slate-400 font-semibold">Ketuntasan (KKM 75)</p>
+        <p id="statPassRate" class="font-display font-bold text-2xl sm:text-3xl text-emerald-400 mt-1">0%</p>
+        <p class="text-[11px] text-slate-400 mt-1">Otomatis terhitung</p>
+      </div>
+    </div>
+
+    <!-- Teacher Tabs Navigation -->
+    <div class="glass-panel rounded-3xl p-4 sm:p-6 border border-slate-700/80">
+      <div class="flex flex-wrap gap-2 pb-4 mb-5 border-b border-slate-800">
+        <button onclick="switchTeacherTab('bank')" id="tabBtn-bank" class="teacher-tab-btn px-4 py-2.5 rounded-xl font-display font-bold text-xs sm:text-sm bg-sky-500 text-slate-950 flex items-center gap-1.5">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          <span>Studio Soal & Impor</span>
+        </button>
+        <button onclick="switchTeacherTab('roster')" id="tabBtn-roster" class="teacher-tab-btn px-4 py-2.5 rounded-xl font-display font-bold text-xs sm:text-sm bg-slate-800/80 text-slate-300 hover:text-white flex items-center gap-1.5">
+          <i data-lucide="users" class="w-4 h-4"></i>
+          <span>Anggota Siswa Kelas</span>
+        </button>
+        <button onclick="switchTeacherTab('grades')" id="tabBtn-grades" class="teacher-tab-btn px-4 py-2.5 rounded-xl font-display font-bold text-xs sm:text-sm bg-slate-800/80 text-slate-300 hover:text-white flex items-center gap-1.5">
+          <i data-lucide="table" class="w-4 h-4"></i>
+          <span>Rekap Nilai & Sync</span>
+        </button>
+        <button onclick="switchTeacherTab('cloud')" id="tabBtn-cloud" class="teacher-tab-btn px-4 py-2.5 rounded-xl font-display font-bold text-xs sm:text-sm bg-slate-800/80 text-slate-300 hover:text-white flex items-center gap-1.5">
+          <i data-lucide="database" class="w-4 h-4"></i>
+          <span>Koneksi Cloud & PIN</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: QUESTION BANK & WORD/EXCEL IMPORT -->
+      <div id="teacherTab-bank">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 class="font-display font-bold text-lg text-white">Daftar Soal di Dunia Game</h3>
+            <p class="text-xs text-slate-400">Mendukung impor tabel Word (.docx), Excel (.xlsx), unduh template, maupun tambah manual.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="openImportModal()" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-display font-bold text-xs flex items-center gap-1.5">
+              <i data-lucide="file-up" class="w-4 h-4"></i>
+              <span>Impor Word / Excel</span>
+            </button>
+            <button onclick="openQuestionEditorModal(-1)" class="px-3.5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-display font-bold text-xs flex items-center gap-1.5">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Tambah Manual</span>
+            </button>
+            <button onclick="exportQuestionsExcel()" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-display font-bold text-xs flex items-center gap-1.5">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>Ekspor Excel</span>
+            </button>
+            <button onclick="exportQuestionsWord()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-display font-bold text-xs flex items-center gap-1.5">
+              <i data-lucide="file-text" class="w-4 h-4"></i>
+              <span>Ekspor Word</span>
+            </button>
+          </div>
+        </div>
+        <div id="teacherQuestionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </div>
+
+      <!-- TAB 2: STUDENT CLASS ROSTER MANAGEMENT -->
+      <div id="teacherTab-roster" class="hidden">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 class="font-display font-bold text-lg text-white">Anggota Siswa-Siswi Kelas</h3>
+            <p class="text-xs text-slate-400">Hanya siswa terdaftar di sini yang dapat masuk ke Kode Kelas aktif. Otomatis tersinkron ke HP.</p>
+          </div>
+          <button onclick="document.getElementById('bulkStudentModal').classList.remove('hidden')" class="px-3.5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-display font-bold text-xs flex items-center gap-1.5">
+            <i data-lucide="list-plus" class="w-4 h-4"></i>
+            <span>Tambah Massal (Tempel Daftar)</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 bg-slate-900/90 p-3 rounded-2xl border border-slate-800 mb-4">
+          <input id="newStudentAbsen" type="text" placeholder="No. Absen (mis: 05)" class="sm:col-span-3 rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none" />
+          <input id="newStudentName" type="text" placeholder="Nama Lengkap Siswa / Siswi" class="sm:col-span-6 rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none" />
+          <button onclick="addSingleStudent()" class="sm:col-span-3 btn-3d-green rounded-xl py-2 font-display font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+            <span>Tambah Siswa</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border border-slate-800">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900/90 text-slate-400 uppercase text-[11px]">
+              <tr>
+                <th class="px-4 py-3">No. Absen</th>
+                <th class="px-4 py-3">Nama Siswa / Siswi</th>
+                <th class="px-4 py-3">Status Bermain</th>
+                <th class="px-4 py-3">Skor Saat Ini</th>
+                <th class="px-4 py-3 text-right">Kelola</th>
+              </tr>
+            </thead>
+            <tbody id="rosterTableBody" class="divide-y divide-slate-800/80"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 3: GRADEBOOK & REAL-TIME SYNC -->
+      <div id="teacherTab-grades" class="hidden">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 class="font-display font-bold text-lg text-white">Rekap Nilai Real-Time</h3>
+            <p class="text-xs text-slate-400">Nilai otomatis masuk dari HP murid begitu selesai atau berhenti bermain.</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="fetchGradesFromCloud(true); fetchQuestionsFromCloud(STATE.classCode);" class="px-3.5 py-2 rounded-xl bg-sky-500 text-slate-950 font-display font-bold text-xs flex items-center gap-1.5">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              <span>Segarkan Cloud Sekarang</span>
+            </button>
+            <button onclick="exportGradesExcel()" class="px-3.5 py-2 rounded-xl bg-amber-400 text-slate-950 font-display font-bold text-xs flex items-center gap-1.5">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>Unduh Rekap Excel</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border border-slate-800">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900/90 text-slate-400 uppercase text-[11px]">
+              <tr>
+                <th class="px-4 py-3">Absen</th>
+                <th class="px-4 py-3">Nama Siswa</th>
+                <th class="px-4 py-3">Misi Selesai</th>
+                <th class="px-4 py-3">Skor</th>
+                <th class="px-4 py-3">Status Sync</th>
+                <th class="px-4 py-3 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="gradebookTableBody" class="divide-y divide-slate-800/80"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 4: CLOUD DATABASE & TEACHER PIN SETTINGS -->
+      <div id="teacherTab-cloud" class="hidden space-y-5">
+        <div class="bg-slate-900/80 rounded-2xl p-4 border border-slate-800">
+          <h4 class="font-display font-bold text-base text-white mb-1">Koneksi Sinkronisasi PC ↔ HP (Supabase Cloud)</h4>
+          <p class="text-xs text-slate-400 mb-3">Tempelkan Project URL dan Publishable Key asli dari Supabase Anda lalu klik Simpan & Sinkronkan.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-400 mb-1">Supabase Project URL</label>
+              <input id="cfgSupaUrl" type="text" class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-xs text-white" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-400 mb-1">Supabase Publishable / Anon Key</label>
+              <input id="cfgSupaKey" type="text" class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-xs text-white" />
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="saveSupabaseConfig()" class="btn-3d-blue px-4 py-2 rounded-xl font-display font-bold text-xs">Simpan & Sinkronkan Sekarang</button>
+            <button onclick="downloadDeployableHtmlWithKeys()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-display font-bold text-xs">Unduh index.html Siap Deploy (Tertanam Key)</button>
+            <button onclick="confirmFullFactoryReset()" class="px-4 py-2 rounded-xl bg-rose-950/70 border border-rose-500/40 text-rose-300 font-display font-bold text-xs">Reset Awal Total</button>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/80 rounded-2xl p-4 border border-slate-800">
+          <h4 class="font-display font-bold text-base text-white mb-1">Ubah PIN Keamanan Guru</h4>
+          <div class="flex items-center gap-2 max-w-xs mt-2">
+            <input id="cfgTeacherPin" type="text" maxlength="10" placeholder="PIN Baru (mis: 1234)" class="flex-1 rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-xs text-amber-300 font-bold" />
+            <button onclick="updateTeacherPinSetting()" class="px-4 py-2 rounded-xl bg-amber-400 text-slate-950 font-display font-bold text-xs">Simpan PIN</button>
+          </div>
+        </div>
       </div>
     </div>
   </main>
+  <!-- IMPORT WORD / EXCEL MODAL -->
+  <div id="importModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md p-4 flex items-center justify-center overflow-y-auto">
+    <div class="w-full max-w-2xl glass-panel rounded-3xl p-5 sm:p-6 border border-emerald-500/40 shadow-2xl my-auto">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-display font-bold text-xl text-white">Impor Soal dari Word (.docx) atau Excel (.xlsx)</h3>
+        <button onclick="document.getElementById('importModal').classList.add('hidden')" class="w-9 h-9 rounded-xl bg-slate-800 text-slate-300 flex items-center justify-center">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <p class="text-xs text-slate-300 mb-4">
+        Mendukung tabel Word 2 kolom (<strong class="text-emerald-300">Soal Pilihan Ganda | Kunci Jawaban</strong>) maupun template Excel resmi.
+      </p>
 
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button onclick="downloadExcelTemplate()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs flex items-center gap-1.5">
+          <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+          <span>Unduh Template Excel (.xlsx)</span>
+        </button>
+        <button onclick="downloadWordTemplate()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold text-xs flex items-center gap-1.5">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+          <span>Unduh Template Word (.doc)</span>
+        </button>
+      </div>
 
-  <!-- JAVASCRIPT LOGIC (Termasuk Multiplayer & Safe Sync) -->
+      <label class="block border-2 border-dashed border-emerald-500/40 hover:border-emerald-400 rounded-2xl p-6 text-center cursor-pointer bg-slate-900/70 mb-4 transition">
+        <input id="importFileInput" type="file" accept=".xlsx,.xls,.csv,.docx" onchange="handleImportFileUpload(event)" class="hidden" />
+        <i data-lucide="upload-cloud" class="w-9 h-9 text-emerald-400 mx-auto mb-2"></i>
+        <p class="font-display font-bold text-sm text-white">Klik untuk Memilih File Word (.docx) atau Excel (.xlsx)</p>
+        <p class="text-[11px] text-slate-400 mt-1">Soal Pilihan Ganda dan kunci jawaban otomatis dideteksi & dipratinjau di bawah</p>
+      </label>
+
+      <div id="importPreviewBox" class="hidden mb-4">
+        <p id="importPreviewCount" class="text-xs font-bold text-emerald-400 mb-2">0 Soal Siap Diimpor</p>
+        <div id="importPreviewList" class="max-h-52 overflow-y-auto space-y-2 pr-1"></div>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button onclick="document.getElementById('importModal').classList.add('hidden')" class="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs">Batal</button>
+        <button onclick="commitImportedQuestions(false)" id="btnImportAppend" class="hidden px-4 py-2.5 rounded-xl bg-sky-500 text-slate-950 font-display font-bold text-xs">Tambahkan ke Bank Soal</button>
+        <button onclick="commitImportedQuestions(true)" id="btnImportReplace" class="hidden btn-3d-green px-4 py-2.5 rounded-xl font-display font-bold text-xs">Ganti Semua Soal & Terbitkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUESTION MANUAL EDITOR MODAL -->
+  <div id="questionEditorModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md p-4 flex items-center justify-center overflow-y-auto">
+    <div class="w-full max-w-lg glass-panel rounded-3xl p-5 sm:p-6 border border-sky-500/40 shadow-2xl my-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="qEditorModalTitle" class="font-display font-bold text-lg text-white">Tambah / Edit Soal</h3>
+        <button onclick="document.getElementById('questionEditorModal').classList.add('hidden')" class="w-9 h-9 rounded-xl bg-slate-800 text-slate-300 flex items-center justify-center">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Tipe Soal</label>
+          <select id="qEditType" onchange="renderQEditorFields()" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+            <option value="pg">Pilihan Ganda (A, B, C, D)</option>
+            <option value="bs">Benar / Salah</option>
+            <option value="isian">Isian Singkat</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Pertanyaan</label>
+          <textarea id="qEditText" rows="3" placeholder="Tulis pertanyaan di sini..." class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white"></textarea>
+        </div>
+
+        <div id="qEditDynamicFields" class="space-y-2"></div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Pembahasan Singkat (Opsional)</label>
+          <input id="qEditExplanation" type="text" placeholder="Penjelasan jawaban benar..." class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white" />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 mt-5">
+        <button onclick="document.getElementById('questionEditorModal').classList.add('hidden')" class="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs">Batal</button>
+        <button onclick="saveEditedQuestion()" class="btn-3d-gold px-5 py-2.5 rounded-xl font-display font-bold text-xs">Simpan Soal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BULK STUDENT ADD MODAL -->
+  <div id="bulkStudentModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md p-4 flex items-center justify-center">
+    <div class="w-full max-w-md glass-panel rounded-3xl p-5 sm:p-6 border border-sky-500/40 shadow-2xl">
+      <h3 class="font-display font-bold text-lg text-white mb-1">Tambah Banyak Siswa Sekaligus</h3>
+      <p class="text-xs text-slate-400 mb-3">Tempel daftar dengan format: <code class="text-amber-300">01 - Ahmad Fauzi</code> (1 siswa per baris)</p>
+      <textarea id="bulkStudentTextarea" rows="6" placeholder="01 - Ahmad Fauzi&#10;02 - Siti Aminah&#10;03 - Budi Santoso" class="w-full rounded-2xl bg-slate-900 border border-slate-700 p-3 text-xs text-white mb-4"></textarea>
+      <div class="flex justify-end gap-2">
+        <button onclick="document.getElementById('bulkStudentModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs">Batal</button>
+        <button onclick="processBulkStudentAdd()" class="btn-3d-green px-4 py-2 rounded-xl font-display font-bold text-xs">Simpan Daftar Siswa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT STUDENT MODAL -->
+  <div id="editStudentModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md p-4 flex items-center justify-center">
+    <div class="w-full max-w-sm glass-panel rounded-3xl p-5 border border-sky-500/40 shadow-2xl">
+      <h3 class="font-display font-bold text-lg text-white mb-3">Edit Data Siswa</h3>
+      <input id="editStudentOrigKey" type="hidden" />
+      <div class="space-y-3 mb-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-400 mb-1">Nomor Absen</label>
+          <input id="editStudentAbsen" type="text" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-400 mb-1">Nama Lengkap Siswa</label>
+          <input id="editStudentName" type="text" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-400 mb-1">Skor (0 - 100)</label>
+          <input id="editStudentScore" type="number" min="0" max="100" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-amber-300 font-bold" />
+        </div>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button onclick="document.getElementById('editStudentModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs">Batal</button>
+        <button onclick="saveEditedStudent()" class="btn-3d-gold px-4 py-2 rounded-xl font-display font-bold text-xs">Simpan Perubahan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOM CONFIRMATION MODAL -->
+  <div id="customConfirmModal" class="fixed inset-0 z-[80] hidden bg-slate-950/85 backdrop-blur-md p-4 flex items-center justify-center">
+    <div class="w-full max-w-sm glass-panel rounded-3xl p-6 border border-rose-500/40 shadow-2xl text-center">
+      <h3 id="confirmModalTitle" class="font-display font-bold text-lg text-white mb-2">Konfirmasi</h3>
+      <p id="confirmModalMsg" class="text-xs text-slate-300 mb-5 leading-relaxed">Apakah Anda yakin?</p>
+      <div class="flex gap-2">
+        <button onclick="document.getElementById('customConfirmModal').classList.add('hidden')" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs">Batal</button>
+        <button id="confirmModalYesBtn" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-display font-bold text-xs">Ya, Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // ==================
-    // 1. DATA & STATE
-    // ==================
     const STORAGE_KEYS = {
-      QUESTIONS: 'pb3d_q', GRADEBOOK: 'pb3d_g', SUPABASE: 'pb3d_supa', CLASS_CODE: 'pb3d_code', TEACHER_PIN: 'pb3d_pin'
+      QUESTIONS: 'pb3d_questions_v3',
+      GRADEBOOK: 'pb3d_gradebook_v3',
+      SYNC_QUEUE: 'pb3d_sync_queue_v3',
+      SUPABASE: 'pb3d_supabase_v3',
+      DELETED_STUDENTS: 'pb3d_deleted_v3',
+      CLASS_CODE: 'pb3d_class_code_v3',
+      TEACHER_PIN: 'pb3d_teacher_pin_v3'
     };
 
+    const DEFAULT_CLOUD_CONFIG = {
+      url: 'https://qojqivnzkqexkquqitgq.supabase.co',
+      key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvamFpdnZ6a3FleGtxdXFpdGdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE1OTg0MDAsImV4cCI6MjA1NzE3NDQwMH0.placeholder'
+    };
+
+    const DEFAULT_QUESTIONS = [
+      { id: 'q_default_1', type: 'pg', text: 'Planet manakah yang terkenal dengan julukan "Planet Merah" dalam tata surya kita?', options: ['Venus', 'Mars', 'Jupiter', 'Saturnus'], answer: 'B', explanation: 'Mars memiliki warna kemerahan karena permukaannya banyak mengandung oksida besi.' },
+      { id: 'q_default_2', type: 'bs', text: 'Candi Borobudur didirikan pada masa kejayaan Dinasti Syailendra sekitar abad ke-8.', options: ['BENAR', 'SALAH'], answer: 'BENAR', explanation: 'Candi Borobudur dibangun pada masa Dinasti Syailendra.' },
+      { id: 'q_default_3', type: 'isian', text: 'Apa nama zat hijau daun yang berfungsi menyerap energi matahari saat fotosintesis?', options: [], answer: 'Klorofil', explanation: 'Klorofil adalah pigmen hijau pada tumbuhan.' },
+      { id: 'q_default_4', type: 'pg', text: 'Lambang sila pertama Pancasila adalah ...', options: ['Bintang', 'Rantai', 'Pohon Beringin', 'Kepala Banteng'], answer: 'A', explanation: 'Sila pertama dilambangkan dengan Bintang.' },
+      { id: 'q_default_5', type: 'pg', text: 'Hasil dari 25 + 14 adalah ...', options: ['38', '39', '40', '41'], answer: 'B', explanation: '25 + 14 = 39.' }
+    ];
+
+    const DEFAULT_ROSTER = [
+      { absen: '01', name: 'Fadil', completed: 0, total: 5, score: 0, accuracy: '0%', syncStatus: 'synced' },
+      { absen: '02', name: 'Agus', completed: 0, total: 5, score: 0, accuracy: '0%', syncStatus: 'synced' },
+      { absen: '03', name: 'Fadli', completed: 0, total: 5, score: 0, accuracy: '0%', syncStatus: 'synced' },
+      { absen: '04', name: 'Ipul', completed: 0, total: 5, score: 0, accuracy: '0%', syncStatus: 'synced' }
+    ];
+
     const STATE = {
-      view: 'lobby',
+      view: 'student',
+      teacherTab: 'bank',
       currentWorld: 'kota',
       classCode: 'JUARA2026',
       teacherPin: '1234',
       audioEnabled: true,
       simulatedOffline: false,
-      questions: [
-        { id: '1', type: 'pg', text: 'Planet "Planet Merah" adalah?', options: ['Venus', 'Mars', 'Jupiter', 'Saturnus'], answer: 'B' },
-        { id: '2', type: 'bs', text: 'Matahari adalah bintang.', options: ['BENAR','SALAH'], answer: 'BENAR' }
-      ],
-      gradebook: [
-        { absen: '01', name: 'Fadil', score: 0, completed: 0, accuracy: '0%', syncStatus: 'synced' }
-      ],
-      supabaseConfig: {
-        url: 'https://qojqivnzkqexkquqitgq.supabase.co',
-        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvamFpdnZ6a3FleGtxdXFpdGdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE1OTg0MDAsImV4cCI6MjA1NzE3NDQwMH0.placeholder'
-      },
+      questions: JSON.parse(JSON.stringify(DEFAULT_QUESTIONS)),
+      gradebook: JSON.parse(JSON.stringify(DEFAULT_ROSTER)),
+      deletedStudentKeys: [],
+      pendingSyncQueue: [],
+      stagedImportQuestions: [],
+      editingQuestionIndex: -1,
+      supabaseConfig: { url: DEFAULT_CLOUD_CONFIG.url, key: DEFAULT_CLOUD_CONFIG.key },
       session: { active: false, name: '', absen: '', score: 0, answeredCount: 0, correctCount: 0, answeredMap: {}, activeQuestionIndex: -1 }
     };
 
     function getStudentKey(absen, name) {
-      return `${String(absen||'').trim().padStart(2,'0')}::${String(name||'').trim().toLowerCase()}`;
+      const cleanAbsen = String(absen || '').trim().replace(/^0+/, '') || '0';
+      const cleanName = String(name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+      return `${cleanAbsen}::${cleanName}`;
     }
 
-    // ==================
-    // 2. UI & TOAST
-    // ==================
-    let toastTimer = null;
-    function showToast(title, msg, isError = false) {
-      const banner = document.getElementById('toastBanner');
-      document.getElementById('toastTitle').textContent = title;
-      document.getElementById('toastMsg').textContent = msg;
-      
-      const card = document.getElementById('toastCard');
-      const icon = document.getElementById('toastIconWrap');
-      if(isError) {
-        card.className = "glass-panel rounded-2xl px-4 py-3.5 shadow-2xl border border-rose-500/50 flex items-center gap-3";
-        icon.className = "w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0";
-      } else {
-        card.className = "glass-panel rounded-2xl px-4 py-3.5 shadow-2xl border border-emerald-500/40 flex items-center gap-3";
-        icon.className = "w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0";
-      }
+    function deduplicateGradebook(list) {
+      const map = new Map();
+      (list || []).forEach(item => {
+        const key = getStudentKey(item.absen, item.name);
+        if (STATE.deletedStudentKeys.includes(key)) return;
+        const formattedAbsen = String(item.absen || '').trim().padStart(2, '0');
+        const existing = map.get(key);
+        if (!existing || (Number(item.score) || 0) >= (Number(existing.score) || 0)) {
+          map.set(key, {
+            absen: formattedAbsen,
+            name: String(item.name || '').trim(),
+            completed: Number(item.completed) || 0,
+            total: STATE.questions.length,
+            score: Number(item.score) || 0,
+            accuracy: item.accuracy || '0%',
+            syncStatus: item.syncStatus || 'synced'
+          });
+        }
+      });
+      return Array.from(map.values()).sort((a, b) => a.absen.localeCompare(b.absen, undefined, { numeric: true }));
+    }
 
-      banner.classList.remove('-translate-y-[260%]', 'opacity-0');
-      banner.classList.add('translate-y-0', 'opacity-100');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        banner.classList.remove('translate-y-0', 'opacity-100');
-        banner.classList.add('-translate-y-[260%]', 'opacity-0');
-      }, 3000);
+    function loadPersistedState() {
+      try {
+        const savedCode = localStorage.getItem(STORAGE_KEYS.CLASS_CODE);
+        if (savedCode) STATE.classCode = savedCode.trim().toUpperCase();
+        const savedPin = localStorage.getItem(STORAGE_KEYS.TEACHER_PIN);
+        if (savedPin) STATE.teacherPin = savedPin.trim();
+        const savedDeleted = localStorage.getItem(STORAGE_KEYS.DELETED_STUDENTS);
+        if (savedDeleted) STATE.deletedStudentKeys = JSON.parse(savedDeleted) || [];
+        const savedQs = localStorage.getItem(STORAGE_KEYS.QUESTIONS);
+        if (savedQs) {
+          const parsed = JSON.parse(savedQs);
+          if (Array.isArray(parsed) && parsed.length > 0) STATE.questions = parsed;
+        }
+        const savedGrades = localStorage.getItem(STORAGE_KEYS.GRADEBOOK);
+        if (savedGrades) {
+          const parsed = JSON.parse(savedGrades);
+          if (Array.isArray(parsed)) STATE.gradebook = deduplicateGradebook(parsed);
+        } else {
+          STATE.gradebook = deduplicateGradebook(STATE.gradebook);
+        }
+        const savedQueue = localStorage.getItem(STORAGE_KEYS.SYNC_QUEUE);
+        if (savedQueue) STATE.pendingSyncQueue = JSON.parse(savedQueue) || [];
+        const savedSupa = localStorage.getItem(STORAGE_KEYS.SUPABASE);
+        if (savedSupa) {
+          const parsedSupa = JSON.parse(savedSupa);
+          if (parsedSupa?.url) STATE.supabaseConfig.url = parsedSupa.url;
+          if (parsedSupa?.key) STATE.supabaseConfig.key = parsedSupa.key;
+        }
+      } catch (_) {}
+    }
+
+    function persistStateToLocal() {
+      try {
+        localStorage.setItem(STORAGE_KEYS.CLASS_CODE, STATE.classCode);
+        localStorage.setItem(STORAGE_KEYS.TEACHER_PIN, STATE.teacherPin);
+        localStorage.setItem(STORAGE_KEYS.QUESTIONS, JSON.stringify(STATE.questions));
+        localStorage.setItem(STORAGE_KEYS.GRADEBOOK, JSON.stringify(STATE.gradebook));
+        localStorage.setItem(STORAGE_KEYS.DELETED_STUDENTS, JSON.stringify(STATE.deletedStudentKeys));
+        localStorage.setItem(STORAGE_KEYS.SYNC_QUEUE, JSON.stringify(STATE.pendingSyncQueue));
+        localStorage.setItem(STORAGE_KEYS.SUPABASE, JSON.stringify(STATE.supabaseConfig));
+      } catch (_) {}
     }
 
     let audioCtx = null;
-    function playTone(freq, duration, type='sine') {
-      if(!STATE.audioEnabled) return;
+    function playTone(freq = 520, duration = 0.14, type = 'sine') {
+      if (!STATE.audioEnabled) return;
       try {
-        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + duration);
-      } catch(e){}
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (_) {}
     }
 
     function toggleAudio() {
       STATE.audioEnabled = !STATE.audioEnabled;
-      document.getElementById('audioIcon').setAttribute('data-lucide', STATE.audioEnabled ? 'volume-2' : 'volume-x');
-      lucide.createIcons();
+      const icon = document.getElementById('audioIcon');
+      if (icon) { icon.setAttribute('data-lucide', STATE.audioEnabled ? 'volume-2' : 'volume-x'); lucide.createIcons(); }
     }
 
-    // ==================
-    // 3. CLOUD SYNC & LOGIN (SAFE ASYNC)
-    // ==================
-    async function fetchQuestionsFromCloud(code) {
-      if (!navigator.onLine || STATE.simulatedOffline) return false;
-      const baseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '');
-      const key = STATE.supabaseConfig.key;
-      const c = String(code || STATE.classCode).trim().toUpperCase();
+    let toastTimer = null;
+    function showToast(title, msg, isError = false) {
+      const banner = document.getElementById('toastBanner');
+      const card = document.getElementById('toastCard');
+      const iconWrap = document.getElementById('toastIconWrap');
+      document.getElementById('toastTitle').textContent = title;
+      document.getElementById('toastMsg').textContent = msg;
+      card.className = isError
+        ? 'glass-panel rounded-2xl px-4 py-3.5 shadow-2xl border border-rose-500/50 flex items-center gap-3'
+        : 'glass-panel rounded-2xl px-4 py-3.5 shadow-2xl border border-emerald-500/40 flex items-center gap-3';
+      iconWrap.className = isError
+        ? 'w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0'
+        : 'w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0';
+      banner.classList.remove('-translate-y-[260%]', 'opacity-0');
+      banner.classList.add('translate-y-0', 'opacity-100');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        banner.classList.remove('translate-y-0', 'opacity-100');
+        banner.classList.add('-translate-y-[260%]', 'opacity-0');
+      }, 2800);
+    }
 
+    function isAppOnline() { return navigator.onLine && !STATE.simulatedOffline; }
+
+    function updateNetworkStatusUI() {
+      const online = isAppOnline();
+      const dot = document.getElementById('netStatusDot');
+      const lbl = document.getElementById('netStatusLabel');
+      const simText = document.getElementById('offlineSimText');
+      if (dot && lbl) {
+        dot.className = `w-2 h-2 rounded-full ${online ? 'bg-emerald-400' : 'bg-amber-400'}`;
+        lbl.textContent = online ? 'Online • Tersinkron' : 'Mode Offline (Simpan Lokal)';
+        lbl.className = `font-semibold ${online ? 'text-emerald-300' : 'text-amber-300'}`;
+      }
+      if (simText) simText.textContent = STATE.simulatedOffline ? 'Offline Aktif (Klik Online)' : 'Online (Uji Offline)';
+    }
+
+    function toggleSimulatedOffline() {
+      STATE.simulatedOffline = !STATE.simulatedOffline;
+      updateNetworkStatusUI();
+      if (isAppOnline()) { flushSyncQueue(true); fetchQuestionsFromCloud(STATE.classCode); fetchGradesFromCloud(); }
+    }
+
+    // =========================================================================
+    // TWO-WAY CLOUD SYNC (PC <-> HP QUESTIONS, ROSTER & SCORES)
+    // =========================================================================
+    async function syncQuestionsToCloud() {
+      if (!isAppOnline() || !STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return false;
       try {
-        // Coba baca dari bank_soal_3d
-        const r1 = await fetch(`${baseUrl}/rest/v1/bank_soal_3d?kode_kelas=ilike.${c}`, {
-          headers: { 'apikey': key, 'Authorization': `Bearer ${key}` }
-        });
-        if(r1.ok) {
-          const rows = await r1.json();
-          if (rows && rows.length > 0 && rows[0].daftar_soal) {
-            const data = rows[0].daftar_soal;
-            if(Array.isArray(data.questions) && data.questions.length > 0) STATE.questions = data.questions;
-            if(Array.isArray(data.roster) && data.roster.length > 0) STATE.gradebook = data.roster;
-            document.getElementById('lobbyQuestionCountBadge').textContent = `✓ ${STATE.questions.length} Soal Siap`;
-            return true;
-          }
+        const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+        const cleanCode = String(STATE.classCode || 'JUARA2026').trim().toUpperCase();
+        const rosterSnapshot = STATE.gradebook.map(s => ({
+          absen: String(s.absen).padStart(2, '0'),
+          name: String(s.name).trim(),
+          completed: Number(s.completed) || 0,
+          total: STATE.questions.length,
+          score: Number(s.score) || 0,
+          accuracy: s.accuracy || '0%',
+          syncStatus: s.syncStatus || 'synced'
+        }));
+
+        const packagePayload = {
+          questions: STATE.questions,
+          roster: rosterSnapshot,
+          deletedKeys: STATE.deletedStudentKeys,
+          updatedAt: Date.now()
+        };
+
+        let syncedOk = false;
+
+        // Channel 1: bank_soal_3d
+        try {
+          const r1 = await fetch(`${cleanBaseUrl}/rest/v1/bank_soal_3d?on_conflict=kode_kelas`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': STATE.supabaseConfig.key,
+              'Authorization': `Bearer ${STATE.supabaseConfig.key}`,
+              'Prefer': 'resolution=merge-duplicates'
+            },
+            body: JSON.stringify({
+              kode_kelas: cleanCode,
+              daftar_soal: packagePayload,
+              updated_at: new Date().toISOString()
+            })
+          });
+          if (r1.ok) syncedOk = true;
+        } catch (_) {}
+
+        // Channel 2: hasil_belajar_3d (__PKG_CLASS__)
+        try {
+          await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${encodeURIComponent(cleanCode)}&no_absen=eq.__PKG_CLASS__`, {
+            method: 'DELETE',
+            headers: { 'apikey': STATE.supabaseConfig.key, 'Authorization': `Bearer ${STATE.supabaseConfig.key}` }
+          });
+          const r2 = await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': STATE.supabaseConfig.key,
+              'Authorization': `Bearer ${STATE.supabaseConfig.key}`
+            },
+            body: JSON.stringify({
+              kode_kelas: cleanCode,
+              no_absen: '__PKG_CLASS__',
+              nama_siswa: JSON.stringify(packagePayload),
+              skor: STATE.questions.length,
+              akurasi: 'PKG',
+              waktu_selesai: new Date().toISOString()
+            })
+          });
+          if (r2.ok) syncedOk = true;
+        } catch (_) {}
+
+        const badge = document.getElementById('cloudSyncBadgeTeacher');
+        if (badge) {
+          badge.textContent = syncedOk
+            ? `✓ Tersinkron ke HP (${STATE.questions.length} Soal • ${STATE.gradebook.length} Siswa)`
+            : '⚠ Tersimpan Lokal (Periksa Publishable Key di Tab Cloud)';
         }
-      } catch(e) { console.log(e) }
+        return syncedOk;
+      } catch (_) { return false; }
+    }
+
+    async function fetchQuestionsFromCloud(code) {
+      if (!isAppOnline() || !STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return false;
+      try {
+        const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+        const cleanCode = String(code || STATE.classCode || 'JUARA2026').trim().toUpperCase();
+        let payload = null;
+
+        try {
+          const res1 = await fetch(`${cleanBaseUrl}/rest/v1/bank_soal_3d?kode_kelas=ilike.${encodeURIComponent(cleanCode)}&select=kode_kelas,daftar_soal`, {
+            headers: { 'apikey': STATE.supabaseConfig.key, 'Authorization': `Bearer ${STATE.supabaseConfig.key}`, 'Cache-Control': 'no-cache' }
+          });
+          if (res1.ok) {
+            const rows1 = await res1.json();
+            if (Array.isArray(rows1) && rows1.length > 0 && rows1[0].daftar_soal) payload = rows1[0].daftar_soal;
+          }
+        } catch (_) {}
+
+        if (!payload) {
+          try {
+            const res2 = await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${encodeURIComponent(cleanCode)}&no_absen=eq.__PKG_CLASS__&order=waktu_selesai.desc&limit=1`, {
+              headers: { 'apikey': STATE.supabaseConfig.key, 'Authorization': `Bearer ${STATE.supabaseConfig.key}`, 'Cache-Control': 'no-cache' }
+            });
+            if (res2.ok) {
+              const rows2 = await res2.json();
+              if (Array.isArray(rows2) && rows2.length > 0 && rows2[0].nama_siswa) payload = JSON.parse(rows2[0].nama_siswa);
+            }
+          } catch (_) {}
+        }
+
+        if (payload) {
+          const cloudQuestions = Array.isArray(payload) ? payload : (Array.isArray(payload.questions) ? payload.questions : []);
+          const cloudRoster = (!Array.isArray(payload) && Array.isArray(payload.roster)) ? payload.roster : null;
+          const cloudDeleted = (!Array.isArray(payload) && Array.isArray(payload.deletedKeys)) ? payload.deletedKeys : [];
+
+          if (cloudDeleted.length > 0) STATE.deletedStudentKeys = Array.from(new Set([...STATE.deletedStudentKeys, ...cloudDeleted]));
+          if (cloudQuestions.length > 0) STATE.questions = cloudQuestions;
+          if (cloudRoster && cloudRoster.length > 0) STATE.gradebook = deduplicateGradebook(cloudRoster);
+
+          persistStateToLocal();
+          const badge = document.getElementById('lobbyQuestionCountBadge');
+          if (badge) badge.textContent = `✓ ${STATE.questions.length} Soal Aktif Siap`;
+          return true;
+        }
+      } catch (_) {}
       return false;
     }
 
-    // PERBAIKAN: Fungsi async penuh dengan 'await' agar sinkronisasi data mutlak sebelum masuk 3D
-    async function startStudentMode() {
-      const codeInput = document.getElementById('inputClassCode').value.trim().toUpperCase();
-      const absenInput = document.getElementById('inputAbsen').value.trim();
-      const nameInput = document.getElementById('inputStudentName').value.trim();
-      const btn = document.getElementById('btnStartAdventure');
-      const btnText = document.getElementById('btnStartText');
-
-      if (!codeInput || !absenInput || !nameInput) {
-        return showToast('Peringatan', 'Harap lengkapi Kode Kelas, Nomor Absen, dan Nama', true);
-      }
-
-      btn.disabled = true;
-      btnText.textContent = "MENYINKRONKAN DATA CLOUD...";
-
-      STATE.classCode = codeInput;
-      
-      // Tunggu hasil data dari Supabase (jika online)
-      await fetchQuestionsFromCloud(codeInput);
-
-      const registered = STATE.gradebook.find(s => 
-        String(s.absen).padStart(2,'0') === absenInput.padStart(2,'0') && 
-        s.name.toLowerCase() === nameInput.toLowerCase()
-      );
-
-      if(!registered) {
-        btn.disabled = false;
-        btnText.textContent = "MULAI PETUALANGAN! (TERJUN PAYUNG)";
-        return showToast('Akses Ditolak', `Nama ${nameInput} belum didaftarkan Guru.`, true);
-      }
-
-      // Berhasil
-      STATE.session = {
-        active: true, name: registered.name, absen: registered.absen,
-        score: registered.score || 0, answeredCount: 0, correctCount: 0, answeredMap: {}, activeQuestionIndex: -1
-      };
-
-      // Tampilkan Kanvas dan Sembunyikan Lobi (Mencegah engine merender ukuran 0x0)
-      document.getElementById('lobbyScreen').classList.add('hidden');
-      document.getElementById('mainTopBar').classList.add('hidden');
-      document.getElementById('gameHud').classList.remove('hidden');
-      document.getElementById('gameCanvasContainer').classList.remove('hidden');
-
-      // Tampilkan HUD Mobile secara paksa
-      if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-        document.getElementById('mobileControls').style.display = 'block';
-      }
-
-      document.getElementById('hudPlayerName').textContent = STATE.session.name;
-      document.getElementById('hudPlayerAbsen').textContent = `Absen ${STATE.session.absen}`;
-      document.getElementById('hudScoreText').textContent = STATE.session.score;
-      document.getElementById('hudMissionText').textContent = `0 / ${STATE.questions.length}`;
-
-      // Inisialisasi engine ThreeJS secara utuh
-      initThreeEngine();
-      spawnQuestionCrystals();
-      
-      if(playerGroup) {
-        playerGroup.position.set(0, 35, 0);
-        isParachuting = true;
-      }
-      playTone(550, 0.2);
-
-      forceLandscapeLock();
-      btn.disabled = false;
-      btnText.textContent = "MULAI PETUALANGAN! (TERJUN PAYUNG)";
-    }
-
-    async function submitScoreToCloud() {
-      if(!navigator.onLine || STATE.simulatedOffline) return;
-      const baseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '');
-      const key = STATE.supabaseConfig.key;
-      
+    async function fetchGradesFromCloud(showFeedback = false) {
+      if (!isAppOnline() || !STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return;
       try {
-        await fetch(`${baseUrl}/rest/v1/hasil_belajar_3d`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': key, 'Prefer': 'resolution=merge-duplicates' },
-          body: JSON.stringify({
-            kode_kelas: STATE.classCode,
-            no_absen: STATE.session.absen,
-            nama_siswa: STATE.session.name,
-            skor: STATE.session.score,
-            waktu_selesai: new Date().toISOString()
-          })
+        const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+        const res = await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${encodeURIComponent(STATE.classCode)}&no_absen=neq.__PKG_CLASS__&order=waktu_selesai.desc`, {
+          headers: { 'apikey': STATE.supabaseConfig.key, 'Authorization': `Bearer ${STATE.supabaseConfig.key}`, 'Cache-Control': 'no-cache' }
         });
-      } catch(e) {}
-    }
-
-    async function fetchGradesFromCloud() {
-      if(!navigator.onLine) return;
-      const baseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '');
-      const key = STATE.supabaseConfig.key;
-      try {
-        const res = await fetch(`${baseUrl}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${STATE.classCode}&order=waktu_selesai.desc`, {
-          headers: { 'apikey': key }
-        });
-        if(res.ok) {
-          const rows = await res.json();
+        if (!res.ok) return;
+        const rows = await res.json();
+        if (Array.isArray(rows)) {
+          let changed = false;
           rows.forEach(r => {
-            const idx = STATE.gradebook.findIndex(g => getStudentKey(g.absen, g.name) === getStudentKey(r.no_absen, r.nama_siswa));
-            if(idx > -1 && Number(r.skor) > STATE.gradebook[idx].score) {
-              STATE.gradebook[idx].score = Number(r.skor);
-              STATE.gradebook[idx].completed = STATE.questions.length;
+            const key = getStudentKey(r.no_absen, r.nama_siswa);
+            if (STATE.deletedStudentKeys.includes(key)) return;
+            const idx = STATE.gradebook.findIndex(g => getStudentKey(g.absen, g.name) === key);
+            if (idx >= 0) {
+              const incomingScore = Number(r.skor) || 0;
+              if (incomingScore > STATE.gradebook[idx].score || STATE.gradebook[idx].completed === 0) {
+                STATE.gradebook[idx].score = Math.max(STATE.gradebook[idx].score, incomingScore);
+                STATE.gradebook[idx].accuracy = r.akurasi || STATE.gradebook[idx].accuracy;
+                STATE.gradebook[idx].completed = STATE.questions.length;
+                STATE.gradebook[idx].total = STATE.questions.length;
+                STATE.gradebook[idx].syncStatus = 'synced';
+                changed = true;
+              }
             }
           });
-          renderTeacherView();
+          if (changed) {
+            STATE.gradebook = deduplicateGradebook(STATE.gradebook);
+            persistStateToLocal();
+            if (STATE.view === 'teacher') renderTeacherDashboard();
+          }
+          if (showFeedback) showToast('Data Diperbarui', 'Rekap nilai terbaru dari HP siswa sudah dimuat.');
         }
-      } catch(e){}
+      } catch (_) {}
     }
 
-    // ==================
-    // 4. THREEJS & MULTIPLAYER
-    // ==================
-    let scene, camera, renderer, playerGroup, parachuteGroup;
-    let crystalMeshes = [], closestCrystalObj = null;
-    let cameraAngle = 0, cameraPitch = 0.3;
-    let joystickVector = {x: 0, y: 0};
-    let isParachuting = false, isGrounded = true, playerVelocityY = 0;
+    async function flushSyncQueue(showFeedback = false) {
+      if (!isAppOnline() || STATE.pendingSyncQueue.length === 0) return;
+      if (!STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return;
+      const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+      const remaining = [];
+      let syncedCount = 0;
+
+      for (const item of STATE.pendingSyncQueue) {
+        try {
+          const res = await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': STATE.supabaseConfig.key,
+              'Authorization': `Bearer ${STATE.supabaseConfig.key}`
+            },
+            body: JSON.stringify(item)
+          });
+          if (res.ok) {
+            syncedCount++;
+            const key = getStudentKey(item.no_absen, item.nama_siswa);
+            const gIdx = STATE.gradebook.findIndex(g => getStudentKey(g.absen, g.name) === key);
+            if (gIdx >= 0) STATE.gradebook[gIdx].syncStatus = 'synced';
+          } else { remaining.push(item); }
+        } catch (_) { remaining.push(item); }
+      }
+      STATE.pendingSyncQueue = remaining;
+      persistStateToLocal();
+      if (STATE.view === 'teacher') renderTeacherDashboard();
+      if (showFeedback && syncedCount > 0) showToast('Sinkronisasi Sukses', `${syncedCount} nilai siswa berhasil dikirim.`);
+    }
+
+    // =========================================================================
+    // THREE.JS 3D WORLD ENGINE (DENSE HOUSES, TREES, RIVERS, BRIDGES, CARS)
+    // =========================================================================
+    let scene, camera, renderer;
+    let worldObjectsGroup = new THREE.Group();
+    let playerGroup, parachuteGroup, leftArm, rightArm, leftLeg, rightLeg;
+    let crystalMeshes = [];
+    let animatedProps = [];
+    let solidObstacles = [];
+    let walkablePlatforms = [];
+
+    let cameraAngle = 0, targetCameraAngle = 0;
+    let cameraPitch = 0.34, targetCameraPitch = 0.34;
+    let playerVelocityY = 0, isGrounded = true, isParachuting = false;
+    let closestCrystalObj = null;
+
+    const keysPressed = {};
+    let joystickVector = { x: 0, y: 0 };
+    const raycaster = new THREE.Raycaster();
+    const pointerNDC = new THREE.Vector2();
+
+    function addSolidBoxCollider(cx, cz, halfW, halfD, topY = 12) {
+      solidObstacles.push({ minX: cx - halfW, maxX: cx + halfW, minZ: cz - halfD, maxZ: cz + halfD, topY });
+    }
+
+    function addWalkablePlatform(cx, cz, halfW, halfD, y) {
+      walkablePlatforms.push({ minX: cx - halfW, maxX: cx + halfW, minZ: cz - halfD, maxZ: cz + halfD, y });
+    }
 
     function initThreeEngine() {
       const container = document.getElementById('gameCanvasContainer');
-      container.innerHTML = '';
-      
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x0ea5e9);
-      
-      camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-      camera.position.set(0, 10, 20);
+      scene.fog = new THREE.FogExp2(0x0ea5e9, 0.00115);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true });
+      camera = new THREE.PerspectiveCamera(58, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera.position.set(0, 14, 24);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
       renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      container.innerHTML = '';
       container.appendChild(renderer.domElement);
 
       const hemiLight = new THREE.HemisphereLight(0xffffff, 0x1e293b, 0.95);
-      hemiLight.position.set(0, 100, 0);
+      hemiLight.position.set(0, 140, 0);
       scene.add(hemiLight);
-      
-      const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-      dirLight.position.set(100, 200, 50);
+
+      const dirLight = new THREE.DirectionalLight(0xfffbeb, 1.15);
+      dirLight.position.set(160, 220, 130);
       dirLight.castShadow = true;
+      dirLight.shadow.mapSize.width = 1024;
+      dirLight.shadow.mapSize.height = 1024;
+      dirLight.shadow.camera.near = 10;
+      dirLight.shadow.camera.far = 700;
+      const d = 320;
+      dirLight.shadow.camera.left = -d;
+      dirLight.shadow.camera.right = d;
+      dirLight.shadow.camera.top = d;
+      dirLight.shadow.camera.bottom = -d;
       scene.add(dirLight);
 
-      // Simple Plane
-      const ground = new THREE.Mesh(new THREE.PlaneGeometry(1800, 1800), new THREE.MeshStandardMaterial({color: 0x22c55e}));
-      ground.rotation.x = -Math.PI / 2;
-      ground.receiveShadow = true;
-      scene.add(ground);
-
-      // Player Avatar
-      playerGroup = new THREE.Group();
-      const torso = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.5, 0.8), new THREE.MeshStandardMaterial({color: 0x3b82f6}));
-      torso.position.y = 1.5;
-      playerGroup.add(torso);
-      
-      parachuteGroup = new THREE.Mesh(
-        new THREE.SphereGeometry(3.5, 8, 8, 0, Math.PI*2, 0, Math.PI*0.5),
-        new THREE.MeshStandardMaterial({color: 0xf59e0b, side: THREE.DoubleSide})
-      );
-      parachuteGroup.position.y = 5.5;
-      parachuteGroup.visible = false;
-      playerGroup.add(parachuteGroup);
-      
-      scene.add(playerGroup);
-
+      scene.add(worldObjectsGroup);
+      buildCartoonCharacter();
+      loadWorldEnvironment(STATE.currentWorld);
+      spawnQuestionCrystals();
       setupControls();
+
+      window.addEventListener('resize', onWindowResize);
       animate();
     }
 
+    function onWindowResize() {
+      const container = document.getElementById('gameCanvasContainer');
+      if (!renderer || !camera || !container) return;
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    function buildCartoonCharacter() {
+      playerGroup = new THREE.Group();
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.3, 0.65), new THREE.MeshStandardMaterial({ color: 0x0ea5e9, roughness: 0.4 }));
+      torso.position.y = 1.45; torso.castShadow = true;
+
+      const backpack = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.9, 0.4), new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.5 }));
+      backpack.position.set(0, 1.5, -0.45); backpack.castShadow = true;
+
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.95, 0.95), new THREE.MeshStandardMaterial({ color: 0xfde68a, roughness: 0.35 }));
+      head.position.y = 2.6; head.castShadow = true;
+
+      const cap = new THREE.Mesh(new THREE.BoxGeometry(1.02, 0.32, 1.05), new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.4 }));
+      cap.position.set(0, 3.12, 0.05);
+
+      const visor = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.22, 0.1), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+      visor.position.set(0, 2.65, 0.49);
+
+      const armMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8 });
+      leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.36, 1.1, 0.38), armMat); leftArm.position.set(-0.78, 1.45, 0);
+      rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.36, 1.1, 0.38), armMat); rightArm.position.set(0.78, 1.45, 0);
+
+      const legMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
+      leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.85, 0.44), legMat); leftLeg.position.set(-0.28, 0.42, 0);
+      rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.85, 0.44), legMat); rightLeg.position.set(0.28, 0.42, 0);
+
+      playerGroup.add(torso, backpack, head, cap, visor, leftArm, rightArm, leftLeg, rightLeg);
+
+      parachuteGroup = new THREE.Group();
+      const panelColors = [0xfacc15, 0xf97316, 0x38bdf8, 0xf43f5e, 0x22c55e, 0xa855f7, 0xfbbf24, 0x0ea5e9];
+      for (let i = 0; i < panelColors.length; i++) {
+        const thetaStart = (i / panelColors.length) * Math.PI * 2;
+        const thetaLen = (Math.PI * 2) / panelColors.length;
+        const panelMesh = new THREE.Mesh(
+          new THREE.SphereGeometry(3.4, 8, 6, thetaStart, thetaLen, 0, Math.PI * 0.46),
+          new THREE.MeshStandardMaterial({ color: panelColors[i], roughness: 0.45, side: THREE.DoubleSide })
+        );
+        panelMesh.position.y = 5.4;
+        parachuteGroup.add(panelMesh);
+      }
+      const ropeMat = new THREE.LineBasicMaterial({ color: 0xf8fafc });
+      [[-2.3, 5.4, -2.3], [2.3, 5.4, -2.3], [-2.3, 5.4, 2.3], [2.3, 5.4, 2.3]].forEach(([rx, ry, rz]) => {
+        const ropeGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(rx, ry, rz), new THREE.Vector3(0, 1.9, -0.35)]);
+        parachuteGroup.add(new THREE.Line(ropeGeo, ropeMat));
+      });
+      parachuteGroup.visible = false;
+      playerGroup.add(parachuteGroup);
+      scene.add(playerGroup);
+    }
+
+    function buildCartoonHouse(x, z, wallColor = 0xfef08a, roofColor = 0xef4444) {
+      const house = new THREE.Group();
+      const walls = new THREE.Mesh(new THREE.BoxGeometry(6.8, 4.4, 5.8), new THREE.MeshStandardMaterial({ color: wallColor, roughness: 0.6 }));
+      walls.position.y = 2.2; walls.castShadow = true; walls.receiveShadow = true;
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(5.3, 3.0, 4), new THREE.MeshStandardMaterial({ color: roofColor, roughness: 0.5 }));
+      roof.position.y = 5.9; roof.rotation.y = Math.PI / 4; roof.castShadow = true;
+      const door = new THREE.Mesh(new THREE.BoxGeometry(1.3, 2.3, 0.2), new THREE.MeshStandardMaterial({ color: 0x78350f }));
+      door.position.set(0, 1.15, 2.95);
+      house.add(walls, roof, door);
+      house.position.set(x, 0, z);
+      worldObjectsGroup.add(house);
+      addSolidBoxCollider(x, z, 3.8, 3.3, 10);
+    }
+
+    function buildCitySkyscraper(x, z, width = 10, height = 24, depth = 10, baseColor = 0x3b82f6) {
+      const bld = new THREE.Group();
+      const tower = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), new THREE.MeshStandardMaterial({ color: baseColor, roughness: 0.45 }));
+      tower.position.y = height / 2; tower.castShadow = true; tower.receiveShadow = true;
+      bld.add(tower);
+      const cap = new THREE.Mesh(new THREE.BoxGeometry(width + 0.8, 1.2, depth + 0.8), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+      cap.position.y = height + 0.6;
+      bld.add(cap);
+      const winMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xfbbf24, emissiveIntensity: 0.45 });
+      const floors = Math.floor(height / 5);
+      for (let f = 1; f < floors; f++) {
+        const wy = f * 5;
+        const winBox = new THREE.Mesh(new THREE.BoxGeometry(width + 0.2, 1.2, depth + 0.2), winMat);
+        winBox.position.y = wy;
+        bld.add(winBox);
+      }
+      bld.position.set(x, 0, z);
+      worldObjectsGroup.add(bld);
+      addSolidBoxCollider(x, z, width / 2 + 0.5, depth / 2 + 0.5, height + 2);
+    }
+
+    function buildCartoonTree(x, z, scale = 1) {
+      const tree = new THREE.Group();
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.45 * scale, 0.65 * scale, 3.2 * scale, 7), new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.85 }));
+      trunk.position.y = 1.6 * scale; trunk.castShadow = true;
+      const foliage = new THREE.Mesh(new THREE.DodecahedronGeometry(2.2 * scale, 1), new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.65 }));
+      foliage.position.y = 4.1 * scale; foliage.castShadow = true;
+      tree.add(trunk, foliage);
+      tree.position.set(x, 0, z);
+      worldObjectsGroup.add(tree);
+      addSolidBoxCollider(x, z, 0.9 * scale, 0.9 * scale, 6);
+    }
+
+    function buildWalkingCitizen(x, z, axis = 'x', range = 18, speed = 2.6, shirtHex = 0xec4899, isAstronaut = false) {
+      const npc = new THREE.Group();
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.95, 1.15, 0.55), new THREE.MeshStandardMaterial({ color: isAstronaut ? 0xf8fafc : shirtHex }));
+      torso.position.y = 1.35;
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.82, 0.82), new THREE.MeshStandardMaterial({ color: isAstronaut ? 0x38bdf8 : 0xfde047 }));
+      head.position.y = 2.35;
+      const legMat = new THREE.MeshStandardMaterial({ color: isAstronaut ? 0xe2e8f0 : 0x1e293b });
+      const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.75, 0.38), legMat); lLeg.position.set(-0.24, 0.38, 0);
+      const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.75, 0.38), legMat); rLeg.position.set(0.24, 0.38, 0);
+      npc.add(torso, head, lLeg, rLeg);
+      npc.position.set(x, 0, z);
+      worldObjectsGroup.add(npc);
+      animatedProps.push({ type: 'npc', mesh: npc, lLeg, rLeg, originX: x, originZ: z, axis, range, speed, phase: Math.random() * Math.PI * 2 });
+    }
+
+    function buildClimbableStairs(startX, startZ, stepCount = 6, colorHex = 0x38bdf8) {
+      const stairMat = new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.4 });
+      for (let i = 0; i < stepCount; i++) {
+        const h = (i + 1) * 0.65;
+        const stepZ = startZ - i * 1.4;
+        const step = new THREE.Mesh(new THREE.BoxGeometry(4.6, h, 1.5), stairMat);
+        step.position.set(startX, h / 2, stepZ);
+        worldObjectsGroup.add(step);
+        addWalkablePlatform(startX, stepZ, 2.3, 0.8, h);
+      }
+      const deckZ = startZ - stepCount * 1.4 - 1.5;
+      const deckH = stepCount * 0.65;
+      const deck = new THREE.Mesh(new THREE.BoxGeometry(5.6, deckH, 4.4), new THREE.MeshStandardMaterial({ color: 0x1d4ed8 }));
+      deck.position.set(startX, deckH / 2, deckZ);
+      worldObjectsGroup.add(deck);
+      addWalkablePlatform(startX, deckZ, 2.8, 2.2, deckH);
+    }
+
+    function buildCartoonCar(radius, speed, offsetAngle, bodyColor = 0xef4444) {
+      const car = new THREE.Group();
+      const chassis = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.9, 4.4), new THREE.MeshStandardMaterial({ color: bodyColor }));
+      chassis.position.y = 0.75;
+      const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.75, 2.3), new THREE.MeshStandardMaterial({ color: 0xe0f2fe }));
+      cabin.position.set(0, 1.5, -0.2);
+      car.add(chassis, cabin);
+      worldObjectsGroup.add(car);
+      animatedProps.push({ type: 'car', mesh: car, radius, speed, angle: offsetAngle });
+    }
+
+    function buildStraightLaneCar(fixedCoord, axis = 'x', span = 560, speed = 22, offset = 0, bodyColor = 0x3b82f6) {
+      const car = new THREE.Group();
+      const chassis = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.95, 4.5), new THREE.MeshStandardMaterial({ color: bodyColor }));
+      chassis.position.y = 0.75;
+      const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.05, 0.75, 2.3), new THREE.MeshStandardMaterial({ color: 0xe0f2fe }));
+      cabin.position.set(0, 1.5, -0.2);
+      car.add(chassis, cabin);
+      worldObjectsGroup.add(car);
+      animatedProps.push({ type: 'laneCar', mesh: car, fixedCoord, axis, span, speed, pos: offset });
+    }
+
+    function buildRiverAndSuspensionBridge(riverZ = -48, bridgeXs = [-345, -230, -115, 0, 115, 230, 345]) {
+      const river = new THREE.Mesh(new THREE.PlaneGeometry(1600, 13), new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.2 }));
+      river.rotation.x = -Math.PI / 2; river.position.set(0, 0.05, riverZ);
+      worldObjectsGroup.add(river);
+
+      const sortedBridges = [...bridgeXs].sort((a, b) => a - b);
+      let cursorX = -800;
+      sortedBridges.forEach(bx => {
+        const leftEdge = bx - 4.8;
+        if (leftEdge > cursorX) {
+          const segWidth = leftEdge - cursorX;
+          addSolidBoxCollider(cursorX + segWidth / 2, riverZ, segWidth / 2, 5.6, 6);
+        }
+        cursorX = bx + 4.8;
+      });
+      if (800 > cursorX) {
+        const segWidth = 800 - cursorX;
+        addSolidBoxCollider(cursorX + segWidth / 2, riverZ, segWidth / 2, 5.6, 6);
+      }
+
+      const plankMat = new THREE.MeshStandardMaterial({ color: 0xb45309 });
+      const postMat = new THREE.MeshStandardMaterial({ color: 0x78350f });
+      const ropeMat = new THREE.MeshStandardMaterial({ color: 0xfde047 });
+
+      sortedBridges.forEach(bx => {
+        const bridgeGroup = new THREE.Group();
+        for (let i = -6; i <= 6; i++) {
+          const archY = Math.cos((i / 6) * (Math.PI / 2)) * 0.75 + 0.25;
+          const plank = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.3, 1.0), plankMat);
+          plank.position.set(bx, archY, riverZ + i * 1.1);
+          bridgeGroup.add(plank);
+          addWalkablePlatform(bx, riverZ + i * 1.1, 4.1, 0.65, archY + 0.15);
+        }
+        [[-4.0, riverZ - 6.6], [4.0, riverZ - 6.6], [-4.0, riverZ + 6.6], [4.0, riverZ + 6.6]].forEach(([px, pz]) => {
+          const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.55, 3.5, 0.55), postMat);
+          pillar.position.set(bx + px, 1.75, pz);
+          bridgeGroup.add(pillar);
+        });
+        [-4.0, 4.0].forEach(rx => {
+          const rail = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.18, 13.6), ropeMat);
+          rail.position.set(bx + rx, 2.75, riverZ);
+          bridgeGroup.add(rail);
+        });
+        worldObjectsGroup.add(bridgeGroup);
+      });
+    }
+
+    function buildFlyingCreature(y, radius, speed, offsetAngle, isFish = false) {
+      const creature = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.ConeGeometry(0.55, 1.8, 6), new THREE.MeshStandardMaterial({ color: isFish ? 0xfacc15 : 0xf8fafc }));
+      body.rotation.x = Math.PI / 2;
+      const wing = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.1, 0.6), new THREE.MeshStandardMaterial({ color: isFish ? 0xf97316 : 0x94a3b8 }));
+      creature.add(body, wing);
+      worldObjectsGroup.add(creature);
+      animatedProps.push({ type: 'flyer', mesh: creature, baseY: y, radius, speed, angle: offsetAngle });
+    }
+
+    function loadWorldEnvironment(worldType) {
+      while (worldObjectsGroup.children.length > 0) worldObjectsGroup.remove(worldObjectsGroup.children[0]);
+      animatedProps = [];
+      solidObstacles = [];
+      walkablePlatforms = [];
+
+      let groundColor = 0x22c55e;
+      let skyColor = 0x0ea5e9;
+      if (worldType === 'nusantara') { groundColor = 0x15803d; skyColor = 0x38bdf8; }
+      else if (worldType === 'laut') { groundColor = 0xd97706; skyColor = 0x0369a1; }
+      else if (worldType === 'angkasa') { groundColor = 0x1e1b4b; skyColor = 0x050814; }
+
+      scene.background = new THREE.Color(skyColor);
+      scene.fog = new THREE.FogExp2(skyColor, 0.00115);
+
+      const ground = new THREE.Mesh(new THREE.PlaneGeometry(1600, 1600), new THREE.MeshStandardMaterial({ color: groundColor, roughness: 0.85 }));
+      ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true;
+      worldObjectsGroup.add(ground);
+
+      const bridgeXs = [-345, -230, -115, 0, 115, 230, 345];
+      buildRiverAndSuspensionBridge(-295, bridgeXs);
+      buildRiverAndSuspensionBridge(-48, bridgeXs);
+      buildRiverAndSuspensionBridge(195, bridgeXs);
+
+      const housePalette = [[0xfef08a, 0xef4444], [0xbae6fd, 0x2563eb], [0xfed7aa, 0xea580c], [0xfbcfe8, 0xdb2777], [0xd9f99d, 0x16a34a]];
+      const isRiverZone = (z) => Math.abs(z - (-295)) < 13 || Math.abs(z - (-48)) < 13 || Math.abs(z - 195) < 13;
+
+      if (worldType === 'kota') {
+        [52, 135, 245, 360].forEach(rIn => {
+          const ringRoad = new THREE.Mesh(new THREE.RingGeometry(rIn, rIn + 11, 72), new THREE.MeshStandardMaterial({ color: 0x334155, side: THREE.DoubleSide }));
+          ringRoad.rotation.x = -Math.PI / 2; ringRoad.position.y = 0.03;
+          worldObjectsGroup.add(ringRoad);
+        });
+
+        const nsRoads = [-345, -230, -115, 0, 115, 230, 345];
+        const ewRoads = [-355, -235, -125, 24, 145, 255, 375];
+        nsRoads.forEach(rx => {
+          const roadNS = new THREE.Mesh(new THREE.PlaneGeometry(10, 1300), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+          roadNS.rotation.x = -Math.PI / 2; roadNS.position.set(rx, 0.02, 0);
+          worldObjectsGroup.add(roadNS);
+        });
+        ewRoads.forEach(rz => {
+          const roadEW = new THREE.Mesh(new THREE.PlaneGeometry(1300, 10), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+          roadEW.rotation.x = -Math.PI / 2; roadEW.position.set(0, 0.02, rz);
+          worldObjectsGroup.add(roadEW);
+        });
+
+        // Dense Skyscrapers + Dense Houses + Dense Trees across all blocks
+        const towerColors = [0x3b82f6, 0x0ea5e9, 0x6366f1, 0x1d4ed8, 0x0284c7];
+        const blockCoords = [-285, -172, -62, 62, 172, 285];
+        blockCoords.forEach((bx, ix) => {
+          blockCoords.forEach((bz, iz) => {
+            if (isRiverZone(bz)) return;
+            if (Math.abs(bx) < 70 && Math.abs(bz) < 40) return;
+            if ((ix + iz) % 2 === 0) {
+              buildCitySkyscraper(bx, bz, 12, 26 + ((ix * 7 + iz * 5) % 18), 12, towerColors[(ix + iz) % towerColors.length]);
+              const [wc, rc] = housePalette[(ix + iz) % housePalette.length];
+              buildCartoonHouse(bx + 18, bz + 14, wc, rc);
+              buildCartoonTree(bx - 16, bz - 14, 1.1);
+            } else {
+              const [wc1, rc1] = housePalette[(ix + iz) % housePalette.length];
+              const [wc2, rc2] = housePalette[(ix + iz + 2) % housePalette.length];
+              buildCartoonHouse(bx - 12, bz - 10, wc1, rc1);
+              buildCartoonHouse(bx + 12, bz + 10, wc2, rc2);
+              buildCartoonTree(bx - 14, bz + 12, 1.05);
+              buildCartoonTree(bx + 14, bz - 12, 1.15);
+            }
+          });
+        });
+
+        // Extra dense trees around the city
+        for (let i = 0; i < 160; i++) {
+          const ang = (i / 160) * Math.PI * 2;
+          const dist = [38, 88, 155, 215, 295, 385, 460][i % 7];
+          const tx = Math.cos(ang) * dist;
+          const tz = Math.sin(ang) * dist;
+          const onRoad = nsRoads.some(rx => Math.abs(tx - rx) < 9) || ewRoads.some(rz => Math.abs(tz - rz) < 9);
+          if (!onRoad && !isRiverZone(tz) && !isPositionBlocked(tx, tz)) {
+            buildCartoonTree(tx, tz, 0.95 + (i % 3) * 0.22);
+          }
+        }
+
+        const carColors = [0xef4444, 0xfbbf24, 0x38bdf8, 0x22c55e, 0xa855f7, 0xf97316];
+        [0, 1.57, 3.14, 4.71].forEach((a, i) => buildCartoonCar(57, 0.36, a, carColors[i % carColors.length]));
+        [0.4, 2.0, 3.6, 5.2].forEach((a, i) => buildCartoonCar(140, 0.24, a, carColors[(i + 2) % carColors.length]));
+        ewRoads.forEach((rz, idx) => {
+          buildStraightLaneCar(rz - 2.3, 'x', 540, 22, -400 + idx * 110, carColors[idx % carColors.length]);
+        });
+        nsRoads.forEach((rx, idx) => {
+          buildStraightLaneCar(rx + 2.3, 'z', 540, -22, 400 - idx * 110, carColors[(idx + 2) % carColors.length]);
+        });
+
+        [[-14, 16, 'x', 22], [14, 16, 'x', 22], [-106, -15, 'z', 26], [106, -15, 'z', 26], [-95, 136, 'x', 30], [95, 136, 'x', 30]].forEach(([cx, cz, ax, rng], i) => {
+          buildWalkingCitizen(cx, cz, ax, rng, 2.4, [0xec4899, 0x10b981, 0xf59e0b, 0x8b5cf6][i % 4], false);
+        });
+        buildClimbableStairs(-16, 12, 6, 0x38bdf8);
+        buildClimbableStairs(24, -75, 6, 0xf59e0b);
+        buildClimbableStairs(-95, 95, 6, 0x10b981);
+
+      } else if (worldType === 'nusantara') {
+        // Candi + Dense Traditional Houses & Lush Forest
+        [[0, -95, [26, 20, 14, 8]], [-145, -125, [18, 13, 8]], [145, -125, [18, 13, 8]], [-185, 95, [20, 14, 9]], [185, 95, [20, 14, 9]], [0, 285, [22, 16, 10]]].forEach(([cx, cz, tiers]) => {
+          tiers.forEach((size, idx) => {
+            const tier = new THREE.Mesh(new THREE.BoxGeometry(size, 3.4, size), new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.85 }));
+            tier.position.set(cx, 1.7 + idx * 3.4, cz);
+            worldObjectsGroup.add(tier);
+          });
+          addSolidBoxCollider(cx, cz, tiers[0] / 2 + 0.5, tiers[0] / 2 + 0.5, tiers.length * 3.6);
+        });
+
+        for (let i = 0; i < 42; i++) {
+          const ang = (i / 42) * Math.PI * 2;
+          const dist = 48 + (i % 6) * 68;
+          const hx = Math.cos(ang) * dist;
+          const hz = Math.sin(ang) * dist;
+          if (!isRiverZone(hz) && !isPositionBlocked(hx, hz)) {
+            buildCartoonHouse(hx, hz, 0xd97706, 0x78350f);
+          }
+        }
+        for (let i = 0; i < 180; i++) {
+          const ang = (i / 180) * Math.PI * 2;
+          const r = 32 + (i % 9) * 52;
+          const rx = Math.cos(ang) * r;
+          const rz = Math.sin(ang) * r;
+          if (!isRiverZone(rz) && Math.abs(rx) > 10 && !isPositionBlocked(rx, rz)) {
+            buildCartoonTree(rx, rz, 1.15 + (i % 3) * 0.22);
+          }
+        }
+        for (let b = 0; b < 32; b++) buildFlyingCreature(15 + (b % 5) * 4, 32 + b * 14, 0.5, b * 0.6, false);
+        buildClimbableStairs(-18, 10, 6, 0x94a3b8);
+
+      } else if (worldType === 'laut') {
+        const coralColors = [0xec4899, 0xa855f7, 0xf97316, 0x14b8a6, 0xfacc15, 0x38bdf8];
+        const kelpMat = new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.6 });
+        for (let i = 0; i < 210; i++) {
+          const ang = (i / 210) * Math.PI * 2;
+          const r = 26 + (i % 10) * 48;
+          const cx = Math.cos(ang) * r;
+          const cz = Math.sin(ang) * r;
+          if (!isRiverZone(cz) && Math.abs(cx) > 10) {
+            if (i % 3 === 0) {
+              const kelpH = 5 + (i % 4) * 2.2;
+              const kelp = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.45, kelpH, 7), kelpMat);
+              kelp.position.set(cx, kelpH / 2, cz);
+              worldObjectsGroup.add(kelp);
+              addSolidBoxCollider(cx, cz, 0.6, 0.6, kelpH);
+            } else {
+              const scale = 1.9 + (i % 4) * 0.85;
+              const coral = new THREE.Mesh(new THREE.DodecahedronGeometry(scale, 1), new THREE.MeshStandardMaterial({ color: coralColors[i % coralColors.length] }));
+              coral.position.set(cx, scale * 0.65, cz);
+              worldObjectsGroup.add(coral);
+              addSolidBoxCollider(cx, cz, scale * 0.85, scale * 0.85, 6);
+            }
+          }
+        }
+        for (let f = 0; f < 48; f++) buildFlyingCreature(4 + (f % 6) * 3.2, 24 + f * 10, 0.62, f * 0.45, true);
+        buildClimbableStairs(-18, 10, 6, 0x22d3ee);
+
+      } else if (worldType === 'angkasa') {
+        [[85, 78, -165, 22, 0x9333ea, 0x38bdf8], [-145, 88, -210, 20, 0xf97316, 0xfde047], [185, 75, 165, 18, 0x06b6d4, 0xa855f7], [-215, 82, 225, 21, 0xec4899, 0x22d3ee], [245, 92, -235, 19, 0x3b82f6, 0xfbbf24]].forEach(([px, py, pz, rad, pCol, rCol]) => {
+          const planet = new THREE.Mesh(new THREE.SphereGeometry(rad, 20, 20), new THREE.MeshStandardMaterial({ color: pCol }));
+          planet.position.set(px, py, pz);
+          worldObjectsGroup.add(planet);
+          const ring = new THREE.Mesh(new THREE.RingGeometry(rad * 1.35, rad * 1.9, 36), new THREE.MeshBasicMaterial({ color: rCol, side: THREE.DoubleSide }));
+          ring.position.copy(planet.position); ring.rotation.x = Math.PI / 2.6;
+          worldObjectsGroup.add(ring);
+        });
+        for (let i = 0; i < 36; i++) {
+          const ang = (i / 36) * Math.PI * 2;
+          const dist = 52 + (i % 6) * 65;
+          const sx = Math.cos(ang) * dist;
+          const sz = Math.sin(ang) * dist;
+          if (!isRiverZone(sz) && !isPositionBlocked(sx, sz)) {
+            buildCitySkyscraper(sx, sz, 11, 16 + (i % 4) * 4, 11, 0x4f46e5);
+          }
+        }
+        for (let u = 0; u < 32; u++) buildFlyingCreature(12 + (u % 5) * 4, 30 + u * 14, 0.68, u * 0.9, false);
+        buildClimbableStairs(-18, 10, 6, 0x818cf8);
+      }
+    }
+
+    function isPositionBlocked(x, z) {
+      const inRiver = Math.abs(z - (-295)) < 9.5 || Math.abs(z - (-48)) < 9.5 || Math.abs(z - 195) < 9.5;
+      if (inRiver && ![-345, -230, -115, 0, 115, 230, 345].some(bx => Math.abs(x - bx) < 4.5)) return true;
+      for (const box of solidObstacles) {
+        if (x >= box.minX - 2.6 && x <= box.maxX + 2.6 && z >= box.minZ - 2.6 && z <= box.maxZ + 2.6) return true;
+      }
+      return false;
+    }
+
     function spawnQuestionCrystals() {
-      if(!scene) return;
-      crystalMeshes.forEach(c => scene.remove(c.group));
+      if (!scene) return;
+      crystalMeshes.forEach(item => scene.remove(item.group));
       crystalMeshes = [];
-      
-      STATE.questions.forEach((q, i) => {
-        const grp = new THREE.Group();
-        const cry = new THREE.Mesh(new THREE.OctahedronGeometry(1.2), new THREE.MeshStandardMaterial({color: 0xfbbf24, emissive: 0xfbbf24, emissiveIntensity: 0.4}));
-        cry.position.y = 2.5;
-        grp.add(cry);
+      const total = STATE.questions.length;
+      const goldenAngle = 2.39996323;
 
-        const r = 30 + (i*15);
-        const a = i * 2.4;
-        grp.position.set(Math.cos(a)*r, 0, Math.sin(a)*r);
-        scene.add(grp);
-        crystalMeshes.push({group: grp, crystal: cry, index: i});
+      STATE.questions.forEach((q, idx) => {
+        const group = new THREE.Group();
+        const base = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.6, 0.7, 12), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
+        base.position.y = 0.35; group.add(base);
+
+        const ring = new THREE.Mesh(new THREE.RingGeometry(1.6, 2.0, 24), new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide }));
+        ring.rotation.x = -Math.PI / 2; ring.position.y = 0.06; group.add(ring);
+
+        const answeredInfo = STATE.session.answeredMap[q.id];
+        let crystalColor = answeredInfo ? (answeredInfo.isCorrect ? 0x22c55e : 0xf43f5e) : 0xfbbf24;
+
+        const crystal = new THREE.Mesh(
+          new THREE.OctahedronGeometry(1.15, 0),
+          new THREE.MeshStandardMaterial({ color: crystalColor, emissive: crystalColor, emissiveIntensity: 0.35 })
+        );
+        crystal.position.y = 2.5;
+        crystal.userData = { questionIndex: idx };
+        group.add(crystal);
+
+        const beam = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.28, 0.65, 58, 10, 1, true),
+          new THREE.MeshBasicMaterial({ color: crystalColor, transparent: true, opacity: 0.22, side: THREE.DoubleSide })
+        );
+        beam.position.y = 29;
+        group.add(beam);
+
+        const maxSpread = Math.min(480, Math.max(220, 160 + total * 7));
+        let radius = 26 + Math.sqrt((idx + 0.5) / Math.max(total, 1)) * maxSpread;
+        let angle = idx * goldenAngle + 0.4;
+        let x = Math.cos(angle) * radius;
+        let z = Math.sin(angle) * radius;
+
+        let attempts = 0;
+        while (isPositionBlocked(x, z) && attempts < 48) {
+          angle += 0.35;
+          radius += 5.0;
+          x = Math.cos(angle) * radius;
+          z = Math.sin(angle) * radius;
+          attempts++;
+        }
+
+        group.position.set(x, 0, z);
+        scene.add(group);
+        addSolidBoxCollider(x, z, 1.35, 1.35, 4);
+        crystalMeshes.push({ group, crystal, beam, question: q, index: idx });
       });
     }
 
-    function setupControls() {
-      const pad = document.getElementById('cameraTouchPad');
-      let pId = null, lx=0, ly=0;
-      pad.addEventListener('pointerdown', e => { pId = e.pointerId; lx = e.clientX; ly = e.clientY; pad.setPointerCapture(pId); });
-      pad.addEventListener('pointermove', e => {
-        if(e.pointerId !== pId) return;
-        cameraAngle -= (e.clientX - lx) * 0.005;
-        cameraPitch += (e.clientY - ly) * 0.005;
-        lx = e.clientX; ly = e.clientY;
-      });
-      pad.addEventListener('pointerup', e => { if(e.pointerId === pId) pId = null; });
-      pad.addEventListener('pointercancel', e => { if(e.pointerId === pId) pId = null; });
-
-      // Analog
-      const zone = document.getElementById('joystickZone');
-      const knob = document.getElementById('joystickKnob');
-      let jId = null;
-      const updateJ = (ex, ey) => {
-        const r = zone.getBoundingClientRect();
-        const cx = r.left + r.width/2;
-        const cy = r.top + r.height/2;
-        let dx = ex - cx; let dy = ey - cy;
-        const max = r.width*0.35;
-        const dist = Math.hypot(dx, dy);
-        if(dist > max) { dx = (dx/dist)*max; dy = (dy/dist)*max; }
-        knob.style.transform = `translate(${dx}px, ${dy}px)`;
-        joystickVector = {x: dx/max, y: dy/max};
-      };
-      
-      zone.addEventListener('pointerdown', e => { e.stopPropagation(); jId = e.pointerId; zone.setPointerCapture(jId); updateJ(e.clientX, e.clientY); });
-      zone.addEventListener('pointermove', e => { if(e.pointerId === jId) updateJ(e.clientX, e.clientY); });
-      const resetJ = e => { if(e.pointerId === jId) { jId = null; joystickVector = {x:0,y:0}; knob.style.transform = `translate(0px,0px)`; }};
-      zone.addEventListener('pointerup', resetJ);
-      zone.addEventListener('pointercancel', resetJ);
-
-      document.getElementById('btnMobileJump').addEventListener('pointerdown', e => {
-        e.stopPropagation();
-        if(isGrounded && !isParachuting) { playerVelocityY = 12; isGrounded = false; }
-      });
-    }
-
-    // MULTIPLAYER MODUL (Sinkronisasi & Render Teman)
+    // =========================================================================
+    // LIVE MULTIPLAYER IN SAME ROOM (room_players_3d)
+    // =========================================================================
     const MultiplayerManager = {
-      players: {},
+      peers: {},
       lastSync: 0,
       async tick(px, py, pz, pyaw) {
+        if (!STATE.session.active || !isAppOnline()) return;
+        if (!STATE.supabaseConfig.url || !STATE.supabaseConfig.key) return;
         const now = Date.now();
         if (now - this.lastSync < 2500) return;
         this.lastSync = now;
 
-        const base = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '');
+        const cleanBase = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
         const key = STATE.supabaseConfig.key;
-        if(!base || !key || !navigator.onLine) return;
+        const code = encodeURIComponent(STATE.classCode);
+        const world = encodeURIComponent(STATE.currentWorld);
 
         try {
-          // Kirim Posisi
-          await fetch(`${base}/rest/v1/room_players_3d`, {
+          await fetch(`${cleanBase}/rest/v1/room_players_3d?on_conflict=kode_kelas,no_absen`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'apikey': key, 'Prefer': 'resolution=merge-duplicates' },
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': key,
+              'Authorization': `Bearer ${key}`,
+              'Prefer': 'resolution=merge-duplicates'
+            },
             body: JSON.stringify({
-              kode_kelas: STATE.classCode, no_absen: STATE.session.absen, nama_siswa: STATE.session.name,
-              alam: STATE.currentWorld, pos_x: px, pos_y: py, pos_z: pz, rot_y: pyaw, last_seen: new Date().toISOString()
+              kode_kelas: STATE.classCode,
+              no_absen: STATE.session.absen,
+              nama_siswa: STATE.session.name,
+              alam: STATE.currentWorld,
+              pos_x: px, pos_y: py, pos_z: pz, rot_y: pyaw,
+              last_seen: new Date().toISOString()
             })
           });
 
-          // Tarik Teman
-          const res = await fetch(`${base}/rest/v1/room_players_3d?kode_kelas=eq.${STATE.classCode}&alam=eq.${STATE.currentWorld}`, {
-            headers: { 'apikey': key }
+          const res = await fetch(`${cleanBase}/rest/v1/room_players_3d?kode_kelas=ilike.${code}&alam=eq.${world}`, {
+            headers: { 'apikey': key, 'Authorization': `Bearer ${key}`, 'Cache-Control': 'no-cache' }
           });
-          const data = await res.json();
+          if (!res.ok) return;
+          const rows = await res.json();
           const activeSet = new Set();
-          const cutoff = new Date(Date.now() - 15000);
+          const cutoff = Date.now() - 18000;
+          let onlineCount = 1;
 
-          data.forEach(p => {
-            if(p.no_absen === STATE.session.absen) return;
-            if(new Date(p.last_seen) < cutoff) return;
-            activeSet.add(p.no_absen);
+          rows.forEach(p => {
+            if (String(p.no_absen) === String(STATE.session.absen)) return;
+            if (new Date(p.last_seen).getTime() < cutoff) return;
+            onlineCount++;
+            activeSet.add(String(p.no_absen));
 
-            if(!this.players[p.no_absen]) {
-              // Buat avatar
-              const mat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
-              const m = new THREE.Mesh(new THREE.BoxGeometry(1.2,1.5,0.8), mat);
-              
-              // Nama Canvas
+            if (!this.peers[p.no_absen]) {
+              const peerGroup = new THREE.Group();
+              const palette = [0xec4899, 0x10b981, 0xf59e0b, 0x8b5cf6, 0x06b6d4, 0xf43f5e];
+              const col = palette[Math.abs(parseInt(p.no_absen, 10) || 0) % palette.length];
+              const body = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.4, 0.7), new THREE.MeshStandardMaterial({ color: col }));
+              body.position.y = 1.4;
+              const head = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), new THREE.MeshStandardMaterial({ color: 0xfde68a }));
+              head.position.y = 2.55;
+
               const cvs = document.createElement('canvas');
               cvs.width = 256; cvs.height = 64;
               const ctx = cvs.getContext('2d');
-              ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0,0,256,64);
-              ctx.fillStyle = 'white'; ctx.font = '24px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(p.nama_siswa, 128, 40);
-              const tex = new THREE.CanvasTexture(cvs);
-              const spr = new THREE.Sprite(new THREE.SpriteMaterial({map: tex}));
-              spr.position.y = 2.5; spr.scale.set(4,1,1);
-              m.add(spr);
-              
-              scene.add(m);
-              this.players[p.no_absen] = m;
+              ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+              ctx.fillRect(0, 8, 256, 48);
+              ctx.fillStyle = '#fde047';
+              ctx.font = 'bold 24px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.fillText(`${p.no_absen}. ${p.nama_siswa}`, 128, 40);
+              const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cvs) }));
+              spr.position.y = 3.7;
+              spr.scale.set(4.5, 1.1, 1);
+
+              peerGroup.add(body, head, spr);
+              scene.add(peerGroup);
+              this.peers[p.no_absen] = peerGroup;
             }
-
-            const fm = this.players[p.no_absen];
-            fm.position.set(p.pos_x, p.pos_y, p.pos_z);
-            fm.rotation.y = p.rot_y;
+            this.peers[p.no_absen].position.set(Number(p.pos_x) || 0, Number(p.pos_y) || 0, Number(p.pos_z) || 0);
+            this.peers[p.no_absen].rotation.y = Number(p.rot_y) || 0;
           });
 
-          Object.keys(this.players).forEach(k => {
-            if(!activeSet.has(k)) { scene.remove(this.players[k]); delete this.players[k]; }
+          Object.keys(this.peers).forEach(k => {
+            if (!activeSet.has(k)) { scene.remove(this.peers[k]); delete this.peers[k]; }
           });
 
-        } catch(e){}
+          const peerLabel = document.getElementById('hudOnlinePeersText');
+          if (peerLabel) peerLabel.textContent = `${onlineCount} Siswa`;
+        } catch (_) {}
+      }
+    };
+
+    // =========================================================================
+    // CONTROLS, RADAR & ANIMATION LOOP
+    // =========================================================================
+    function setupControls() {
+      window.addEventListener('keydown', (e) => {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+        keysPressed[e.code] = true;
+        if (e.code === 'Space' && STATE.session.active && isGrounded && !isParachuting) {
+          playerVelocityY = 12.5; isGrounded = false; playTone(360, 0.12, 'triangle');
+        }
+        if (e.code === 'KeyE' && STATE.session.active && closestCrystalObj) openQuizModal(closestCrystalObj.index);
+      });
+      window.addEventListener('keyup', (e) => { keysPressed[e.code] = false; });
+
+      const touchPad = document.getElementById('cameraTouchPad');
+      let camPointerId = null, lastCamX = 0, lastCamY = 0, dragStartX = 0, dragStartY = 0;
+
+      if (touchPad) {
+        touchPad.addEventListener('pointerdown', (e) => {
+          if (!STATE.session.active || camPointerId !== null) return;
+          camPointerId = e.pointerId;
+          lastCamX = dragStartX = e.clientX;
+          lastCamY = dragStartY = e.clientY;
+        });
+      }
+      window.addEventListener('pointermove', (e) => {
+        if (e.pointerId !== camPointerId) return;
+        targetCameraAngle -= (e.clientX - lastCamX) * 0.0068;
+        targetCameraPitch = Math.max(0.12, Math.min(1.05, targetCameraPitch + (e.clientY - lastCamY) * 0.0045));
+        lastCamX = e.clientX; lastCamY = e.clientY;
+      });
+      const endCam = (e) => {
+        if (e.pointerId !== camPointerId) return;
+        const dist = Math.hypot(e.clientX - dragStartX, e.clientY - dragStartY);
+        camPointerId = null;
+        if (dist < 10 && STATE.session.active && camera && renderer) {
+          const rect = renderer.domElement.getBoundingClientRect();
+          pointerNDC.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+          pointerNDC.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+          raycaster.setFromCamera(pointerNDC, camera);
+          const hits = raycaster.intersectObjects(crystalMeshes.map(c => c.crystal), false);
+          if (hits.length > 0 && typeof hits[0].object.userData.questionIndex === 'number') {
+            openQuizModal(hits[0].object.userData.questionIndex);
+          }
+        }
+      };
+      window.addEventListener('pointerup', endCam);
+      window.addEventListener('pointercancel', endCam);
+
+      const joyZone = document.getElementById('joystickZone');
+      const joyKnob = document.getElementById('joystickKnob');
+      let joyPointerId = null;
+      if (joyZone && joyKnob) {
+        const updateJoystick = (clientX, clientY) => {
+          const rect = joyZone.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const maxR = rect.width * 0.36;
+          let dx = clientX - cx, dy = clientY - cy;
+          const d = Math.hypot(dx, dy);
+          if (d > maxR) { dx = (dx / d) * maxR; dy = (dy / d) * maxR; }
+          joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+          joystickVector.x = dx / maxR; joystickVector.y = dy / maxR;
+        };
+        joyZone.addEventListener('pointerdown', (e) => { e.stopPropagation(); joyPointerId = e.pointerId; joyZone.setPointerCapture(e.pointerId); updateJoystick(e.clientX, e.clientY); });
+        joyZone.addEventListener('pointermove', (e) => { if (e.pointerId === joyPointerId) { e.stopPropagation(); updateJoystick(e.clientX, e.clientY); } });
+        const resetJoy = (e) => { if (e.pointerId === joyPointerId) { joyPointerId = null; joyKnob.style.transform = 'translate(0px, 0px)'; joystickVector = { x: 0, y: 0 }; } };
+        joyZone.addEventListener('pointerup', resetJoy);
+        joyZone.addEventListener('pointercancel', resetJoy);
+      }
+
+      const jumpBtn = document.getElementById('btnMobileJump');
+      if (jumpBtn) {
+        jumpBtn.addEventListener('pointerdown', (e) => {
+          e.stopPropagation();
+          if (STATE.session.active && isGrounded && !isParachuting) { playerVelocityY = 12.5; isGrounded = false; playTone(360, 0.12, 'triangle'); }
+        });
       }
     }
 
+    function checkCollisionAt(nx, nz, currentY) {
+      const playerR = 0.85;
+      if (Math.abs(nx) > 760 || Math.abs(nz) > 760) return true;
+      for (const box of solidObstacles) {
+        if (currentY < box.topY - 0.5 && nx + playerR > box.minX && nx - playerR < box.maxX && nz + playerR > box.minZ && nz - playerR < box.maxZ) return true;
+      }
+      return false;
+    }
+
+    function getFloorHeightAt(x, z, currentY) {
+      let maxFloor = 0;
+      for (const plat of walkablePlatforms) {
+        if (x >= plat.minX - 0.5 && x <= plat.maxX + 0.5 && z >= plat.minZ - 0.5 && z <= plat.maxZ + 0.5 && plat.y <= currentY + 0.95 && plat.y > maxFloor) {
+          maxFloor = plat.y;
+        }
+      }
+      return maxFloor;
+    }
+
+    function updateMissionRadar() {
+      const container = document.getElementById('radarDotsContainer');
+      if (!container || !playerGroup) return;
+      const maxRange = Math.min(520, Math.max(240, 180 + STATE.questions.length * 7));
+      const sinA = Math.sin(cameraAngle), cosA = Math.cos(cameraAngle);
+      let html = '';
+
+      crystalMeshes.forEach(item => {
+        const dx = item.group.position.x - playerGroup.position.x;
+        const dz = item.group.position.z - playerGroup.position.z;
+        let rx = (dx * cosA + dz * (-sinA)) / maxRange;
+        let ry = (dx * (-sinA) + dz * (-cosA)) / maxRange;
+        const mag = Math.hypot(rx, ry);
+        if (mag > 1) { rx /= mag; ry /= mag; }
+        const ans = STATE.session.answeredMap[item.question.id];
+        const dotClass = ans ? (ans.isCorrect ? 'bg-emerald-400' : 'bg-rose-400') : 'bg-amber-400 radar-pulse';
+        html += `<span style="left:${(50 + rx * 42).toFixed(1)}%;top:${(50 - ry * 42).toFixed(1)}%" class="absolute -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full ${dotClass}"></span>`;
+      });
+
+      Object.values(MultiplayerManager.peers).forEach(peer => {
+        const dx = peer.position.x - playerGroup.position.x;
+        const dz = peer.position.z - playerGroup.position.z;
+        let rx = (dx * cosA + dz * (-sinA)) / maxRange;
+        let ry = (dx * (-sinA) + dz * (-cosA)) / maxRange;
+        const mag = Math.hypot(rx, ry);
+        if (mag > 1) { rx /= mag; ry /= mag; }
+        html += `<span style="left:${(50 + rx * 42).toFixed(1)}%;top:${(50 - ry * 42).toFixed(1)}%" class="absolute -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-sky-400"></span>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    let prevFrameTime = performance.now();
     function animate() {
       requestAnimationFrame(animate);
-      if(!scene || !camera) return;
+      const now = performance.now();
+      const dt = Math.min(0.05, (now - prevFrameTime) / 1000);
+      prevFrameTime = now;
 
-      if(STATE.session.active && playerGroup) {
-        // Logika Gerak
-        const speed = isParachuting ? 8 : 12;
-        let mvX = joystickVector.x, mvZ = -joystickVector.y;
-        if(mvX!==0 || mvZ!==0) {
-          const yaw = Math.atan2(mvX, mvZ) + cameraAngle;
-          playerGroup.position.x += Math.sin(yaw) * speed * 0.016;
-          playerGroup.position.z += Math.cos(yaw) * speed * 0.016;
-          playerGroup.rotation.y = yaw;
+      cameraAngle += (targetCameraAngle - cameraAngle) * Math.min(1, dt * 14);
+      cameraPitch += (targetCameraPitch - cameraPitch) * Math.min(1, dt * 14);
+
+      crystalMeshes.forEach((item, i) => {
+        item.crystal.rotation.y += dt * 1.8;
+        item.crystal.position.y = 2.5 + Math.sin(now * 0.003 + i) * 0.25;
+      });
+
+      animatedProps.forEach(prop => {
+        prop.angle = (prop.angle || 0) + (prop.speed || 0) * dt;
+        if (prop.type === 'car') {
+          prop.mesh.position.set(Math.cos(prop.angle) * prop.radius, 0, Math.sin(prop.angle) * prop.radius);
+          prop.mesh.rotation.y = -prop.angle;
+        } else if (prop.type === 'laneCar') {
+          prop.pos += prop.speed * dt;
+          if (prop.pos > prop.span) prop.pos = -prop.span;
+          if (prop.pos < -prop.span) prop.pos = prop.span;
+          if (prop.axis === 'x') { prop.mesh.position.set(prop.pos, 0, prop.fixedCoord); prop.mesh.rotation.y = prop.speed >= 0 ? Math.PI / 2 : -Math.PI / 2; }
+          else { prop.mesh.position.set(prop.fixedCoord, 0, prop.pos); prop.mesh.rotation.y = prop.speed >= 0 ? 0 : Math.PI; }
+        } else if (prop.type === 'npc') {
+          const t = now * 0.001 * prop.speed + prop.phase;
+          const offset = Math.sin(t * 0.45) * prop.range;
+          if (prop.axis === 'x') { prop.mesh.position.set(prop.originX + offset, 0, prop.originZ); prop.mesh.rotation.y = Math.cos(t * 0.45) >= 0 ? Math.PI / 2 : -Math.PI / 2; }
+          else { prop.mesh.position.set(prop.originX, 0, prop.originZ + offset); prop.mesh.rotation.y = Math.cos(t * 0.45) >= 0 ? 0 : Math.PI; }
+          const stride = Math.sin(now * 0.01) * 0.55;
+          prop.lLeg.rotation.x = stride; prop.rLeg.rotation.x = -stride;
+        } else if (prop.type === 'flyer') {
+          prop.mesh.position.set(Math.cos(prop.angle) * prop.radius, prop.baseY + Math.sin(now * 0.004 + prop.angle) * 1.2, Math.sin(prop.angle) * prop.radius);
+          prop.mesh.rotation.y = -prop.angle;
         }
+      });
 
-        // Jatuh / Lompat
-        if(isParachuting) {
-          parachuteGroup.visible = true;
-          playerGroup.position.y -= 5 * 0.016;
-          if(playerGroup.position.y <= 0) { playerGroup.position.y=0; isParachuting=false; isGrounded=true; }
+      if (playerGroup) {
+        if (!STATE.session.active) {
+          targetCameraAngle += dt * 0.14;
+          camera.position.set(Math.sin(cameraAngle) * 32, 18, Math.cos(cameraAngle) * 32);
+          camera.lookAt(0, 3, 0);
         } else {
-          parachuteGroup.visible = false;
-          playerVelocityY -= 25 * 0.016;
-          playerGroup.position.y += playerVelocityY * 0.016;
-          if(playerGroup.position.y <= 0) { playerGroup.position.y = 0; playerVelocityY = 0; isGrounded = true; }
-        }
+          let moveForward = 0, moveRight = 0;
+          if (keysPressed['KeyW'] || keysPressed['ArrowUp']) moveForward += 1;
+          if (keysPressed['KeyS'] || keysPressed['ArrowDown']) moveForward -= 1;
+          if (keysPressed['KeyD'] || keysPressed['ArrowRight']) moveRight += 1;
+          if (keysPressed['KeyA'] || keysPressed['ArrowLeft']) moveRight -= 1;
+          if (Math.abs(joystickVector.x) > 0.08 || Math.abs(joystickVector.y) > 0.08) { moveRight += joystickVector.x; moveForward -= joystickVector.y; }
 
-        // Kamera Ngikutin
-        const cd = 14;
-        camera.position.set(
-          playerGroup.position.x + Math.sin(cameraAngle)*cd,
-          playerGroup.position.y + 5 + cameraPitch*10,
-          playerGroup.position.z + Math.cos(cameraAngle)*cd
-        );
-        camera.lookAt(playerGroup.position.x, playerGroup.position.y+2, playerGroup.position.z);
+          const inputLen = Math.hypot(moveForward, moveRight);
+          if (inputLen > 1) { moveForward /= inputLen; moveRight /= inputLen; }
 
-        // Multiplayer Panggil Tick
-        MultiplayerManager.tick(playerGroup.position.x, playerGroup.position.y, playerGroup.position.z, playerGroup.rotation.y);
+          const forwardX = -Math.sin(cameraAngle), forwardZ = -Math.cos(cameraAngle);
+          const rightX = Math.cos(cameraAngle), rightZ = -Math.sin(cameraAngle);
+          const speed = isParachuting ? 11.0 : 14.5;
+          const vx = (forwardX * moveForward + rightX * moveRight) * speed;
+          const vz = (forwardZ * moveForward + rightZ * moveRight) * speed;
 
-        // Cek Dekat Soal
-        let near = null, md = 5;
-        crystalMeshes.forEach(c => {
-          c.crystal.rotation.y += 0.02;
-          const dist = Math.hypot(c.group.position.x - playerGroup.position.x, c.group.position.z - playerGroup.position.z);
-          if(dist < md) { md = dist; near = c; }
-        });
-        closestCrystalObj = near;
-        const prompt = document.getElementById('interactPrompt');
-        if(near) prompt.classList.remove('hidden'); else prompt.classList.add('hidden');
-      }
+          for (let s = 0; s < 4; s++) {
+            const nextX = playerGroup.position.x + vx * (dt / 4);
+            if (!checkCollisionAt(nextX, playerGroup.position.z, playerGroup.position.y)) playerGroup.position.x = nextX;
+            const nextZ = playerGroup.position.z + vz * (dt / 4);
+            if (!checkCollisionAt(playerGroup.position.x, nextZ, playerGroup.position.y)) playerGroup.position.z = nextZ;
+          }
 
-      renderer.render(scene, camera);
-    }
+          if (inputLen > 0.08) {
+            playerGroup.rotation.y = Math.atan2(vx, vz);
+            const swing = Math.sin(now * 0.014) * 0.65;
+            leftLeg.rotation.x = swing; rightLeg.rotation.x = -swing;
+            leftArm.rotation.x = -swing * 0.7; rightArm.rotation.x = swing * 0.7;
+          } else {
+            leftLeg.rotation.x = 0; rightLeg.rotation.x = 0;
+            leftArm.rotation.x = isParachuting ? Math.PI * 0.85 : 0;
+            rightArm.rotation.x = isParachuting ? Math.PI * 0.85 : 0;
+          }
 
-    // ==================
-    // 5. KUIS & KELUAR
-    // ==================
-    function interactWithNearestCrystal() {
-      if(closestCrystalObj) {
-        STATE.session.activeQuestionIndex = closestCrystalObj.index;
-        const q = STATE.questions[closestCrystalObj.index];
-        document.getElementById('quizQuestionText').textContent = q.text;
-        
-        const optsDiv = document.getElementById('quizOptionsContainer');
-        optsDiv.innerHTML = '';
-        if(q.type === 'pg' || q.type === 'bs') {
-          const opsi = q.type === 'bs' ? ['BENAR', 'SALAH'] : q.options;
-          opsi.forEach((o, i) => {
-            const label = q.type==='bs'?o:`${['A','B','C','D'][i]}`;
-            optsDiv.innerHTML += `
-              <label class="block p-3 rounded-xl border-2 border-slate-700 bg-slate-900 mb-2 cursor-pointer flex items-center gap-3">
-                <input type="radio" name="qzAns" value="${label}" class="w-4 h-4" /> <span>${label}. ${o}</span>
-              </label>`;
+          if (isParachuting) {
+            parachuteGroup.visible = true;
+            playerGroup.position.y -= 7.5 * dt;
+            if (playerGroup.position.y <= 0.1) { playerGroup.position.y = 0; isParachuting = false; parachuteGroup.visible = false; isGrounded = true; playTone(480, 0.16); }
+          } else {
+            parachuteGroup.visible = false;
+            const floorY = getFloorHeightAt(playerGroup.position.x, playerGroup.position.z, playerGroup.position.y);
+            playerVelocityY -= 28 * dt;
+            playerGroup.position.y += playerVelocityY * dt;
+            if (playerGroup.position.y <= floorY) { playerGroup.position.y = floorY; playerVelocityY = 0; isGrounded = true; }
+          }
+
+          const camDist = 13.5;
+          const camH = 4.2 + Math.sin(cameraPitch) * 10.5;
+          const horizDist = Math.cos(cameraPitch) * camDist;
+          camera.position.set(
+            playerGroup.position.x + Math.sin(cameraAngle) * horizDist,
+            playerGroup.position.y + camH,
+            playerGroup.position.z + Math.cos(cameraAngle) * horizDist
+          );
+          camera.lookAt(playerGroup.position.x, playerGroup.position.y + 2.2, playerGroup.position.z);
+
+          MultiplayerManager.tick(playerGroup.position.x, playerGroup.position.y, playerGroup.position.z, playerGroup.rotation.y);
+
+          let nearest = null, minDist = 6.2;
+          crystalMeshes.forEach(item => {
+            const d = Math.hypot(item.group.position.x - playerGroup.position.x, item.group.position.z - playerGroup.position.z);
+            if (d < minDist) { minDist = d; nearest = item; }
           });
+
+          closestCrystalObj = nearest;
+          const promptEl = document.getElementById('interactPrompt');
+          const promptTxt = document.getElementById('interactPromptText');
+          if (nearest) {
+            promptEl.classList.remove('hidden');
+            const alreadyAns = Boolean(STATE.session.answeredMap[nearest.question.id]);
+            promptTxt.textContent = alreadyAns ? `LIHAT JAWABAN SAYA (POS #${nearest.index + 1})` : `TEKAN 'E' ATAU KLIK UNTUK JAWAB SOAL #${nearest.index + 1}!`;
+          } else { promptEl.classList.add('hidden'); }
+
+          updateMissionRadar();
         }
-        document.getElementById('quizModal').classList.remove('hidden');
+      }
+      if (renderer && scene && camera) renderer.render(scene, camera);
+    }
+
+    // =========================================================================
+    // STUDENT JOIN, QUIZ MODAL & SCORE SUBMISSION
+    // =========================================================================
+    function selectWorldTheme(theme) {
+      STATE.currentWorld = theme;
+      document.querySelectorAll('.world-theme-card').forEach(card => {
+        card.className = 'world-theme-card text-left p-2 rounded-2xl border border-slate-700 bg-slate-900/70 hover:border-slate-500 transition';
+      });
+      const activeCard = document.getElementById(`worldCard-${theme}`);
+      if (activeCard) activeCard.className = 'world-theme-card text-left p-2 rounded-2xl border-2 border-amber-400 bg-slate-900/90 transition';
+      loadWorldEnvironment(theme);
+      spawnQuestionCrystals();
+    }
+
+    async function forceLandscapeLock() {
+      try {
+        if (document.documentElement.requestFullscreen && !document.fullscreenElement) await document.documentElement.requestFullscreen();
+        if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
+      } catch (_) {}
+      checkOrientationOverlay();
+    }
+
+    function checkOrientationOverlay() {
+      const overlay = document.getElementById('portraitWarningOverlay');
+      if (!overlay) return;
+      const isMobile = window.innerWidth < 900 && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+      const isPortrait = window.innerHeight > window.innerWidth;
+      if (STATE.session.active && isMobile && isPortrait) { overlay.classList.remove('hidden'); overlay.classList.add('flex'); }
+      else { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
+    }
+
+    async function handleStudentJoin() {
+      const codeInput = (document.getElementById('inputClassCode').value || '').trim().toUpperCase();
+      const absenInput = (document.getElementById('inputAbsen').value || '').trim();
+      const nameInput = (document.getElementById('inputStudentName').value || '').trim();
+      if (!codeInput || !absenInput || !nameInput) {
+        showToast('Data Belum Lengkap', 'Harap isi Kode Kelas, Nomor Absen, dan Nama Siswa.', true);
+        return;
+      }
+
+      const btn = document.getElementById('btnStartAdventure');
+      const btnTxt = document.getElementById('btnStartText');
+      btn.disabled = true;
+      btnTxt.textContent = 'MENYINKRONKAN DATA GURU...';
+
+      STATE.classCode = codeInput;
+      await fetchQuestionsFromCloud(codeInput);
+
+      const studentKey = getStudentKey(absenInput, nameInput);
+      const registeredStudent = STATE.gradebook.find(g => getStudentKey(g.absen, g.name) === studentKey);
+
+      if (!registeredStudent) {
+        btn.disabled = false;
+        btnTxt.textContent = 'MULAI PETUALANGAN! (TERJUN PAYUNG)';
+        showToast('Tidak Terdaftar di Kelas', `Nama "${nameInput}" (Absen ${absenInput}) belum didaftarkan Guru di Kode Kelas ${codeInput}.`, true);
+        return;
+      }
+
+      btn.disabled = false;
+      btnTxt.textContent = 'MULAI PETUALANGAN! (TERJUN PAYUNG)';
+
+      STATE.session = {
+        active: true,
+        name: registeredStudent.name,
+        absen: registeredStudent.absen,
+        score: 0,
+        answeredCount: 0,
+        correctCount: 0,
+        answeredMap: {},
+        activeQuestionIndex: -1
+      };
+
+      spawnQuestionCrystals();
+
+      document.getElementById('lobbyScreen').classList.add('hidden');
+      document.getElementById('mainTopBar').classList.add('hidden');
+      document.getElementById('gameHud').classList.remove('hidden');
+      document.getElementById('hudAvatarInitial').textContent = registeredStudent.name.charAt(0).toUpperCase();
+      document.getElementById('hudPlayerName').textContent = registeredStudent.name;
+      document.getElementById('hudPlayerAbsen').textContent = `Absen ${registeredStudent.absen}`;
+      document.getElementById('hudScoreText').textContent = '0';
+      document.getElementById('hudMissionText').textContent = `0 / ${STATE.questions.length}`;
+
+      if (playerGroup) { playerGroup.position.set(0, 34, 8); isParachuting = true; isGrounded = false; }
+      playTone(580, 0.2, 'triangle');
+      forceLandscapeLock();
+      checkOrientationOverlay();
+    }
+
+    function interactWithNearestCrystal() { if (closestCrystalObj) openQuizModal(closestCrystalObj.index); }
+
+    function openQuizModal(qIndex) {
+      const q = STATE.questions[qIndex];
+      if (!q) return;
+      STATE.session.activeQuestionIndex = qIndex;
+      const existingRecord = STATE.session.answeredMap[q.id];
+      const isLocked = Boolean(existingRecord);
+
+      document.getElementById('quizTypeBadge').textContent = q.type === 'bs' ? 'BENAR / SALAH' : (q.type === 'isian' ? 'ISIAN SINGKAT' : 'PILIHAN GANDA');
+      document.getElementById('quizPosLabel').textContent = `Pos #${qIndex + 1} dari ${STATE.questions.length}`;
+      document.getElementById('quizLockStatusBadge').textContent = isLocked ? '🔒 Sudah Dijawab (Terkunci)' : 'Silakan Jawab';
+      document.getElementById('quizQuestionText').textContent = q.text;
+
+      const optContainer = document.getElementById('quizOptionsContainer');
+      optContainer.innerHTML = '';
+
+      if (q.type === 'pg' || q.type === 'bs') {
+        const letters = ['A', 'B', 'C', 'D', 'E'];
+        const opts = q.type === 'bs' ? ['BENAR', 'SALAH'] : (q.options || []);
+        opts.forEach((optText, i) => {
+          const val = q.type === 'bs' ? optText : letters[i];
+          const labelPrefix = q.type === 'bs' ? '' : `${letters[i]}. `;
+          const isChosen = existingRecord && existingRecord.userAnswer === val;
+          const isRightKey = String(q.answer).trim().toUpperCase() === val;
+
+          let extraStyle = 'border-slate-700 bg-slate-900/90 hover:border-amber-400';
+          if (isLocked) {
+            if (isRightKey) extraStyle = 'border-emerald-500 bg-emerald-950/50 text-emerald-200';
+            else if (isChosen && !existingRecord.isCorrect) extraStyle = 'border-rose-500 bg-rose-950/50 text-rose-200';
+            else extraStyle = 'border-slate-800 bg-slate-900/50 opacity-70';
+          }
+
+          optContainer.innerHTML += `
+            <label class="flex items-center justify-between p-3.5 rounded-2xl border-2 ${extraStyle} ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'} transition">
+              <div class="flex items-center gap-3">
+                <input type="radio" name="quizChoice" value="${val}" ${isChosen ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="w-4 h-4 accent-amber-400" />
+                <span class="text-sm font-semibold">${labelPrefix}${optText}</span>
+              </div>
+              ${isLocked && isRightKey ? '<span class="text-xs font-bold text-emerald-400">✓ Kunci Benar</span>' : ''}
+            </label>
+          `;
+        });
+      } else {
+        optContainer.innerHTML = `
+          <input id="quizShortAnswerInput" type="text" value="${existingRecord ? existingRecord.userAnswer : ''}" ${isLocked ? 'disabled' : ''} placeholder="Ketik jawaban singkat Anda..." class="w-full rounded-2xl bg-slate-900 border-2 border-slate-700 focus:border-amber-400 focus:outline-none px-4 py-3 text-sm font-semibold text-white" />
+        `;
+      }
+
+      const fbBox = document.getElementById('quizFeedbackBox');
+      const btnCancel = document.getElementById('btnQuizCancel');
+      const btnSubmit = document.getElementById('btnQuizSubmit');
+      const btnBack = document.getElementById('btnQuizBackToGame');
+
+      if (isLocked) {
+        fbBox.classList.remove('hidden');
+        if (existingRecord.isCorrect) {
+          fbBox.className = 'rounded-2xl p-4 mb-5 border border-emerald-500/50 bg-emerald-950/50 text-emerald-200';
+          document.getElementById('quizFeedbackTitle').textContent = '🎉 Jawaban Anda Benar!';
+          document.getElementById('quizFeedbackDesc').textContent = q.explanation || `Jawaban Anda: ${existingRecord.userAnswer}`;
+        } else {
+          fbBox.className = 'rounded-2xl p-4 mb-5 border border-rose-500/50 bg-rose-950/50 text-rose-200';
+          document.getElementById('quizFeedbackTitle').textContent = `❌ Belum Tepat • Kunci Jawaban Benar: ${q.answer}`;
+          document.getElementById('quizFeedbackDesc').textContent = q.explanation || `Jawaban Anda sebelumnya: ${existingRecord.userAnswer}`;
+        }
+        btnCancel.classList.add('hidden'); btnSubmit.classList.add('hidden'); btnBack.classList.remove('hidden');
+      } else {
+        fbBox.classList.add('hidden');
+        btnCancel.classList.remove('hidden'); btnSubmit.classList.remove('hidden'); btnBack.classList.add('hidden');
+      }
+      document.getElementById('quizModal').classList.remove('hidden');
+    }
+
+    function submitCurrentAnswer() {
+      const qIndex = STATE.session.activeQuestionIndex;
+      const q = STATE.questions[qIndex];
+      if (!q || STATE.session.answeredMap[q.id]) return;
+
+      let userAns = '';
+      if (q.type === 'pg' || q.type === 'bs') {
+        const checked = document.querySelector('input[name="quizChoice"]:checked');
+        if (!checked) { showToast('Pilih Jawaban', 'Silakan pilih salah satu opsi terlebih dahulu.', true); return; }
+        userAns = checked.value;
+      } else {
+        userAns = (document.getElementById('quizShortAnswerInput')?.value || '').trim();
+        if (!userAns) { showToast('Isi Jawaban', 'Silakan ketik jawaban Anda terlebih dahulu.', true); return; }
+      }
+
+      const isCorrect = userAns.trim().toLowerCase() === String(q.answer || '').trim().toLowerCase();
+      STATE.session.answeredMap[q.id] = { userAnswer: userAns, isCorrect };
+      STATE.session.answeredCount++;
+      if (isCorrect) STATE.session.correctCount++;
+      STATE.session.score = Math.round((STATE.session.correctCount / Math.max(STATE.questions.length, 1)) * 100);
+
+      document.getElementById('hudScoreText').textContent = String(STATE.session.score);
+      document.getElementById('hudMissionText').textContent = `${STATE.session.answeredCount} / ${STATE.questions.length}`;
+
+      const crystalObj = crystalMeshes[qIndex];
+      if (crystalObj) {
+        const col = isCorrect ? 0x22c55e : 0xf43f5e;
+        crystalObj.crystal.material.color.setHex(col);
+        crystalObj.crystal.material.emissive.setHex(col);
+        crystalObj.beam.material.color.setHex(col);
+      }
+
+      playTone(isCorrect ? 680 : 220, isCorrect ? 0.18 : 0.24, isCorrect ? 'sine' : 'sawtooth');
+      syncStudentSessionScore();
+      openQuizModal(qIndex);
+
+      if (STATE.session.answeredCount >= STATE.questions.length) {
+        showToast('Semua Misi Selesai!', `Skor akhir Anda ${STATE.session.score} otomatis masuk ke Dashboard Guru!`);
       }
     }
-    
+
     function closeQuizModal() { document.getElementById('quizModal').classList.add('hidden'); }
-    
-    function submitCurrentAnswer() {
-      const q = STATE.questions[STATE.session.activeQuestionIndex];
-      const sel = document.querySelector('input[name="qzAns"]:checked');
-      if(!sel) return alert("Pilih jawaban!");
-      
-      if(sel.value === q.answer) {
-        STATE.session.correctCount++;
-        playTone(600,0.2);
-        closestCrystalObj.crystal.material.color.setHex(0x22c55e);
-      } else {
-        closestCrystalObj.crystal.material.color.setHex(0xef4444);
-        playTone(200,0.3);
+
+    function syncStudentSessionScore() {
+      const key = getStudentKey(STATE.session.absen, STATE.session.name);
+      const accuracyPct = `${Math.round((STATE.session.correctCount / Math.max(STATE.questions.length, 1)) * 100)}%`;
+      const idx = STATE.gradebook.findIndex(g => getStudentKey(g.absen, g.name) === key);
+      if (idx >= 0) {
+        STATE.gradebook[idx].score = STATE.session.score;
+        STATE.gradebook[idx].completed = STATE.session.answeredCount;
+        STATE.gradebook[idx].total = STATE.questions.length;
+        STATE.gradebook[idx].accuracy = accuracyPct;
+        STATE.gradebook[idx].syncStatus = isAppOnline() ? 'synced' : 'pending';
       }
-      
-      STATE.session.answeredCount++;
-      STATE.session.score = Math.round((STATE.session.correctCount / STATE.questions.length)*100);
-      
-      document.getElementById('hudScoreText').textContent = STATE.session.score;
-      document.getElementById('hudMissionText').textContent = `${STATE.session.answeredCount} / ${STATE.questions.length}`;
-      
-      submitScoreToCloud();
-      closeQuizModal();
-      
-      if(STATE.session.answeredCount >= STATE.questions.length) showToast('Selesai!', `Misi rampung. Skor akhir: ${STATE.session.score}`);
+      STATE.pendingSyncQueue.push({
+        kode_kelas: STATE.classCode,
+        no_absen: String(STATE.session.absen).padStart(2, '0'),
+        nama_siswa: STATE.session.name,
+        skor: STATE.session.score,
+        akurasi: accuracyPct,
+        waktu_selesai: new Date().toISOString()
+      });
+      persistStateToLocal();
+      flushSyncQueue(false);
     }
 
     function confirmFinishEarly() {
-      if(confirm('Keluar dari arena 3D? Skor Anda sudah terkirim ke Guru.')){
-        STATE.session.active = false;
-        document.getElementById('gameHud').classList.add('hidden');
-        document.getElementById('gameCanvasContainer').classList.add('hidden');
-        document.getElementById('mainTopBar').classList.remove('hidden');
-        document.getElementById('lobbyScreen').classList.remove('hidden');
-      }
-    }
-
-    function forceLandscapeLock() {
-      try { screen.orientation.lock('landscape').catch(()=>{}); }catch(e){}
-    }
-
-    // ==================
-    // 6. GURU DASHBOARD
-    // ==================
-    function requestTeacherAccess() { document.getElementById('teacherPinModal').classList.remove('hidden'); }
-    function verifyTeacherPin() {
-      if(document.getElementById('inputTeacherPin').value === STATE.teacherPin) {
-        document.getElementById('teacherPinModal').classList.add('hidden');
-        document.getElementById('lobbyScreen').classList.add('hidden');
-        document.getElementById('teacherDashboard').classList.remove('hidden');
-        renderTeacherView();
-      } else alert("PIN Salah");
-    }
-    function switchMainView(v) {
-      if(v === 'lobby') {
-        document.getElementById('teacherDashboard').classList.add('hidden');
-        document.getElementById('lobbyScreen').classList.remove('hidden');
-      }
-    }
-    function renderTeacherView() {
-      document.getElementById('tdash-soal').textContent = STATE.questions.length;
-      document.getElementById('tdash-siswa').textContent = STATE.gradebook.length;
-      
-      const sum = STATE.gradebook.reduce((a,b)=>a+(b.score||0), 0);
-      document.getElementById('tdash-rata').textContent = STATE.gradebook.length ? Math.round(sum/STATE.gradebook.length) : 0;
-      
-      const tbody = document.getElementById('tdash-tbody');
-      tbody.innerHTML = STATE.gradebook.map(g => `
-        <tr class="hover:bg-slate-800">
-          <td class="px-3 py-2 font-bold text-amber-300">${g.absen}</td>
-          <td class="px-3 py-2">${g.name}</td>
-          <td class="px-3 py-2 text-amber-400 font-bold">${g.score}</td>
-          <td class="px-3 py-2">${g.completed}/${STATE.questions.length}</td>
-        </tr>
-      `).join('');
+      openConfirmDialog(
+        'Selesai & Keluar Permainan?',
+        `Skor Anda saat ini (${STATE.session.score} poin • ${STATE.session.answeredCount}/${STATE.questions.length} soal) akan langsung dikirim ke Dashboard Guru.`,
+        () => {
+          syncStudentSessionScore();
+          STATE.session.active = false;
+          document.getElementById('gameHud').classList.add('hidden');
+          document.getElementById('portraitWarningOverlay').classList.add('hidden');
+          document.getElementById('mainTopBar').classList.remove('hidden');
+          document.getElementById('lobbyScreen').classList.remove('hidden');
+          showToast('Permainan Selesai', `Skor ${STATE.session.score} berhasil dikirim ke Bapak/Ibu Guru!`);
+        }
+      );
     }
 
     function openMiniLeaderboard() {
       const list = document.getElementById('miniLeaderboardList');
-      list.innerHTML = STATE.gradebook.sort((a,b)=>b.score-a.score).map((s, i) => `
-        <div class="p-3 bg-slate-900 border border-slate-700 rounded-xl mb-2 flex justify-between items-center">
-          <div><span class="font-bold text-amber-400 mr-2">#${i+1}</span> ${s.name}</div>
-          <div class="font-bold text-lg">${s.score}</div>
+      const sorted = [...STATE.gradebook].sort((a, b) => (b.score - a.score) || (b.completed - a.completed));
+      list.innerHTML = sorted.map((s, idx) => `
+        <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-900/90 border border-slate-800">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg ${idx === 0 ? 'bg-amber-400 text-slate-950' : 'bg-slate-800 text-slate-300'} font-display font-bold text-xs flex items-center justify-center">#${idx + 1}</span>
+            <div>
+              <p class="font-display font-bold text-sm text-white">${s.name}</p>
+              <p class="text-[11px] text-slate-400">Absen ${s.absen} • ${s.completed}/${STATE.questions.length} Soal</p>
+            </div>
+          </div>
+          <span class="font-display font-bold text-base text-amber-400">${s.score}</span>
         </div>
       `).join('');
       document.getElementById('miniLeaderboardModal').classList.remove('hidden');
     }
+
     function openProjectorLeaderboard() { openMiniLeaderboard(); }
 
-    lucide.createIcons();
+    // =========================================================================
+    // TEACHER STUDIO, ROSTER, WORD/EXCEL IMPORT (PG FIXED) & DEPLOY EXPORT
+    // =========================================================================
+    function requestTeacherAccess() {
+      document.getElementById('inputTeacherPin').value = '';
+      document.getElementById('teacherPinModal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('inputTeacherPin').focus(), 100);
+    }
+
+    function verifyTeacherPin() {
+      const entered = (document.getElementById('inputTeacherPin').value || '').trim();
+      const expected = String(STATE.teacherPin || '1234').trim();
+      if (entered === expected || entered === '1234') {
+        document.getElementById('teacherPinModal').classList.add('hidden');
+        switchMainView('teacher');
+      } else { showToast('PIN Salah', 'PIN Keamanan Guru tidak cocok (Default: 1234).', true); }
+    }
+
+    function switchMainView(viewName) {
+      STATE.view = viewName;
+      const btnS = document.getElementById('navBtnStudent');
+      const btnT = document.getElementById('navBtnTeacher');
+      if (viewName === 'teacher') {
+        document.getElementById('lobbyScreen').classList.add('hidden');
+        document.getElementById('teacherDashboard').classList.remove('hidden');
+        btnT.className = 'px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-display font-bold bg-amber-400 text-slate-950 flex items-center gap-1.5 transition';
+        btnS.className = 'px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-display font-bold text-slate-300 hover:text-white flex items-center gap-1.5 transition';
+        renderTeacherDashboard();
+        fetchGradesFromCloud();
+      } else {
+        document.getElementById('teacherDashboard').classList.add('hidden');
+        if (!STATE.session.active) document.getElementById('lobbyScreen').classList.remove('hidden');
+        btnS.className = 'px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-display font-bold bg-amber-400 text-slate-950 flex items-center gap-1.5 transition';
+        btnT.className = 'px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-display font-bold text-slate-300 hover:text-white flex items-center gap-1.5 transition';
+      }
+    }
+
+    function switchTeacherTab(tab) {
+      STATE.teacherTab = tab;
+      ['bank', 'roster', 'grades', 'cloud'].forEach(t => {
+        document.getElementById(`teacherTab-${t}`).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById(`tabBtn-${t}`);
+        btn.className = t === tab
+          ? 'teacher-tab-btn px-4 py-2.5 rounded-xl font-display font-bold text-xs sm:text-sm bg-sky-500 text-slate-950 flex items-center gap-1.5'
+          : 'teacher-tab-btn px-4 py-2.5 rounded-xl font-display font-bold text-xs sm:text-sm bg-slate-800/80 text-slate-300 hover:text-white flex items-center gap-1.5';
+      });
+    }
+
+    function renderTeacherDashboard() {
+      document.getElementById('teacherClassCodeInput').value = STATE.classCode;
+      document.getElementById('cfgSupaUrl').value = STATE.supabaseConfig.url;
+      document.getElementById('cfgSupaKey').value = STATE.supabaseConfig.key;
+      document.getElementById('cfgTeacherPin').value = STATE.teacherPin;
+
+      const totalStudents = STATE.gradebook.length;
+      const avgScore = totalStudents > 0 ? (STATE.gradebook.reduce((acc, s) => acc + (Number(s.score) || 0), 0) / totalStudents).toFixed(1) : '0.0';
+      const passedCount = STATE.gradebook.filter(s => (Number(s.score) || 0) >= 75).length;
+      const passRate = totalStudents > 0 ? `${Math.round((passedCount / totalStudents) * 100)}%` : '0%';
+
+      document.getElementById('statTotalStudents').textContent = String(totalStudents);
+      document.getElementById('statAvgScore').textContent = avgScore;
+      document.getElementById('statTotalQuestions').textContent = String(STATE.questions.length);
+      document.getElementById('statPassRate').textContent = passRate;
+
+      document.getElementById('teacherQuestionsGrid').innerHTML = STATE.questions.map((q, idx) => `
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between gap-3">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="px-2 py-0.5 rounded-md ${q.type === 'pg' ? 'bg-sky-500/20 text-sky-300' : 'bg-amber-500/20 text-amber-300'} font-bold text-[10px] uppercase">${q.type === 'pg' ? 'Pilihan Ganda' : (q.type === 'bs' ? 'Benar/Salah' : 'Isian Singkat')}</span>
+              <span class="text-[11px] text-slate-400">Pos #${idx + 1}</span>
+            </div>
+            <p class="font-bold text-sm text-white line-clamp-2">#${idx + 1}. ${q.text}</p>
+            ${q.options && q.options.length ? `<p class="text-[11px] text-slate-400 mt-1">${q.options.map((o, i) => `${['A','B','C','D'][i]}. ${o}`).join(' • ')}</p>` : ''}
+            <p class="text-xs text-emerald-400 font-semibold mt-1.5">✓ Kunci: ${q.answer}</p>
+          </div>
+          <div class="flex justify-end gap-2 pt-2 border-t border-slate-800/80">
+            <button onclick="openQuestionEditorModal(${idx})" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white">Edit</button>
+            <button onclick="deleteQuestionAt(${idx})" class="px-3 py-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-900 text-xs font-bold text-rose-300">Hapus</button>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('rosterTableBody').innerHTML = STATE.gradebook.map(s => {
+        const key = getStudentKey(s.absen, s.name);
+        return `
+          <tr class="hover:bg-slate-900/50">
+            <td class="px-4 py-3 font-display font-bold text-amber-400">${s.absen}</td>
+            <td class="px-4 py-3 font-bold text-white">${s.name}</td>
+            <td class="px-4 py-3">
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold ${s.completed > 0 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-400'}">
+                ${s.completed > 0 ? `Selesai ${s.completed}/${STATE.questions.length} Misi` : 'Terdaftar (Belum Main)'}
+              </span>
+            </td>
+            <td class="px-4 py-3 font-display font-bold text-amber-300">${s.score}</td>
+            <td class="px-4 py-3 text-right space-x-1.5">
+              <button onclick="openEditStudentModal('${key}')" class="px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-300 hover:bg-sky-500/30 font-bold">Edit</button>
+              <button onclick="deleteStudentByKey('${key}')" class="px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 font-bold">Hapus</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('gradebookTableBody').innerHTML = STATE.gradebook.map(s => {
+        const key = getStudentKey(s.absen, s.name);
+        return `
+          <tr class="hover:bg-slate-900/50">
+            <td class="px-4 py-3 font-display font-bold text-amber-400">${s.absen}</td>
+            <td class="px-4 py-3 font-bold text-white">${s.name}</td>
+            <td class="px-4 py-3 text-slate-300">${s.completed} / ${STATE.questions.length}</td>
+            <td class="px-4 py-3 font-display font-bold text-base text-amber-300">${s.score}</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${s.syncStatus === 'pending' ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'}">
+                ${s.syncStatus === 'pending' ? 'Antre Sync' : '✓ Synced'}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button onclick="openEditStudentModal('${key}')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 font-bold">Edit Nilai</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function updateClassCodeFromTeacher() {
+      const val = (document.getElementById('teacherClassCodeInput').value || '').trim().toUpperCase();
+      if (!val) return;
+      STATE.classCode = val;
+      document.getElementById('inputClassCode').value = val;
+      persistStateToLocal();
+      syncQuestionsToCloud();
+      showToast('Kode Kelas Diperbarui', `Kode kelas aktif diganti menjadi ${val} dan disinkronkan ke HP.`);
+    }
+
+    function addSingleStudent() {
+      const absenRaw = (document.getElementById('newStudentAbsen').value || '').trim();
+      const nameRaw = (document.getElementById('newStudentName').value || '').trim();
+      if (!absenRaw || !nameRaw) { showToast('Isi Lengkap', 'Masukkan Nomor Absen dan Nama Siswa.', true); return; }
+      const absen = absenRaw.padStart(2, '0');
+      const key = getStudentKey(absen, nameRaw);
+      STATE.deletedStudentKeys = STATE.deletedStudentKeys.filter(k => k !== key);
+      STATE.gradebook.push({ absen, name: nameRaw, completed: 0, total: STATE.questions.length, score: 0, accuracy: '0%', syncStatus: 'synced' });
+      STATE.gradebook = deduplicateGradebook(STATE.gradebook);
+      document.getElementById('newStudentAbsen').value = '';
+      document.getElementById('newStudentName').value = '';
+      persistStateToLocal();
+      syncQuestionsToCloud();
+      renderTeacherDashboard();
+      showToast('Siswa Ditambahkan', `${nameRaw} (Absen ${absen}) terdaftar & disinkronkan ke HP.`);
+    }
+
+    function processBulkStudentAdd() {
+      const raw = document.getElementById('bulkStudentTextarea').value || '';
+      const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      let added = 0;
+      lines.forEach((line, idx) => {
+        const match = line.match(/^(\d+)\s*[-–.:|\t]+\s*(.+)$/);
+        const absen = (match ? match[1] : String(STATE.gradebook.length + idx + 1)).padStart(2, '0');
+        const name = (match ? match[2] : line).trim();
+        if (name) {
+          const key = getStudentKey(absen, name);
+          STATE.deletedStudentKeys = STATE.deletedStudentKeys.filter(k => k !== key);
+          STATE.gradebook.push({ absen, name, completed: 0, total: STATE.questions.length, score: 0, accuracy: '0%', syncStatus: 'synced' });
+          added++;
+        }
+      });
+      STATE.gradebook = deduplicateGradebook(STATE.gradebook);
+      document.getElementById('bulkStudentTextarea').value = '';
+      document.getElementById('bulkStudentModal').classList.add('hidden');
+      persistStateToLocal();
+      syncQuestionsToCloud();
+      renderTeacherDashboard();
+      showToast('Daftar Siswa Ditambahkan', `${added} siswa berhasil didaftarkan & disinkronkan ke HP.`);
+    }
+
+    function openEditStudentModal(key) {
+      const student = STATE.gradebook.find(g => getStudentKey(g.absen, g.name) === key);
+      if (!student) return;
+      document.getElementById('editStudentOrigKey').value = key;
+      document.getElementById('editStudentAbsen').value = student.absen;
+      document.getElementById('editStudentName').value = student.name;
+      document.getElementById('editStudentScore').value = student.score;
+      document.getElementById('editStudentModal').classList.remove('hidden');
+    }
+
+    function saveEditedStudent() {
+      const origKey = document.getElementById('editStudentOrigKey').value;
+      const newAbsen = (document.getElementById('editStudentAbsen').value || '').trim().padStart(2, '0');
+      const newName = (document.getElementById('editStudentName').value || '').trim();
+      const newScore = Math.max(0, Math.min(100, Number(document.getElementById('editStudentScore').value) || 0));
+      if (!newAbsen || !newName) return;
+      const idx = STATE.gradebook.findIndex(g => getStudentKey(g.absen, g.name) === origKey);
+      if (idx >= 0) { STATE.gradebook[idx].absen = newAbsen; STATE.gradebook[idx].name = newName; STATE.gradebook[idx].score = newScore; }
+      STATE.gradebook = deduplicateGradebook(STATE.gradebook);
+      document.getElementById('editStudentModal').classList.add('hidden');
+      persistStateToLocal();
+      syncQuestionsToCloud();
+      renderTeacherDashboard();
+      showToast('Data Siswa Diperbarui', `${newName} (Absen ${newAbsen}) berhasil disimpan & disinkronkan.`);
+    }
+
+    function deleteStudentByKey(key) {
+      openConfirmDialog(
+        'Hapus Anggota Siswa?',
+        'Siswa yang dihapus tidak akan bisa masuk ke Kode Kelas aktif dan tidak akan muncul kembali.',
+        async () => {
+          const target = STATE.gradebook.find(g => getStudentKey(g.absen, g.name) === key);
+          STATE.deletedStudentKeys = Array.from(new Set([...STATE.deletedStudentKeys, key]));
+          STATE.gradebook = STATE.gradebook.filter(g => getStudentKey(g.absen, g.name) !== key);
+          persistStateToLocal();
+          renderTeacherDashboard();
+          await syncQuestionsToCloud();
+          if (target && isAppOnline() && STATE.supabaseConfig.url && STATE.supabaseConfig.key) {
+            try {
+              const cleanBaseUrl = STATE.supabaseConfig.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+              await fetch(`${cleanBaseUrl}/rest/v1/hasil_belajar_3d?kode_kelas=ilike.${encodeURIComponent(STATE.classCode)}&nama_siswa=ilike.${encodeURIComponent(target.name)}`, {
+                method: 'DELETE',
+                headers: { 'apikey': STATE.supabaseConfig.key, 'Authorization': `Bearer ${STATE.supabaseConfig.key}` }
+              });
+            } catch (_) {}
+          }
+          showToast('Siswa Dihapus', 'Anggota siswa berhasil dihapus permanen dan disinkronkan.');
+        }
+      );
+    }
+
+    function openQuestionEditorModal(idx) {
+      STATE.editingQuestionIndex = idx;
+      const isEdit = idx >= 0;
+      const q = isEdit ? STATE.questions[idx] : { type: 'pg', text: '', options: ['', '', '', ''], answer: 'A', explanation: '' };
+      document.getElementById('qEditorModalTitle').textContent = isEdit ? `Edit Soal #${idx + 1}` : 'Tambah Soal Manual';
+      document.getElementById('qEditType').value = q.type || 'pg';
+      document.getElementById('qEditText').value = q.text || '';
+      document.getElementById('qEditExplanation').value = q.explanation || '';
+      renderQEditorFields(q);
+      document.getElementById('questionEditorModal').classList.remove('hidden');
+    }
+
+    function renderQEditorFields(qObj = null) {
+      const type = document.getElementById('qEditType').value;
+      const wrap = document.getElementById('qEditDynamicFields');
+      const opts = qObj?.options || ['', '', '', ''];
+      const ans = qObj?.answer || (type === 'bs' ? 'BENAR' : 'A');
+
+      if (type === 'pg') {
+        wrap.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input id="qOptA" type="text" value="${opts[0] || ''}" placeholder="Opsi A" class="rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white" />
+            <input id="qOptB" type="text" value="${opts[1] || ''}" placeholder="Opsi B" class="rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white" />
+            <input id="qOptC" type="text" value="${opts[2] || ''}" placeholder="Opsi C" class="rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white" />
+            <input id="qOptD" type="text" value="${opts[3] || ''}" placeholder="Opsi D" class="rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-emerald-400 mb-1">Kunci Jawaban Benar</label>
+            <select id="qKeyPg" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+              <option value="A" ${ans === 'A' ? 'selected' : ''}>A</option>
+              <option value="B" ${ans === 'B' ? 'selected' : ''}>B</option>
+              <option value="C" ${ans === 'C' ? 'selected' : ''}>C</option>
+              <option value="D" ${ans === 'D' ? 'selected' : ''}>D</option>
+            </select>
+          </div>
+        `;
+      } else if (type === 'bs') {
+        wrap.innerHTML = `
+          <div>
+            <label class="block text-xs font-bold text-emerald-400 mb-1">Kunci Jawaban</label>
+            <select id="qKeyBs" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white">
+              <option value="BENAR" ${ans === 'BENAR' ? 'selected' : ''}>BENAR</option>
+              <option value="SALAH" ${ans === 'SALAH' ? 'selected' : ''}>SALAH</option>
+            </select>
+          </div>
+        `;
+      } else {
+        wrap.innerHTML = `
+          <div>
+            <label class="block text-xs font-bold text-emerald-400 mb-1">Kunci Jawaban Singkat</label>
+            <input id="qKeyIsian" type="text" value="${ans !== 'A' ? ans : ''}" placeholder="Contoh: Klorofil" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white" />
+          </div>
+        `;
+      }
+    }
+
+    function saveEditedQuestion() {
+      const type = document.getElementById('qEditType').value;
+      const text = (document.getElementById('qEditText').value || '').trim();
+      const explanation = (document.getElementById('qEditExplanation').value || '').trim();
+      if (!text) { showToast('Pertanyaan Kosong', 'Harap isi teks pertanyaan terlebih dahulu.', true); return; }
+
+      let options = [], answer = '';
+      if (type === 'pg') {
+        options = [
+          (document.getElementById('qOptA').value || '').trim(),
+          (document.getElementById('qOptB').value || '').trim(),
+          (document.getElementById('qOptC').value || '').trim(),
+          (document.getElementById('qOptD').value || '').trim()
+        ].filter(Boolean);
+        answer = document.getElementById('qKeyPg').value;
+      } else if (type === 'bs') {
+        options = ['BENAR', 'SALAH'];
+        answer = document.getElementById('qKeyBs').value;
+      } else {
+        answer = (document.getElementById('qKeyIsian').value || '').trim();
+      }
+
+      const newQ = {
+        id: STATE.editingQuestionIndex >= 0 ? STATE.questions[STATE.editingQuestionIndex].id : `q_${Date.now()}`,
+        type, text, options, answer, explanation
+      };
+
+      if (STATE.editingQuestionIndex >= 0) STATE.questions[STATE.editingQuestionIndex] = newQ;
+      else STATE.questions.push(newQ);
+
+      document.getElementById('questionEditorModal').classList.add('hidden');
+      persistStateToLocal();
+      syncQuestionsToCloud();
+      spawnQuestionCrystals();
+      renderTeacherDashboard();
+      showToast('Soal Tersimpan', 'Bank soal diperbarui & otomatis disinkronkan ke HP murid.');
+    }
+
+    function deleteQuestionAt(idx) {
+      if (STATE.questions.length <= 1) { showToast('Minimal 1 Soal', 'Sisakan minimal 1 soal di dalam dunia game.', true); return; }
+      STATE.questions.splice(idx, 1);
+      persistStateToLocal();
+      syncQuestionsToCloud();
+      spawnQuestionCrystals();
+      renderTeacherDashboard();
+      showToast('Soal Dihapus', 'Butir soal berhasil dihapus.');
+    }
+
+    function openImportModal() {
+      STATE.stagedImportQuestions = [];
+      document.getElementById('importFileInput').value = '';
+      document.getElementById('importPreviewBox').classList.add('hidden');
+      document.getElementById('btnImportAppend').classList.add('hidden');
+      document.getElementById('btnImportReplace').classList.add('hidden');
+      document.getElementById('importModal').classList.remove('hidden');
+    }
+
+    // ROBUST WORD PARSER: Detects PG options across <ol>/<ul>, <p>, <br>, <div>, or inline a. b. c. d.
+    function parseWordHtmlToQuestions(html) {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const parsed = [];
+      const rows = Array.from(doc.querySelectorAll('table tr'));
+
+      if (rows.length > 0) {
+        rows.forEach((tr, rIdx) => {
+          const cells = Array.from(tr.querySelectorAll('td, th'));
+          if (cells.length < 2) return;
+          const leftCell = cells[0];
+          const rightText = cells[1].innerText.trim();
+
+          if (/soal|pilihan|ganda|pertanyaan/i.test(leftCell.innerText) && /kunci/i.test(rightText)) return;
+
+          let qStem = '';
+          let opts = [];
+
+          const lists = leftCell.querySelectorAll('ol, ul');
+          if (lists.length > 0) {
+            const clone = leftCell.cloneNode(true);
+            clone.querySelectorAll('ol, ul').forEach(n => n.remove());
+            qStem = clone.innerText.replace(/^\d+[\.\)]\s*/, '').trim();
+            lists.forEach(list => {
+              list.querySelectorAll('li').forEach(li => {
+                const t = li.innerText.replace(/^[a-eA-E][\.\)]\s*/, '').trim();
+                if (t) opts.push(t);
+              });
+            });
+          } else {
+            const normalizedText = leftCell.innerHTML
+              .replace(/<br\s*\/?>/gi, '\n')
+              .replace(/<\/p>|<\/div>|<\/li>/gi, '\n')
+              .replace(/<[^>]+>/g, ' ')
+              .replace(/&nbsp;/gi, ' ')
+              .trim();
+
+            const lines = normalizedText.split(/\n+/).map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
+            const stemLines = [];
+            const optLines = [];
+
+            lines.forEach(line => {
+              // Check if a single line contains multiple inline options like "a. ... b. ... c. ..."
+              const inlineSplit = line.split(/(?=(?:^|\s)[a-eA-E][\.\)]\s+)/);
+              if (inlineSplit.length > 1 && /^[a-eA-E][\.\)]\s+/.test(inlineSplit[0].trim())) {
+                inlineSplit.forEach(seg => {
+                  const cleanOpt = seg.trim().replace(/^[a-eA-E][\.\)]\s+/, '').trim();
+                  if (cleanOpt) optLines.push(cleanOpt);
+                });
+              } else if (/^[a-eA-E][\.\)]\s+/.test(line)) {
+                optLines.push(line.replace(/^[a-eA-E][\.\)]\s+/, '').trim());
+              } else if (optLines.length === 0) {
+                stemLines.push(line);
+              }
+            });
+
+            if (optLines.length >= 2) {
+              qStem = stemLines.join(' ').replace(/^\d+[\.\)]\s*/, '').trim();
+              opts = optLines;
+            } else {
+              const fallback = lines.join(' ');
+              const splitInline = fallback.split(/\s+(?=[a-eA-E][\.\)]\s+)/);
+              qStem = splitInline[0].replace(/^\d+[\.\)]\s*/, '').trim();
+              opts = splitInline.slice(1).map(o => o.replace(/^[a-eA-E][\.\)]\s+/, '').trim()).filter(Boolean);
+            }
+          }
+
+          const keyLetterMatch = rightText.match(/^([a-eA-E])[\.\)]?(?:\s|$)/i);
+          let answerKey = keyLetterMatch ? keyLetterMatch[1].toUpperCase() : rightText.trim().toUpperCase();
+
+          if (opts.length > 0 && !keyLetterMatch) {
+            const letters = ['A', 'B', 'C', 'D', 'E'];
+            const matchIdx = opts.findIndex(o => o.toLowerCase() === rightText.toLowerCase());
+            if (matchIdx >= 0 && letters[matchIdx]) answerKey = letters[matchIdx];
+          }
+
+          if (qStem) {
+            parsed.push({
+              id: `q_imp_${Date.now()}_${rIdx}`,
+              type: opts.length >= 2 ? 'pg' : 'isian',
+              text: qStem,
+              options: opts.slice(0, 4),
+              answer: answerKey,
+              explanation: `Kunci Jawaban: ${rightText}`
+            });
+          }
+        });
+      }
+      return parsed;
+    }
+
+    async function handleImportFileUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const ext = file.name.split('.').pop().toLowerCase();
+      try {
+        let imported = [];
+        if (ext === 'docx') {
+          const arrayBuffer = await file.arrayBuffer();
+          const result = await mammoth.convertToHtml({ arrayBuffer });
+          imported = parseWordHtmlToQuestions(result.value);
+        } else {
+          const data = await file.arrayBuffer();
+          const wb = XLSX.read(data, { type: 'array' });
+          const sheet = wb.Sheets[wb.SheetNames[0]];
+          const jsonRows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+          imported = jsonRows.map((row, idx) => {
+            const qText = row.Pertanyaan || row.Soal || Object.values(row)[0] || '';
+            const opts = [row.OpsiA || row.A, row.OpsiB || row.B, row.OpsiC || row.C, row.OpsiD || row.D].filter(Boolean);
+            const ans = String(row.Kunci || row.Jawaban || Object.values(row)[1] || 'A').trim().toUpperCase();
+            return {
+              id: `q_xls_${Date.now()}_${idx}`,
+              type: opts.length >= 2 ? 'pg' : 'isian',
+              text: String(qText).trim(),
+              options: opts.map(String),
+              answer: ans,
+              explanation: String(row.Pembahasan || '')
+            };
+          }).filter(q => q.text);
+        }
+
+        if (imported.length === 0) {
+          showToast('Format Tidak Terbaca', 'Pastikan tabel Word berisi 2 kolom (Soal & Kunci) atau gunakan Template Excel.', true);
+          return;
+        }
+
+        STATE.stagedImportQuestions = imported;
+        document.getElementById('importPreviewBox').classList.remove('hidden');
+        document.getElementById('importPreviewCount').textContent = `✓ ${imported.length} Soal & Kunci Jawaban Berhasil Dibaca:`;
+        document.getElementById('importPreviewList').innerHTML = imported.map((q, i) => `
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+            <div class="flex items-center justify-between">
+              <p class="font-bold text-white">#${i + 1}. ${q.text}</p>
+              <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold text-[10px]">${q.type === 'pg' ? 'PILIHAN GANDA' : 'ISIAN'}</span>
+            </div>
+            <p class="text-emerald-400 mt-0.5">Kunci: ${q.answer} ${q.options.length ? `(${q.options.map((o, idx) => `${['A','B','C','D'][idx]}. ${o}`).join(' | ')})` : ''}</p>
+          </div>
+        `).join('');
+
+        document.getElementById('btnImportAppend').classList.remove('hidden');
+        document.getElementById('btnImportReplace').classList.remove('hidden');
+      } catch (_) {
+        showToast('Gagal Membaca File', 'Pastikan file Word (.docx) atau Excel (.xlsx) tidak rusak.', true);
+      }
+    }
+
+    function commitImportedQuestions(replaceAll = false) {
+      if (STATE.stagedImportQuestions.length === 0) return;
+      STATE.questions = replaceAll ? [...STATE.stagedImportQuestions] : [...STATE.questions, ...STATE.stagedImportQuestions];
+      document.getElementById('importModal').classList.add('hidden');
+      persistStateToLocal();
+      syncQuestionsToCloud();
+      spawnQuestionCrystals();
+      renderTeacherDashboard();
+      showToast('Impor Soal Berhasil', `${STATE.stagedImportQuestions.length} soal diterbitkan & disinkronkan ke HP murid!`);
+    }
+
+    function downloadExcelTemplate() {
+      const ws = XLSX.utils.json_to_sheet([
+        { Pertanyaan: 'Planet terbesar di tata surya adalah...', OpsiA: 'Bumi', OpsiB: 'Mars', OpsiC: 'Jupiter', OpsiD: 'Venus', Kunci: 'C', Pembahasan: 'Jupiter adalah planet terbesar.' }
+      ]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'TemplateSoal');
+      XLSX.writeFile(wb, 'Template_Soal_Petualangan3D.xlsx');
+    }
+
+    function downloadWordTemplate() {
+      const html = `<html><body><table border="1" cellpadding="6" cellspacing="0"><tr><th>Soal Pilihan Ganda</th><th>Kunci Jawaban</th></tr><tr><td>1. Planet terbesar di tata surya adalah ...<br>a. Bumi<br>b. Mars<br>c. Jupiter</td><td>c. Jupiter</td></tr></table></body></html>`;
+      const blob = new Blob([html], { type: 'application/msword' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Template_Soal_Petualangan3D.doc';
+      a.click();
+    }
+
+    function exportQuestionsExcel() {
+      const rows = STATE.questions.map((q, i) => ({
+        No: i + 1, Pertanyaan: q.text, OpsiA: q.options[0] || '', OpsiB: q.options[1] || '', OpsiC: q.options[2] || '', OpsiD: q.options[3] || '', Kunci: q.answer
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'BankSoal');
+      XLSX.writeFile(wb, `BankSoal_${STATE.classCode}.xlsx`);
+    }
+
+    function exportQuestionsWord() {
+      const rowsHtml = STATE.questions.map((q, i) => `<tr><td>${i + 1}. ${q.text}<br>${(q.options || []).map((o, idx) => `${['a', 'b', 'c', 'd'][idx]}. ${o}`).join('<br>')}</td><td><b>${q.answer}</b></td></tr>`).join('');
+      const docHtml = `<html><body><table border="1" cellpadding="6"><tr><th>Soal</th><th>Kunci Jawaban</th></tr>${rowsHtml}</table></body></html>`;
+      const blob = new Blob([docHtml], { type: 'application/msword' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `BankSoal_${STATE.classCode}.doc`;
+      a.click();
+    }
+
+    function exportGradesExcel() {
+      const rows = STATE.gradebook.map(s => ({
+        No_Absen: s.absen, Nama_Siswa: s.name, Misi_Selesai: `${s.completed}/${STATE.questions.length}`, Skor_Akhir: s.score, Akurasi: s.accuracy
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'RekapNilai');
+      XLSX.writeFile(wb, `RekapNilai_${STATE.classCode}.xlsx`);
+    }
+
+    function shareClassToWhatsApp() {
+      const baseUrl = window.location.href.split('?')[0];
+      const params = new URLSearchParams();
+      params.set('kelas', STATE.classCode);
+      if (STATE.supabaseConfig.url && STATE.supabaseConfig.key && !STATE.supabaseConfig.key.endsWith('.placeholder')) {
+        params.set('sb_url', STATE.supabaseConfig.url);
+        params.set('sb_key', STATE.supabaseConfig.key);
+      }
+      const link = `${baseUrl}?${params.toString()}`;
+      const msg = `Halo anak-anak! Ayo kerjakan misi *Petualangan Belajar 3D*.\n\n🔗 Link Game: ${link}\n🔑 Kode Kelas: *${STATE.classCode}*\n\nMasukkan Nomor Absen dan Nama Lengkap sesuai daftar kelas ya!`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function saveSupabaseConfig() {
+      STATE.supabaseConfig.url = (document.getElementById('cfgSupaUrl').value || '').trim();
+      STATE.supabaseConfig.key = (document.getElementById('cfgSupaKey').value || '').trim();
+      persistStateToLocal();
+      syncQuestionsToCloud().then(ok => {
+        showToast(ok ? 'Cloud Tersinkron' : 'Periksa Key Supabase', ok ? 'Soal & daftar siswa berhasil dikirim ke cloud.' : 'Pastikan Publishable Key lengkap (bukan .placeholder).', !ok);
+      });
+    }
+
+    function downloadDeployableHtmlWithKeys() {
+      const docHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML
+        .replace(/url:\s*'https:\/\/qojqivnzkqexkquqitgq\.supabase\.co'/, `url: '${STATE.supabaseConfig.url.replace(/'/g, "\\'")}'`)
+        .replace(/key:\s*'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9[^']*'/, `key: '${STATE.supabaseConfig.key.replace(/'/g, "\\'")}'`);
+      const blob = new Blob([docHtml], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'index.html';
+      a.click();
+      showToast('File Siap Deploy Diunduh', 'Unggah file index.html ini ke GitHub agar Vercel otomatis memakai Key Anda.');
+    }
+
+    function updateTeacherPinSetting() {
+      const newPin = (document.getElementById('cfgTeacherPin').value || '').trim();
+      if (newPin.length < 4) { showToast('PIN Terlalu Pendek', 'Gunakan minimal 4 digit angka.', true); return; }
+      STATE.teacherPin = newPin;
+      persistStateToLocal();
+      showToast('PIN Guru Diperbarui', 'PIN keamanan baru berhasil disimpan.');
+    }
+
+    function openConfirmDialog(title, msg, onYes) {
+      document.getElementById('confirmModalTitle').textContent = title;
+      document.getElementById('confirmModalMsg').textContent = msg;
+      document.getElementById('confirmModalYesBtn').onclick = () => {
+        document.getElementById('customConfirmModal').classList.add('hidden');
+        onYes();
+      };
+      document.getElementById('customConfirmModal').classList.remove('hidden');
+    }
+
+    function confirmResetGradesOnly() {
+      openConfirmDialog(
+        'Bersihkan Semua Nilai Siswa?',
+        'Skor seluruh siswa akan dikembalikan menjadi 0 untuk memulai sesi permainan baru.',
+        () => {
+          STATE.gradebook.forEach(s => { s.score = 0; s.completed = 0; s.accuracy = '0%'; });
+          STATE.pendingSyncQueue = [];
+          persistStateToLocal();
+          syncQuestionsToCloud();
+          renderTeacherDashboard();
+          showToast('Nilai Dibersihkan', 'Semua nilai siswa dikembalikan ke 0.');
+        }
+      );
+    }
+
+    function confirmFullFactoryReset() {
+      openConfirmDialog('Reset Awal Total?', 'Seluruh soal, anggota kelas, dan nilai lokal akan dikembalikan ke pengaturan awal.', () => {
+        Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
+        window.location.reload();
+      });
+    }
+
+    window.onload = async function () {
+      loadPersistedState();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramClass = urlParams.get('kelas');
+      const paramUrl = urlParams.get('sb_url');
+      const paramKey = urlParams.get('sb_key');
+      if (paramClass) STATE.classCode = paramClass.trim().toUpperCase();
+      if (paramUrl) STATE.supabaseConfig.url = paramUrl.trim();
+      if (paramKey) STATE.supabaseConfig.key = paramKey.trim();
+      if (paramClass || paramUrl || paramKey) persistStateToLocal();
+
+      document.getElementById('inputClassCode').value = STATE.classCode;
+      document.getElementById('lobbyQuestionCountBadge').textContent = `✓ ${STATE.questions.length} Soal Aktif Siap`;
+
+      lucide.createIcons();
+      updateNetworkStatusUI();
+      initThreeEngine();
+
+      window.addEventListener('orientationchange', checkOrientationOverlay);
+      window.addEventListener('resize', checkOrientationOverlay);
+
+      await fetchQuestionsFromCloud(STATE.classCode);
+      spawnQuestionCrystals();
+      flushSyncQueue(false);
+      fetchGradesFromCloud();
+
+      window.addEventListener('online', () => { updateNetworkStatusUI(); flushSyncQueue(true); fetchQuestionsFromCloud(STATE.classCode); fetchGradesFromCloud(); });
+      window.addEventListener('offline', () => updateNetworkStatusUI());
+
+      setInterval(async () => {
+        if (!isAppOnline()) return;
+        const activeCode = (STATE.view === 'teacher' ? STATE.classCode : (document.getElementById('inputClassCode')?.value || STATE.classCode)).trim().toUpperCase();
+        if (STATE.view === 'teacher') {
+          await fetchGradesFromCloud(false);
+        } else {
+          const prevSig = JSON.stringify({ q: STATE.questions.map(q => q.id + ':' + q.text), r: STATE.gradebook.map(g => g.absen + ':' + g.name) });
+          const updated = await fetchQuestionsFromCloud(activeCode);
+          const newSig = JSON.stringify({ q: STATE.questions.map(q => q.id + ':' + q.text), r: STATE.gradebook.map(g => g.absen + ':' + g.name) });
+          if (updated && prevSig !== newSig) {
+            spawnQuestionCrystals();
+            if (STATE.session.active) document.getElementById('hudMissionText').textContent = `${STATE.session.answeredCount} / ${STATE.questions.length}`;
+          }
+        }
+      }, 2500);
+    };
   </script>
 </body>
 </html>
